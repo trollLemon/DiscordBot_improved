@@ -1,18 +1,19 @@
 package Commands
 
 import (
+	"bot/Commands/Audio"
+	"bot/Commands/Voice"
+	"bot/util"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
-	"github.com/bwmarrin/dgvoice"
-	"github.com/kkdai/youtube/v2"
-	"github.com/jonas747/dca"
 	"log"
 	"os"
 
+	"github.com/bwmarrin/discordgo"
 )
 
-
 var (
+	audioPlayer = audio.NewAudioPlayer(nil)
+
 	SlashCommands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "play",
@@ -26,24 +27,74 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "stop",
+			Description: "Enqueue a youtube video and play it",
+		},
+		{
+			Name:        "skip",
+			Description: "Skip what is playing, and start the next audio in the queue",
+		},
 	}
 
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"play": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			query := i.ApplicationCommandData().Options[0].StringValue()
+			url := query
+			if !util.IsURL(query) {
+				u, err := util.GetURLFromQuery(query)
+				if err != nil {
 
-			initialResponse := &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: fmt.Sprintf("Searching for '%s'...", query),
-				},
+					response := util.GetBasicReply(fmt.Sprintf("Error searching Youtube... '%s'", err.Error()))
+					if err := s.InteractionRespond(i.Interaction, response); err != nil {
+						log.Printf("error responding to interaction: %v", err)
+						return
+					}
+
+				}
+				url = u
 			}
 
-			if err := s.InteractionRespond(i.Interaction, initialResponse); err != nil {
+			response := util.GetBasicReply(fmt.Sprintf("Added '%s' to the queue", url))
+			if err := s.InteractionRespond(i.Interaction, response); err != nil {
+				log.Printf("error responding to interaction: %v", err)
+				return
+			}
+			guild := os.Getenv("GUILD_ID")
+			author := i.Member.User.ID
+
+			dgv, _ := voice.JoinVoiceChannel(s, author, guild)
+			voiceConn := audio.Voice{
+				Vc: dgv,
+			}
+			audioPlayer.SetConnection(&voiceConn)
+
+			audioPlayer.Play(url)
+
+			if err := s.InteractionRespond(i.Interaction, response); err != nil {
 				log.Printf("error responding to interaction: %v", err)
 				return
 			}
 
+		},
+		"stop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := audioPlayer.Stop()
+			if err != nil {
+
+			}
+		},
+		"skip": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := audioPlayer.Skip()
+			content := "Skipping..."
+			if err != nil {
+				content = "error skipping " + err.Error()
+
+			}
+			response := util.GetBasicReply(content)
+			if err := s.InteractionRespond(i.Interaction, response); err != nil {
+				log.Printf("error responding to interaction: %v", err)
+				return
+			}
 
 		},
 	}
