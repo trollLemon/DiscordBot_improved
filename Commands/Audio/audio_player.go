@@ -1,9 +1,8 @@
 package audio
 
 import (
-	"fmt"
-
 	"bot/util"
+	"fmt"
 
 	"github.com/kkdai/youtube/v2"
 )
@@ -32,69 +31,85 @@ func (player *AudioPlayer) add(url string) {
 	player.q.Enque(url)
 }
 
-func (player *AudioPlayer) playAudio() error {
+func (player *AudioPlayer) playAudio() {
+
 	for {
 		if player.q.Size() == 0 {
-			break
+			break;
 		}
 
-		url, _ := player.q.Deque()
-
-		video, err := player.yt_client.GetVideo(url)
+		nextUrl, _ := player.q.Deque()
+		video, err := player.yt_client.GetVideo(nextUrl) // get the url to the video source, not the one on the webpage
+		
 		if err != nil {
+			//logger
 			continue
 		}
 
 		format := video.Formats.WithAudioChannels()[0]
-		streamUrl, _ := player.yt_client.GetStreamURL(video, &format)
+		streamUrl, err := player.yt_client.GetStreamURL(video, &format)
+		
+		if err != nil {
+			continue
+		}
+
 		player.vc.PlayAudioFile(streamUrl,player.Done)
 
+
 	}
-
-	return nil
-
 }
 
 func (player *AudioPlayer) SetConnection(con VoiceService) {
 	player.vc = con
 }
 
-func (player *AudioPlayer) Play(url string) error {
-	player.add(url)
-	if player.Done == nil {
-		newChan := make(chan bool)
-		player.Done = newChan
-		player.playAudio()
-	}
-	return nil
+func (player *AudioPlayer) isPlaying() bool {
+	return player.Done != nil
 }
 
-func (player *AudioPlayer) Stop() error {
+func (player *AudioPlayer) Play(url string) {
+	
+	player.add(url)
+	if !player.isPlaying() {
+		player.Done = make(chan bool)
+		player.playAudio()
+	}
+}
 
+
+
+
+
+func (player *AudioPlayer) Stop() {
+	player.Done <-true
+	player.Done = nil
 	player.q.Clear()
 	player.vc.Disconnect()
-
-	//signal to stop playing audio
-	if player.Done != nil {
-		player.Done <- true
-		player.Done = nil
-
-	}
-
-	return nil
+	
+	
 }
 
 func (player *AudioPlayer) Skip() error {
-
+	
 	if player.Done == nil {
-		return fmt.Errorf("No song is playing, cannot skip")
+		return fmt.Errorf("Cannot skip, bot is not playing audio")
 	}
 
 	if player.q.Size() == 0 {
 		return fmt.Errorf("Queue is empty, cannot skip")
 	}
-
+	
 	player.Done <- true
 	return nil
-
 }
+
+func (player *AudioPlayer) Shuffle() error {
+	if player.q.Size() == 0 {
+		
+		return fmt.Errorf("Cannot shuffle empty queue")
+	}
+	
+	player.q.Shuffle()
+	return nil
+}
+
