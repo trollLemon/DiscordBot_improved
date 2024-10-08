@@ -17,8 +17,8 @@ func TestQueue(t *testing.T) {
     if err != nil {
         t.Errorf("Unexpected error: %v", err)
     }
-    if item != "http://example.com/3" {
-        t.Errorf("Expected item 'http://example.com/3', got '%s'", item)
+    if item != "http://example.com/1" {
+        t.Errorf("Expected item 'http://example.com/1', got '%s'", item)
     }
 
     if size := q.Size(); size != 2 {
@@ -39,8 +39,8 @@ func TestQueue(t *testing.T) {
         t.Errorf("Unexpected error: %v", err)
     }
     
-    if item != "http://example.com/1" {
-        t.Errorf("Expected item 'http://example.com/1', got '%s'", item)
+    if item != "http://example.com/3" {
+        t.Errorf("Expected item 'http://example.com/3', got '%s'", item)
     }
 
     _, err = q.Deque()

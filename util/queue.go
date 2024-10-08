@@ -39,10 +39,10 @@ func (q *Queue) Deque() (string, error) {
 		return "", fmt.Errorf("Empty Queue")
 	}
 
-	last := q.items[items-1]
-	q.items = q.items[:items-1]
+	first := q.items[0]
+	q.items = q.items[1:items]
 
-	return last, nil
+	return first, nil
 
 }
 
@@ -52,6 +52,7 @@ func (q *Queue) Clear() {
 	q.items = nil
 	q.items = make([]string,0)
 }
+
 
 func (q *Queue) Shuffle() {
 
