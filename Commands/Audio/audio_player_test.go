@@ -5,46 +5,39 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 )
-
 
 func TestPlay(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockVoiceService := mock_audio.NewMockVoiceService(ctrl)
+	mockNotifService := mock_audio.NewMockNotificationService(ctrl)
+	mockStreamService := mock_audio.NewMockStreamService(ctrl)
+	player := NewAudioPlayer(mockStreamService, mockVoiceService, mockNotifService)
+
+	mockNotifService.EXPECT().SendNotification("Now playing http://example.com/testvideo").Times(6)
+	mockVoiceService.EXPECT().Disconnect().Times(2)
+	testUrl := "http://example.com/testvideo"
+
+	mockStreamService.EXPECT().GetAudioStream(testUrl).Times(6)
+	mockVoiceService.EXPECT().PlayAudioFile(gomock.Any(), gomock.Any()).Times(6)
+	// Start playing the audio in a separate goroutine
+	player.Play(testUrl)
+	time.Sleep(100 * time.Millisecond)
 	
+	assert.Equal(t,player.q.Size(), 0)
 
-	player := NewAudioPlayer(mockVoiceService)
-	
+	player.add(testUrl)
+	player.add(testUrl)
+	player.add(testUrl)
+	player.add(testUrl)
+	player.add(testUrl)
 
-	//TODO: use acutal youtube links for testing
+	player.playAudio()
 
-	url := "https://www.youtube.com/video1"
-	url2 := "https://www.youtube.com/video2"
-	url3 := "https://www.youtube.com/video3"
-	url4 := "https://www.youtube.com/video4"
-
-	go func() {
-		<-player.Done
-	}()
-
-	player.Play(url)
-
-	player.Done <- true
-	//player should pop the stack when done playing
-	assert.Equal(t, 0, player.q.Size())
-	player.Done = nil
-	
-
-	player.q.Enque(url3)
-	player.q.Enque(url4)
-
-
-
-	player.Play(url2)
-	//at this point the player has played all urls in the queue, so it should be empty
-	assert.Equal(t,0,player.q.Size())
+	close(player.Done)
 
 }
 
@@ -54,8 +47,9 @@ func TestStop(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockVoiceService := mock_audio.NewMockVoiceService(ctrl)
-	mockVoiceService.EXPECT().Disconnect()
-	player := NewAudioPlayer(mockVoiceService)
+	mockNotifService := mock_audio.NewMockNotificationService(ctrl)
+	mockStreamService := mock_audio.NewMockStreamService(ctrl)
+	player := NewAudioPlayer(mockStreamService, mockVoiceService, mockNotifService)
 
 	url := "http://example.com/audio.mp3"
 
@@ -75,6 +69,8 @@ func TestStop(t *testing.T) {
 		//in this case for testing its just a simple function that exits when signaled
 		<-player.Done
 	}()
+
+	mockVoiceService.EXPECT().Disconnect()
 	player.Stop()
 
 	assert.Equal(t, 0, player.q.Size())
@@ -88,7 +84,9 @@ func TestSkip(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockVoiceService := mock_audio.NewMockVoiceService(ctrl)
-	player := NewAudioPlayer(mockVoiceService)
+	mockNotifService := mock_audio.NewMockNotificationService(ctrl)
+	mockStreamService := mock_audio.NewMockStreamService(ctrl)
+	player := NewAudioPlayer(mockStreamService, mockVoiceService, mockNotifService)
 
 	url := "http://example.com/audio.mp3"
 
@@ -108,30 +106,30 @@ func TestSkip(t *testing.T) {
 
 }
 
-
-
 func TestShuffle(t *testing.T) {
-	
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockVoiceService := mock_audio.NewMockVoiceService(ctrl)
-	player := NewAudioPlayer(mockVoiceService)
-	
+	mockNotifService := mock_audio.NewMockNotificationService(ctrl)
+	mockStreamService := mock_audio.NewMockStreamService(ctrl)
+	player := NewAudioPlayer(mockStreamService, mockVoiceService, mockNotifService)
+
 	//cannot shuffle if queue is empty
 	err := player.Shuffle()
-	assert.NotNil(t,err)
+	assert.NotNil(t, err)
 	url := "https://www.youtube.com/video1"
 	url2 := "https://www.youtube.com/video2"
 	url3 := "https://www.youtube.com/video3"
-	url4 := "https://www.youtube.com/video4"	
-	
+	url4 := "https://www.youtube.com/video4"
+
 	player.q.Enque(url)
 	player.q.Enque(url2)
 	player.q.Enque(url3)
 	player.q.Enque(url4)
 
 	err = player.Shuffle()
-	assert.Nil(t,err)
+	assert.Nil(t, err)
 
 }
