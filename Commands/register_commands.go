@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	audioPlayer = audio.NewAudioPlayer(nil)
+	audioPlayer = audio.NewAudioPlayer(CreateStreamService(),CreateVoiceService(), CreateNotificationService())
 
 	SlashCommands = []*discordgo.ApplicationCommand{
 		{
@@ -55,11 +55,6 @@ var (
 				url = u
 			}
 
-			response := util.GetBasicReply(fmt.Sprintf("Added '%s' to the queue", url))
-			if err := s.InteractionRespond(i.Interaction, response); err != nil {
-				log.Printf("error responding to interaction: %v", err)
-				return
-			}
 			guild := os.Getenv("GUILD_ID")
 			author := i.Member.User.ID
 
@@ -67,10 +62,15 @@ var (
 			voiceConn := audio.Voice{
 				Vc: dgv,
 			}
+
+			notif := audio.Notifier{
+				Session: s,
+				Channel: i.ChannelID,
+			}
 			audioPlayer.SetConnection(&voiceConn)
-
+			audioPlayer.UpdateNotifier(&notif)
 			audioPlayer.Play(url)
-
+			response := util.GetBasicReply(fmt.Sprintf("Added %s to the queue.", url))
 			if err := s.InteractionRespond(i.Interaction, response); err != nil {
 				log.Printf("error responding to interaction: %v", err)
 				return
@@ -78,9 +78,19 @@ var (
 
 		},
 		"stop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := audioPlayer.Stop()
-			if err != nil {
-
+			audioPlayer.Stop()
+			response := util.GetBasicReply(fmt.Sprint("Stopped, leaving VC."))
+			if err := s.InteractionRespond(i.Interaction, response); err != nil {
+				log.Printf("error responding to interaction: %v", err)
+				return
+			}
+		},
+		"shuffle": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			audioPlayer.Shuffle()
+			response := util.GetBasicReply(fmt.Sprintf("Shuffled."))
+			if err := s.InteractionRespond(i.Interaction, response); err != nil {
+				log.Printf("error responding to interaction: %v", err)
+				return
 			}
 		},
 		"skip": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
