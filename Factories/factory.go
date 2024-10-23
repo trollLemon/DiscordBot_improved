@@ -1,7 +1,8 @@
-package Commands
+package factories
 
 import (
-	"bot/Commands/Audio"
+	"bot/Services/Audio"
+	"bot/Services/Database"
 	"github.com/kkdai/youtube/v2"
 )
 
@@ -20,4 +21,9 @@ func CreateStreamService() *audio.YTDL {
 	return &audio.YTDL{
 		Yt_client: youtube.Client{}, 
 	}
+}
+
+
+func CreateDatabaseService() *database.Redis {
+	return database.NewRedisClient()
 }

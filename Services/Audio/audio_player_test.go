@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"bot/Commands/Audio/Mocks"
+	"bot/Services/Audio/Mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"testing"

@@ -9,8 +9,6 @@ import (
 	"os/signal"
 )
 
-
-
 func loadENV() {
 	err := godotenv.Load()
 	if err != nil {
@@ -47,8 +45,6 @@ func main() {
 		log.Fatal("No token provided. Set DISCORD_TOKEN in your .env file.")
 	}
 
-
-
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
 		log.Fatalf("error creating Discord session: %v", err)
@@ -65,9 +61,9 @@ func main() {
 
 	log.Println("Getting Commands Ready")
 
-	registerCommands(session)
+	//registerCommands(session)
 	addCommandHandlers(session)
-	
+
 	log.Println("Commands ready")
 
 	log.Println("Bot is online.")

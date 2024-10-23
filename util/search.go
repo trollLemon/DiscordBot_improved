@@ -1,8 +1,10 @@
 package util
 
 import (
-	"github.com/raitonoberu/ytsearch"
+	"fmt"
 	"net/url"
+
+	"github.com/raitonoberu/ytsearch"
 )
 
 func IsURL(input string) bool {
@@ -15,6 +17,11 @@ func IsURL(input string) bool {
 func GetURLFromQuery(query string) (string, error) {
 	search := ytsearch.VideoSearch(query)
 	result, err := search.Next()
+
+	if err != nil || len(result.Videos) == 0{
+		return "", fmt.Errorf("Query: \" %s \" did not produce any results", query)
+	}
+
 	url := result.Videos[0].URL
-	return url,err
+	return url, nil
 }

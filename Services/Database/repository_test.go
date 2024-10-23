@@ -1,7 +1,7 @@
 package database
 
 import (
-	"bot/Commands/Database/Mocks"
+	"bot/Services/Database/Mocks"
 	"fmt"
 	"testing"
 
