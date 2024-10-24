@@ -1,6 +1,9 @@
 package util
 
-import "testing"
+import (
+	"testing"
+	"math/rand"
+)
 
 func TestQueue(t *testing.T) {
     q := NewQueue()
@@ -68,7 +71,7 @@ func TestShuffle(t *testing.T) {
 
 	originalOrder := make([]string, len(q.items))
 	copy(originalOrder, q.items)
-
+	rand.Seed(121) //depricated but used here for reproducability
 	q.Shuffle()
 
 	if len(q.items) != len(originalOrder) {
