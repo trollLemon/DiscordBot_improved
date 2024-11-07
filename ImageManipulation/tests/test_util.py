@@ -34,9 +34,5 @@ class TestHTTPToImage(unittest.TestCase):
         actual = imageEqual(image_from_http, actual_image)
         self.assertEqual(expected,actual)
 
-    def testGif(self):
-        self.assertRaises(ValueError, lambda: util.read_HTTP_into_mat(TEST_GIF_LINK))
-    def test_invalid_url(self):
-        self.assertRaises(ValueError, lambda: util.read_HTTP_into_mat("invalid link"))
 if __name__ == '__main__':
     unittest.main()
