@@ -3,10 +3,10 @@
 source ./venv/bin/activate
 echo "Launching development server"
 fastapi dev server.py &  #
-SERVER_PID=$!  
+SERVER_PID=$!
 
 # Wait for the server to start
-sleep 2  
+sleep 2
 
 # Check if the server is up by sending a request
 until curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ > /dev/null; do
@@ -19,3 +19,5 @@ python ./tests/test_endpoints.py
 
 
 kill $SERVER_PID
+sleep 2
+echo "Finished server integration tests"
