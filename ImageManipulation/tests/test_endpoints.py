@@ -73,7 +73,7 @@ class EndPointIntegrationTest(unittest.TestCase):
         r = requests.get(url=api_call_bad_url)
         self.assertEqual(r.status_code, 422)
 
-    def test_random_kernel(self):
+    def test_random_filter(self):
 
 
         api_call_good = "http://127.0.0.1:8000/api/randomFilteredImage/https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1648451466%2Fphoto%2Fmale-medical-worker-pipetting-chemical-in-test-tube-while-working-in-laboratory.jpg%3Fs%3D612x612%26w%3Dis%26k%3D20%26c%3DyBdsqEM7Lce__SWpRdqyljvb9uxhNho2K0FKohWJdzo%3D/4/0/6/raw"
@@ -90,8 +90,22 @@ class EndPointIntegrationTest(unittest.TestCase):
 
 
     def test_add_text(self):
-        pass
+        api_call_good = "http://127.0.0.1:8000/api/textImage/https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1648451466%2Fphoto%2Fmale-medical-worker-pipetting-chemical-in-test-tube-while-working-in-laboratory.jpg%3Fs%3D612x612%26w%3Dis%26k%3D20%26c%3DyBdsqEM7Lce__SWpRdqyljvb9uxhNho2K0FKohWJdzo%3D/text/1.0/0.5/0.5"
+        api_call_bad_param =  "http://127.0.0.1:8000/api/textImage/https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1648451466%2Fphoto%2Fmale-medical-worker-pipetting-chemical-in-test-tube-while-working-in-laboratory.jpg%3Fs%3D612x612%26w%3Dis%26k%3D20%26c%3DyBdsqEM7Lce__SWpRdqyljvb9uxhNho2K0FKohWJdzo%3D/text/0.0/0.5/0.5"
+        
+        api_call_bad_param_other =  "http://127.0.0.1:8000/api/textImage/https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1648451466%2Fphoto%2Fmale-medical-worker-pipetting-chemical-in-test-tube-while-working-in-laboratory.jpg%3Fs%3D612x612%26w%3Dis%26k%3D20%26c%3DyBdsqEM7Lce__SWpRdqyljvb9uxhNho2K0FKohWJdzo%3D/text/0.0/0.5/1.5"
 
+        api_call_bad_url =  "http://127.0.0.1:8000/api/textImage/notanimagelink/text/0.3/0.4/0.4"
+
+
+        r = requests.get(url=api_call_good)
+        self.assertEqual(r.status_code, 200)
+        r = requests.get(url=api_call_bad_param)
+        self.assertEqual(r.status_code, 400)
+        r = requests.get(url=api_call_bad_param_other)
+        self.assertEqual(r.status_code, 400)
+        r = requests.get(url=api_call_bad_url)
+        self.assertEqual(r.status_code, 422)
 
 if __name__ == '__main__':
     unittest.main()
