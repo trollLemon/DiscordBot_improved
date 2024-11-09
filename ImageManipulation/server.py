@@ -12,13 +12,13 @@ app = FastAPI()
 
 @app.get("/api/randomFilteredImage/{image_link:path}/{kernel_size}/{low}/{high}/{kernel_type}")
 async def filter_image_random(image_link: str, kernel_size: int, low: int, high: int, kernel_type: str):
+    
     image = read_HTTP_into_mat(image_link)
-
+    
     if kernel_size <= 0:
         raise HTTPException(status_code=400, detail=f'Kernel size must be greater than 0, got {kernel_size}')
-
+    
     should_norm = kernel_type == "norm"
-
     random_filtered_image = randomFilter(image,kernel_size,low,high, normalize=should_norm)
     image_bytes = image_to_bytes(random_filtered_image)
 
@@ -26,8 +26,8 @@ async def filter_image_random(image_link: str, kernel_size: int, low: int, high:
 
 @app.get("/api/invertedImage/{image_link:path}")
 async def invert_image(image_link: str):
-    image = read_HTTP_into_mat(image_link)
 
+    image = read_HTTP_into_mat(image_link)
     inverted_image = Invert(image)
     image_bytes = image_to_bytes(inverted_image)
 
@@ -36,8 +36,8 @@ async def invert_image(image_link: str):
 
 @app.get("/api/saturatedImage/{image_link:path}/{saturation}")
 async def saturate_image(image_link: str, saturation: float):
+    
     image = read_HTTP_into_mat(image_link)
-
     saturated_image = Saturate(image,saturation)
     image_bytes = image_to_bytes(saturated_image)
 
@@ -45,6 +45,7 @@ async def saturate_image(image_link: str, saturation: float):
 
 @app.get("/api/edgeImage/{image_link:path}/{lower}/{higher}")
 async def edge_detect_image(image_link: str, lower: int, higher: int):
+    
     image = read_HTTP_into_mat(image_link)
 
     if lower <= 0 or higher <= 0:
@@ -54,6 +55,7 @@ async def edge_detect_image(image_link: str, lower: int, higher: int):
     image_bytes = image_to_bytes(edges)
 
     return StreamingResponse(image_bytes, media_type="image/png")
+
 
 
 
@@ -70,6 +72,8 @@ async def dilate_image(image_link:str, box_size: int, iterations: int):
 
     return StreamingResponse(image_bytes, media_type="image/png")
 
+
+
 @app.get("/api/erodedImage/{image_link:path}/{box_size}/{iterations}")
 async def erode_image(image_link:str, box_size: int, iterations: int):
 
@@ -85,9 +89,23 @@ async def erode_image(image_link:str, box_size: int, iterations: int):
 
 
 
-@app.get("/api/textImage/{image_link:path}/{text}/{location}")
-async def add_text_to_image(image_link:str, text:str, location:str):
-    pass
+@app.get("/api/textImage/{image_link:path}/{text}/{font_scale}/{x}/{y}")
+async def add_text_to_image(image_link:str, text:str, font_scale:float, x:float, y:float):
+    image = read_HTTP_into_mat(image_link)
+    if x < 0.0 or y < 0.0 or x>1.0 or y >1.0:
+        raise HTTPException(status_code=400, detail=f'x and y percentages must be between 0 and 1, got {x} and {y}')
+    
+    if font_scale <= 0.0:
+        raise HTTPException(status_code=400, detail=f'font scale must be greater than 0.0, got {font_scale}')
+
+
+    reduced_image = add_text(image,text,font_scale,x,y)
+    image_bytes = image_to_bytes(reduced_image)
+
+    return StreamingResponse(image_bytes, media_type="image/png")
+
+
+ 
 
 @app.get("/api/reducedImage/{image_link:path}/{quality}")
 async def reduce_image(image_link: str, quality: float):
