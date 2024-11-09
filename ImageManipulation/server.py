@@ -28,7 +28,7 @@ The API supports image manipulation operations such as:
 """
 
 
-from manip import Invert, Saturate, edgeDetect, Dilate, Erode, reduce, add_text, randomFilter
+from manip import Invert, Saturate, EdgeDetect, Dilate, Erode, Reduce, Add_text, RandomFilter
 from util import read_HTTP_into_mat, image_to_bytes
 from fastapi import FastAPI, HTTPException
 
@@ -56,7 +56,7 @@ async def filter_image_random(image_link: str, kernel_size: int, low: int, high:
         raise HTTPException(status_code=400, detail=f'Kernel size must be greater than 0, got {kernel_size}')
     
     should_norm = kernel_type == "norm"
-    random_filtered_image = randomFilter(image,kernel_size,low,high, normalize=should_norm)
+    random_filtered_image = RandomFilter(image,kernel_size,low,high, normalize=should_norm)
     image_bytes = image_to_bytes(random_filtered_image)
 
     return StreamingResponse(image_bytes, media_type="image/png")
@@ -103,7 +103,7 @@ async def edge_detect_image(image_link: str, lower: int, higher: int):
     if lower <= 0 or higher <= 0:
         raise HTTPException(status_code=400, detail=f'lower and higher bounds and iterations must be greater than 0, got {lower} and {higher}')
 
-    edges = edgeDetect(image,lower,higher)
+    edges = EdgeDetect(image,lower,higher)
     image_bytes = image_to_bytes(edges)
 
     return StreamingResponse(image_bytes, media_type="image/png")
@@ -172,7 +172,7 @@ async def add_text_to_image(image_link:str, text:str, font_scale:float, x:float,
         raise HTTPException(status_code=400, detail=f'font scale must be greater than 0.0, got {font_scale}')
 
 
-    reduced_image = add_text(image,text,font_scale,x,y)
+    reduced_image = Add_text(image,text,font_scale,x,y)
     image_bytes = image_to_bytes(reduced_image)
 
     return StreamingResponse(image_bytes, media_type="image/png")
@@ -192,7 +192,7 @@ async def reduce_image(image_link: str, quality: float):
     if quality <= 0.0 or quality > 1.0:
         raise HTTPException(status_code=400, detail=f'quality level must be between 0 and 1, got {quality}')
 
-    reduced_image = reduce(image, quality)
+    reduced_image = Reduce(image, quality)
     image_bytes = image_to_bytes(reduced_image)
 
     return StreamingResponse(image_bytes, media_type="image/png")

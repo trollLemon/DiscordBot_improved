@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def randomFilter(image: np.ndarray, kernel_size = 3, min = 0, max = 1, normalize = False) -> np.ndarray:
+def RandomFilter(image: np.ndarray, kernel_size = 3, min = 0, max = 1, normalize = False) -> np.ndarray:
 
     random_kernel_r = np.random.uniform(min,max,(kernel_size,kernel_size))
     random_kernel_g = np.random.uniform(min,max,(kernel_size,kernel_size))

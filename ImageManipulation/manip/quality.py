@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-def reduce(image : np.ndarray, quality: float) -> np.ndarray:
+def Reduce(image : np.ndarray, quality: float) -> np.ndarray:
 
     original_height, original_width = image.shape[:2]
 

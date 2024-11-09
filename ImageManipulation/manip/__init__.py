@@ -1,6 +1,6 @@
 from .colors import Invert, Saturate
-from .edges import edgeDetect
+from .edges import EdgeDetect
 from .morphology import Dilate, Erode
-from .quality import reduce
-from .text import add_text
-from .random import randomFilter
+from .quality import Reduce
+from .text import Add_text
+from .random import RandomFilter

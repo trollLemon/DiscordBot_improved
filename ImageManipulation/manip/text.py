@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-def add_text(image : np.ndarray, text, font_scale:float, x_perc:float ,y_perc:float) -> np.ndarray:
+def Add_text(image : np.ndarray, text, font_scale:float, x_perc:float ,y_perc:float) -> np.ndarray:
     
     font = cv.FONT_HERSHEY_COMPLEX
     foreground = (255,255,255)
