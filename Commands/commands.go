@@ -4,20 +4,22 @@ import (
 	"bot/Factories"
 	"bot/Services/Audio"
 	"bot/Services/Database"
+	"bot/Services/ImageManip"
 	"bot/util"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"log"
+	"net/url"
 	"os"
 	"strings"
-
-	"github.com/bwmarrin/discordgo"
 )
 
 var (
 	audioPlayer    = audio.NewAudioPlayer(factories.CreateStreamService(), factories.CreateVoiceService(), factories.CreateNotificationService())
 	searchDatabase = database.NewRepository(factories.CreateDatabaseService())
-)
 
+	api = imagemanip.NewImageAPIWrapper("http://127.0.0.1:8000/api",20)
+)
 func vcHelper(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	guild := os.Getenv("GUILD_ID")
@@ -214,4 +216,197 @@ func Show(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("error responding to interaction: %v", err)
 	}
 
+}
+
+func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+
+	encoded_url := url.QueryEscape(attachmentUrl)
+
+	kernel_option := i.ApplicationCommandData().Options[1].IntValue()
+	lower_option := i.ApplicationCommandData().Options[2].IntValue()
+	upper_option := i.ApplicationCommandData().Options[3].IntValue()
+	//normalize_option := i.ApplicationCommandData().Options[4].BoolValue()
+
+	image, err := api.RandomFilter(encoded_url, int(kernel_option), int(lower_option), int(upper_option))
+
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+
+}
+
+func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.InvertImage(encoded_url)
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	magnitude := i.ApplicationCommandData().Options[1].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.SaturateImage(encoded_url,int(magnitude))
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+
+func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	lower := i.ApplicationCommandData().Options[1].IntValue()
+	upper := i.ApplicationCommandData().Options[2].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.EdgeDetect(encoded_url,int(lower),int(upper))
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+
+
+func  Dilate(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	box_size := i.ApplicationCommandData().Options[1].IntValue()
+	iterations := i.ApplicationCommandData().Options[2].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.DilateImage(encoded_url,int(box_size),int(iterations))
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+
+
+
+func  Erode(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	box_size := i.ApplicationCommandData().Options[1].IntValue()
+	iterations := i.ApplicationCommandData().Options[2].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.ErodeImage(encoded_url,int(box_size),int(iterations))
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+
+
+
+func  AddText(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	text := i.ApplicationCommandData().Options[1].Value.(string)
+	font_size := i.ApplicationCommandData().Options[2].IntValue()
+	x := i.ApplicationCommandData().Options[3].IntValue()
+	y := i.ApplicationCommandData().Options[3].IntValue()
+	
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.AddText(encoded_url,text,float32(font_size),float32(x)/100.0,float32(y)/100.0)
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
+}
+
+
+func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+	
+	quality := i.ApplicationCommandData().Options[1].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	
+	image, err := api.Reduced(encoded_url,float32(quality)/ 100.0 )
+	
+	var response *discordgo.InteractionResponse
+	if err != nil {
+		response = util.GetBasicReply(err.Error())
+	} else {
+		response = util.GetAttatchmentReply(image)
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+	
 }
