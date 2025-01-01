@@ -21,20 +21,10 @@ import (
 	"net/http"
 )
 
-func http_get(client *http.Client, api_url string) (*http.Response, error) {
-	resp, err := client.Get(api_url)
-	if err != nil {
-		return nil, fmt.Errorf("Error fetching image: %s", err)
-
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		return resp, nil
-
-	}
-
-	return nil, fmt.Errorf("Error fetching from api")
+type ImageAPI interface {
+	get_image(string) ([]byte, error)
 }
+
 
 type ImageAPIWrapper struct {
 	client       *http.Client
@@ -50,7 +40,19 @@ func NewImageAPIWrapper(api_endpoint string, max_backoff_time int8) ImageAPIWrap
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 
 	operation := func() (*http.Response, error) {
-		return http_get(i.client, url)
+
+		resp, err := i.client.Get(url)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching image: %s", err)
+
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			return resp, nil
+
+		}
+
+		return nil, fmt.Errorf("Error fetching from api")
 	}
 
 	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
