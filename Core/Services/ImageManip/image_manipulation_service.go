@@ -16,9 +16,11 @@ package imagemanip
 import (
 	"context"
 	"fmt"
-	"github.com/cenkalti/backoff/v5"
 	"io"
+	"log"
 	"net/http"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type ImageAPI interface {
@@ -33,12 +35,14 @@ type ImageAPIWrapper struct {
 }
 
 func NewImageAPIWrapper(api_endpoint string, max_backoff_time int8) ImageAPIWrapper {
+	
+	backoff := backoff.NewExponentialBackOff()
 
-	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
+	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff}
 }
 
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
-
+	
 	operation := func() (*http.Response, error) {
 
 		resp, err := i.client.Get(url)
@@ -51,7 +55,7 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 			return resp, nil
 
 		}
-
+		log.Printf("Error reaching image api, status code = %d", resp.StatusCode)
 		return nil, fmt.Errorf("Error fetching from api")
 	}
 
