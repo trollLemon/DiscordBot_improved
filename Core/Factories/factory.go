@@ -1,8 +1,8 @@
 package factories
 
 import (
-	"bot/Services/Audio"
-	"bot/Services/Database"
+	"bot/Core/Services/Audio"
+	"bot/Core/Services/Database"
 	"github.com/kkdai/youtube/v2"
 )
 

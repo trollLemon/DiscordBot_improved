@@ -1,10 +1,10 @@
 package Commands
 
 import (
-	"bot/Factories"
-	"bot/Services/Audio"
-	"bot/Services/Database"
-	"bot/Services/ImageManip"
+	"bot/Core/Factories"
+	"bot/Core/Services/Audio"
+	"bot/Core/Services/Database"
+	"bot/Core/Services/ImageManip"
 	"bot/util"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
