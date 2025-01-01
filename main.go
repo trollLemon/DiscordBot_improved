@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bot/Commands"
+	"bot/Core/Commands"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	"log"
@@ -61,7 +61,7 @@ func main() {
 
 	log.Println("Getting Commands Ready")
 
-	//registerCommands(session)
+	registerCommands(session)
 	addCommandHandlers(session)
 
 	log.Println("Commands ready")
