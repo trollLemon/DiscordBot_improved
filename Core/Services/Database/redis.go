@@ -45,15 +45,8 @@ func (r *Redis) Delete(item string) error {
 
 func (r *Redis) FetchRandom(n int) ([]string, error) {
 
-	keys, err := r.rdb.Keys(r.ctx, "*").Result()
 
-	if err != nil {
-		return nil, err
-	}
-
-	n = min(len(keys), n)
 	values, err := r.rdb.SRandMemberN(r.ctx, r.set_name, int64(n)).Result()
-
 	if err != nil {
 		return nil, err
 	}
