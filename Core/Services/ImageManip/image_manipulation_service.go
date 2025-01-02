@@ -55,8 +55,8 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 			return resp, nil
 
 		}
-		log.Printf("Error reaching image api, status code = %d", resp.StatusCode)
-		return nil, fmt.Errorf("Error fetching from api")
+		log.Printf("Error in image API, status code = %d", resp.StatusCode)
+		return nil, fmt.Errorf("Error in image API, status code = %d ", resp.StatusCode)
 	}
 
 	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
