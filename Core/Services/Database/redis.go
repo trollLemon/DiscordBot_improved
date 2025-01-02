@@ -7,8 +7,8 @@ import (
 )
 
 type Redis struct {
-	ctx context.Context
-	rdb *redis.Client
+	ctx      context.Context
+	rdb      *redis.Client
 	set_name string
 }
 
@@ -25,13 +25,13 @@ func NewRedisClient() *Redis {
 	}
 }
 
-func (r *Redis) Insert( item string) error {
+func (r *Redis) Insert(item string) error {
 	err := r.rdb.SAdd(r.ctx, r.set_name, item).Err()
 	return err
 }
 
 func (r *Redis) Delete(item string) error {
-	res, err := r.rdb.SRem(r.ctx,r.set_name, item).Result()
+	res, err := r.rdb.SRem(r.ctx, r.set_name, item).Result()
 	if err != nil {
 		return fmt.Errorf("Error deleting from Redis: %s", err.Error())
 	}
@@ -52,8 +52,8 @@ func (r *Redis) FetchRandom(n int) ([]string, error) {
 	}
 
 	n = min(len(keys), n)
-	values, err := r.rdb.SRandMemberN(r.ctx, r.set_name, int64(n) ).Result()
-	
+	values, err := r.rdb.SRandMemberN(r.ctx, r.set_name, int64(n)).Result()
+
 	if err != nil {
 		return nil, err
 	}
@@ -64,20 +64,19 @@ func (r *Redis) FetchRandom(n int) ([]string, error) {
 
 func (r *Redis) IsPresent(item string) bool {
 
-	exists, err := r.rdb.SIsMember(r.ctx,r.set_name,item).Result()
+	exists, err := r.rdb.SIsMember(r.ctx, r.set_name, item).Result()
 
 	if err != nil {
 		return false //todo: better error checking
 	}
-	
-	return exists 
+
+	return exists
 }
 
 func (r *Redis) GetAll() ([]string, error) {
-	
-	values, err := r.rdb.SMembers(r.ctx,r.set_name).Result()
+
+	values, err := r.rdb.SMembers(r.ctx, r.set_name).Result()
 
 	return values, err
-
 
 }

@@ -5,7 +5,6 @@ import (
 )
 
 var (
-
 	SlashCommands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "play",
@@ -73,211 +72,196 @@ var (
 		},
 
 		{
-			Name:	     "randomfilter",
+			Name:        "randomfilter",
 			Description: "Apply a random filter an image, for each color channel",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "kernel",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "kernel",
 					Description: "length and width of the kernel (filter).",
-					Required: true,
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "lowerbound",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "lowerbound",
 					Description: "lowest value for random values",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "upperbound",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "upperbound",
 					Description: "highest value for random values",
-					Required: true,
-
-				},			
-
+					Required:    true,
+				},
 			},
-
 		},
 
 		{
-			Name:	     "invertimage",
+			Name:        "invertimage",
 			Description: "invert the colors of an image",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
-
 			},
 		},
 		{
-			Name:	     "saturateimage",
+			Name:        "saturateimage",
 			Description: "saturate colors of an image",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "magnitude",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "magnitude",
 					Description: "magnitude of saturation (between 0 and 100)",
-					Required: true,
+					Required:    true,
 				},
-
 			},
 		},
 		{
-			Name:	     "edgedetect",
+			Name:        "edgedetect",
 			Description: "Detect Edges in an Image",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "lowerbound",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "lowerbound",
 					Description: "lower bound for edge values (a good default is 100)",
-					Required: true,
+					Required:    true,
 				},
-				
+
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "upperbound",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "upperbound",
 					Description: "upper bound for edge values (a good default is 200)",
-					Required: true,
+					Required:    true,
 				},
 			},
 		},
 		{
-			Name:	     "dilateimage",
+			Name:        "dilateimage",
 			Description: "enlarges objects",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "boxsize",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "boxsize",
 					Description: "how much to enlarge stuff",
-					Required: true,
+					Required:    true,
 				},
-				
+
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "iterations",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "iterations",
 					Description: "how many dilations to apply",
-					Required: true,
+					Required:    true,
 				},
 			},
 		},
 		{
-			Name:	     "erodeimage",
+			Name:        "erodeimage",
 			Description: "shrinks objects",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "boxsize",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "boxsize",
 					Description: "how much to enlarge stuff",
-					Required: true,
+					Required:    true,
 				},
-				
+
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "iterations",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "iterations",
 					Description: "how many dilations to apply",
-					Required: true,
+					Required:    true,
 				},
 			},
 		},
 		{
-			Name:	     "addtext",
+			Name:        "addtext",
 			Description: "add text to an image. ",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionString,
-					Name: "text",
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "text",
 					Description: "text to paste onto image",
-					Required: true,
+					Required:    true,
 				},
-				
+
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "fontscale",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "fontscale",
 					Description: "how big the text shall be",
-					Required: true,
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "x",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "x",
 					Description: "percentage of the image width between 0 and 100 (50 will be in the middle of the image",
-					Required: true,
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "y",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "y",
 					Description: "percentage of the image height between 0 and 100 (50 will be in the middle of the image)",
-					Required: true,
+					Required:    true,
 				},
 			},
 		},
 
 		{
-			Name:	     "reduceimage",
+			Name:        "reduceimage",
 			Description: "lower the quality of an image",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type: discordgo.ApplicationCommandOptionAttachment,
-					Name: "image",
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
 					Description: "the image to operate on",
-					Required: true,
-
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "quality",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "quality",
 					Description: " quality (between 0 and 100) out of 100 (i.e 50/100 -> 50%)",
-					Required: true,
+					Required:    true,
 				},
-
 			},
 		},
 	}
@@ -334,8 +318,5 @@ var (
 		"reduceimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			ReduceImage(s, i)
 		},
-
-
-
 	}
 )

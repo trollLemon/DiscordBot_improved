@@ -16,15 +16,16 @@ package imagemanip
 import (
 	"context"
 	"fmt"
-	"github.com/cenkalti/backoff/v5"
 	"io"
+	"log"
 	"net/http"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type ImageAPI interface {
 	get_image(string) ([]byte, error)
 }
-
 
 type ImageAPIWrapper struct {
 	client       *http.Client
@@ -32,7 +33,7 @@ type ImageAPIWrapper struct {
 	backoff      *backoff.ExponentialBackOff
 }
 
-func NewImageAPIWrapper(api_endpoint string, max_backoff_time int8) ImageAPIWrapper {
+func NewImageAPIWrapper(api_endpoint string) ImageAPIWrapper {
 
 	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
 }
@@ -51,8 +52,8 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 			return resp, nil
 
 		}
-
-		return nil, fmt.Errorf("Error fetching from api")
+		log.Printf("Error in image API, status code = %d", resp.StatusCode)
+		return nil, fmt.Errorf("Error in image API, status code = %d ", resp.StatusCode)
 	}
 
 	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
@@ -67,7 +68,6 @@ func (i *ImageAPIWrapper) RandomFilter(url string, kernel_size int, lower_bound 
 
 	imageType := "randomFilteredImage"
 	api_url := fmt.Sprintf("%s/%s/%s/%d/%d/%d/raw", i.api_endpoint, imageType, url, kernel_size, lower_bound, upper_bound)
-
 	return i.get_image(api_url)
 
 }

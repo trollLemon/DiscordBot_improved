@@ -50,9 +50,8 @@ func (q *Queue) Clear() {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	q.items = nil
-	q.items = make([]string,0)
+	q.items = make([]string, 0)
 }
-
 
 func (q *Queue) Shuffle() {
 
