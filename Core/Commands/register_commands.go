@@ -20,7 +20,7 @@ var (
 		},
 		{
 			Name:        "stop",
-			Description: "Enqueue a youtube video and play it",
+			Description: "Stop bot audio stream and leave vc",
 		},
 		{
 			Name:        "skip",
