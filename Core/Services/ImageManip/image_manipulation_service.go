@@ -33,11 +33,9 @@ type ImageAPIWrapper struct {
 	backoff      *backoff.ExponentialBackOff
 }
 
-func NewImageAPIWrapper(api_endpoint string, max_backoff_time int8) ImageAPIWrapper {
+func NewImageAPIWrapper(api_endpoint string) ImageAPIWrapper {
 
-	backoff := backoff.NewExponentialBackOff()
-
-	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff}
+	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
 }
 
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
@@ -70,7 +68,6 @@ func (i *ImageAPIWrapper) RandomFilter(url string, kernel_size int, lower_bound 
 
 	imageType := "randomFilteredImage"
 	api_url := fmt.Sprintf("%s/%s/%s/%d/%d/%d/raw", i.api_endpoint, imageType, url, kernel_size, lower_bound, upper_bound)
-
 	return i.get_image(api_url)
 
 }
