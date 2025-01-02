@@ -95,6 +95,7 @@ func TestSkip(t *testing.T) {
 	go func() {
 		<-player.Done
 	}()
+	player.isPlaying = true //simulate playing
 	err := player.Skip()
 	player.q.Deque()
 	assert.Nil(t, err)
