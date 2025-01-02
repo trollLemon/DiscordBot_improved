@@ -279,7 +279,6 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate) {
 func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
 	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
-	print(os.Getenv("IMAGE_API"))
 	encoded_url := url.QueryEscape(attachmentUrl)
 
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
