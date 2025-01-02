@@ -1,66 +1,65 @@
 package util
 
 import (
-	"testing"
 	"math/rand"
+	"testing"
 )
 
 func TestQueue(t *testing.T) {
-    q := NewQueue()
+	q := NewQueue()
 
-    q.Enque("http://example.com/1")
-    q.Enque("http://example.com/2")
-    q.Enque("http://example.com/3")
+	q.Enque("http://example.com/1")
+	q.Enque("http://example.com/2")
+	q.Enque("http://example.com/3")
 
-    if size := q.Size(); size != 3 {
-        t.Errorf("Expected size 3, got %d", size)
-    }
+	if size := q.Size(); size != 3 {
+		t.Errorf("Expected size 3, got %d", size)
+	}
 
-    item, err := q.Deque()
-    if err != nil {
-        t.Errorf("Unexpected error: %v", err)
-    }
-    if item != "http://example.com/1" {
-        t.Errorf("Expected item 'http://example.com/1', got '%s'", item)
-    }
+	item, err := q.Deque()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if item != "http://example.com/1" {
+		t.Errorf("Expected item 'http://example.com/1', got '%s'", item)
+	}
 
-    if size := q.Size(); size != 2 {
-        t.Errorf("Expected size 2, got %d", size)
-    }
+	if size := q.Size(); size != 2 {
+		t.Errorf("Expected size 2, got %d", size)
+	}
 
-    item, err = q.Deque()
-    if err != nil {
-        t.Errorf("Unexpected error: %v", err)
-    }
-    
-    if item != "http://example.com/2" {
-        t.Errorf("Expected item 'http://example.com/2', got '%s'", item)
-    }
+	item, err = q.Deque()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
 
-    item, err = q.Deque()
-    if err != nil {
-        t.Errorf("Unexpected error: %v", err)
-    }
-    
-    if item != "http://example.com/3" {
-        t.Errorf("Expected item 'http://example.com/3', got '%s'", item)
-    }
+	if item != "http://example.com/2" {
+		t.Errorf("Expected item 'http://example.com/2', got '%s'", item)
+	}
 
-    _, err = q.Deque()
-    if err == nil {
-        t.Error("Expected error when dequeuing from empty queue, got nil")
-    }
-	
+	item, err = q.Deque()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
 
-    q.Enque("http://example.com/1")
-    q.Enque("http://example.com/2")
-    q.Enque("http://example.com/3")
-	
-    q.Clear()
+	if item != "http://example.com/3" {
+		t.Errorf("Expected item 'http://example.com/3', got '%s'", item)
+	}
 
-    if len(q.items) !=0 {
-	t.Error("Expected empty queue, got a queue with items")
-    }
+	_, err = q.Deque()
+	if err == nil {
+		t.Error("Expected error when dequeuing from empty queue, got nil")
+	}
+
+	q.Enque("http://example.com/1")
+	q.Enque("http://example.com/2")
+	q.Enque("http://example.com/3")
+
+	q.Clear()
+
+	if len(q.items) != 0 {
+		t.Error("Expected empty queue, got a queue with items")
+	}
 }
 
 func TestShuffle(t *testing.T) {
@@ -77,15 +76,15 @@ func TestShuffle(t *testing.T) {
 	if len(q.items) != len(originalOrder) {
 		t.Error("Shuffled queue length does not match original length")
 	}
-    	isDifferent := false
-    	for i := range originalOrder {
-        	if q.items[i] != originalOrder[i] {
-            	isDifferent = true
-            	break
-        	}
-    	}
+	isDifferent := false
+	for i := range originalOrder {
+		if q.items[i] != originalOrder[i] {
+			isDifferent = true
+			break
+		}
+	}
 
-    	if !isDifferent {
-        	t.Error("Shuffled queue order should be different from original order")
-    	}	
+	if !isDifferent {
+		t.Error("Shuffled queue order should be different from original order")
+	}
 }

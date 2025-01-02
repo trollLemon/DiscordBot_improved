@@ -27,7 +27,6 @@ type ImageAPI interface {
 	get_image(string) ([]byte, error)
 }
 
-
 type ImageAPIWrapper struct {
 	client       *http.Client
 	api_endpoint string
@@ -35,14 +34,14 @@ type ImageAPIWrapper struct {
 }
 
 func NewImageAPIWrapper(api_endpoint string, max_backoff_time int8) ImageAPIWrapper {
-	
+
 	backoff := backoff.NewExponentialBackOff()
 
 	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff}
 }
 
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
-	
+
 	operation := func() (*http.Response, error) {
 
 		resp, err := i.client.Get(url)

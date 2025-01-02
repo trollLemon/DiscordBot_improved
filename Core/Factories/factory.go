@@ -19,10 +19,9 @@ func CreateVoiceService() *audio.Voice {
 func CreateStreamService() *audio.YTDL {
 
 	return &audio.YTDL{
-		Yt_client: youtube.Client{}, 
+		Yt_client: youtube.Client{},
 	}
 }
-
 
 func CreateDatabaseService() *database.Redis {
 	return database.NewRedisClient()

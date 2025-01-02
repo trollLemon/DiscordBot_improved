@@ -26,8 +26,8 @@ func TestPlay(t *testing.T) {
 	// Start playing the audio in a separate goroutine
 	player.Play(testUrl)
 	time.Sleep(100 * time.Millisecond)
-	
-	assert.Equal(t,player.q.Size(), 0)
+
+	assert.Equal(t, player.q.Size(), 0)
 
 	player.add(testUrl)
 	player.add(testUrl)

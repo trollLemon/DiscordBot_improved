@@ -1,4 +1,5 @@
 package audio
+
 import (
 	"bot/util"
 	"fmt"
@@ -43,7 +44,7 @@ func (player *AudioPlayer) playAudio() {
 			player.ns.SendError(err.Error())
 			continue
 		}
-		
+
 		player.vc.PlayAudioFile(streamUrl, player.Done)
 	}
 

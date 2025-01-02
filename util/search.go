@@ -18,7 +18,7 @@ func GetURLFromQuery(query string) (string, error) {
 	search := ytsearch.VideoSearch(query)
 	result, err := search.Next()
 
-	if err != nil || len(result.Videos) == 0{
+	if err != nil || len(result.Videos) == 0 {
 		return "", fmt.Errorf("Query: \" %s \" did not produce any results", query)
 	}
 
