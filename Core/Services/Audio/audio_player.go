@@ -11,6 +11,7 @@ type AudioPlayer struct {
 	yts  StreamService       // Injected Dependency for getting stream urls to play audio
 	vc   VoiceService        // Injected Dependency for Discord Voice (audio playing features)
 	ns   NotificationService // Injected Dependency for player notification/errors via Discord Messaging
+	isPlaying bool           // check if we are playing audio
 }
 
 func NewAudioPlayer(yts StreamService, vc VoiceService, ns NotificationService) *AudioPlayer {
@@ -20,6 +21,7 @@ func NewAudioPlayer(yts StreamService, vc VoiceService, ns NotificationService) 
 		q:    util.NewQueue(),
 		vc:   vc,
 		ns:   ns,
+		isPlaying: false,
 	}
 }
 
@@ -44,24 +46,21 @@ func (player *AudioPlayer) playAudio() {
 			player.ns.SendError(err.Error())
 			continue
 		}
-
+		player.Done = make(chan bool)
 		player.vc.PlayAudioFile(streamUrl, player.Done)
 	}
-
+	
+	player.isPlaying = false
 	player.vc.Disconnect()
 }
 
-func (player *AudioPlayer) isPlaying() bool {
-	return player.Done != nil
-}
 
 func (player *AudioPlayer) Play(url string) {
 
 	player.add(url)
 
-	if !player.isPlaying() {
-
-		player.Done = make(chan bool)
+	if !player.isPlaying {
+		player.isPlaying = true	
 		go func() {
 			player.playAudio()
 			// Only send if the channel is open
@@ -72,6 +71,7 @@ func (player *AudioPlayer) Play(url string) {
 		}()
 	}
 }
+
 
 func (player *AudioPlayer) Stop() {
 
@@ -84,7 +84,7 @@ func (player *AudioPlayer) Stop() {
 
 func (player *AudioPlayer) Skip() error {
 
-	if player.Done == nil {
+	if !player.isPlaying {
 
 		return fmt.Errorf("Cannot skip, bot is not playing audio")
 	}
