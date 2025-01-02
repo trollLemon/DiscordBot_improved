@@ -20,7 +20,7 @@ var (
 	audioPlayer    = audio.NewAudioPlayer(factories.CreateStreamService(), factories.CreateVoiceService(), factories.CreateNotificationService())
 	searchDatabase = database.NewRepository(factories.CreateDatabaseService())
 
-	api = imagemanip.NewImageAPIWrapper("http://127.0.0.1:8000/api", 20)
+	api = imagemanip.NewImageAPIWrapper("http://127.0.0.1:8000/api")
 )
 
 func vcHelper(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -279,8 +279,16 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate) {
 func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
 	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
-
+	print(os.Getenv("IMAGE_API"))
 	encoded_url := url.QueryEscape(attachmentUrl)
+
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 
 	image, err := api.InvertImage(encoded_url)
 
@@ -293,7 +301,13 @@ func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	magnitude := i.ApplicationCommandData().Options[1].IntValue()
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.SaturateImage(encoded_url, int(magnitude))
 
 	processImageReply(image, err, s, i)
@@ -307,7 +321,13 @@ func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	lower := i.ApplicationCommandData().Options[1].IntValue()
 	upper := i.ApplicationCommandData().Options[2].IntValue()
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.EdgeDetect(encoded_url, int(lower), int(upper))
 
 	processImageReply(image, err, s, i)
@@ -321,7 +341,13 @@ func Dilate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	box_size := i.ApplicationCommandData().Options[1].IntValue()
 	iterations := i.ApplicationCommandData().Options[2].IntValue()
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.DilateImage(encoded_url, int(box_size), int(iterations))
 
 	processImageReply(image, err, s, i)
@@ -335,7 +361,13 @@ func Erode(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	box_size := i.ApplicationCommandData().Options[1].IntValue()
 	iterations := i.ApplicationCommandData().Options[2].IntValue()
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.ErodeImage(encoded_url, int(box_size), int(iterations))
 
 	processImageReply(image, err, s, i)
@@ -352,7 +384,13 @@ func AddText(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	y := i.ApplicationCommandData().Options[3].IntValue()
 
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.AddText(encoded_url, text, float32(font_size), float32(x)/100.0, float32(y)/100.0)
 
 	processImageReply(image, err, s, i)
@@ -365,7 +403,13 @@ func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	quality := i.ApplicationCommandData().Options[1].IntValue()
 	encoded_url := url.QueryEscape(attachmentUrl)
-
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
 	image, err := api.Reduced(encoded_url, float32(quality)/100.0)
 
 	processImageReply(image, err, s, i)
