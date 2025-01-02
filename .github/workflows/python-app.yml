@@ -45,4 +45,4 @@ jobs:
     - name: Test with pytest for MicroServices/ImageManipulation
       run: |
         cd MicroServices/ImageManipulation && \
-        pytest
+        ./tests/test_server.sh             
