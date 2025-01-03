@@ -17,6 +17,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up .env file
+      run: |
+        echo "EXAMPLE_DATA=value" >> .env
 
     - name: Build the Docker image
       run: docker build ${{ matrix.dockerfile-path.path }} --file ${{ matrix.dockerfile-path.path }}/Dockerfile --tag ${{ matrix.dockerfile-path.tag }}
