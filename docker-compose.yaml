@@ -1,0 +1,28 @@
+services:
+  bot:
+    build: .
+    ports:
+      - "8000:8000"
+    networks:
+      - network
+
+  image:
+    build: ./MicroServices/ImageManipulation
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+
+  redis:
+    image: "redis:alpine"
+    mem_limit: "2048m"
+    command: ["redis-server", "--save", "120", "1"]
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+
+volumes:
+  redis_data:
