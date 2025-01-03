@@ -19,4 +19,4 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build the Docker image
-      run: docker build ${ { matrix.dockerfile-path.path } } --file ${ { matrix.dockerfile-path.path }}/Dockerfile --tag ${ { matrix.dockerfile-path.tag } }
+      run: docker build ${{ matrix.dockerfile-path.path }} --file ${{ matrix.dockerfile-path.path }}/Dockerfile --tag ${{ matrix.dockerfile-path.tag }}
