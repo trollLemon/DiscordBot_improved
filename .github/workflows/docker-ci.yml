@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile-path: 
+          - { path: ".", tag: "my-image-name-root:$(date +%s)" }
+          - { path: "MicroServices/ImageManipulation", tag: "my-image-name-image-manipulation:$(date +%s)" }
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up .env file
+      run: |
+        echo "EXAMPLE_DATA=value" >> .env
+
+    - name: Build the Docker image
+      run: docker build ${{ matrix.dockerfile-path.path }} --file ${{ matrix.dockerfile-path.path }}/Dockerfile --tag ${{ matrix.dockerfile-path.tag }}

@@ -20,7 +20,7 @@ var (
 	audioPlayer    = audio.NewAudioPlayer(factories.CreateStreamService(), factories.CreateVoiceService(), factories.CreateNotificationService())
 	searchDatabase = database.NewRepository(factories.CreateDatabaseService())
 
-	api = imagemanip.NewImageAPIWrapper("http://127.0.0.1:8000/api")
+	api = imagemanip.NewImageAPIWrapper("http://image:8080/api")
 )
 
 func vcHelper(s *discordgo.Session, i *discordgo.InteractionCreate) {
