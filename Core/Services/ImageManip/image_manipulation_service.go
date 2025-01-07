@@ -15,13 +15,18 @@ package imagemanip
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/cenkalti/backoff/v5"
 	"io"
 	"log"
 	"net/http"
-
-	"github.com/cenkalti/backoff/v5"
 )
+
+type ErrorResponse struct {
+	Detail string `json:"detail"`
+}
 
 type ImageAPI interface {
 	get_image(string) ([]byte, error)
@@ -44,7 +49,7 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 
 		resp, err := i.client.Get(url)
 		if err != nil {
-			return nil, fmt.Errorf("Error fetching image: %s", err)
+			return nil, backoff.Permanent(fmt.Errorf("Error fetching image: %s", err))
 
 		}
 
@@ -52,13 +57,41 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 			return resp, nil
 
 		}
+
+		if resp.StatusCode == http.StatusBadRequest {
+
+			var errorResponse ErrorResponse
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				log.Printf("Error reading response body: %v", err)
+				return nil, fmt.Errorf("Error: internal error calling image api")
+			}
+
+			if err := json.Unmarshal(body, &errorResponse); err != nil {
+				log.Printf("Error decoding JSON: %v", err)
+				return nil, fmt.Errorf("Error: internal error calling image api")
+			}
+
+			error := "Invalid parameters: " + errorResponse.Detail
+			log.Println(error)
+			return nil, backoff.Permanent(errors.New(error))
+
+		}
+
 		log.Printf("Error in image API, status code = %d", resp.StatusCode)
 		return nil, fmt.Errorf("Error in image API, status code = %d ", resp.StatusCode)
 	}
 
 	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
 
+	if err != nil {
+
+		return nil, err
+	}
+
 	defer resp.Body.Close()
+
 	imageBytes, err := io.ReadAll(resp.Body)
 	return imageBytes, err
 
