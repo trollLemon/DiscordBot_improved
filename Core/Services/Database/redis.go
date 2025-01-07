@@ -45,7 +45,6 @@ func (r *Redis) Delete(item string) error {
 
 func (r *Redis) FetchRandom(n int) ([]string, error) {
 
-
 	values, err := r.rdb.SRandMemberN(r.ctx, r.set_name, int64(n)).Result()
 	if err != nil {
 		return nil, err
