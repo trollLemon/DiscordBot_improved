@@ -59,7 +59,6 @@ func processImageReply(image []byte, err error, s *discordgo.Session, i *discord
 	if err != nil {
 
 		err_response := "An error occurred: " + err.Error()
-		log.Printf("Error during image api:\n %s", err_response)
 		response_edit = &discordgo.WebhookEdit{
 			Content: &err_response,
 		}
