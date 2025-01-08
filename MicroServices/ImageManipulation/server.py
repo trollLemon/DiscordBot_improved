@@ -41,7 +41,7 @@ app = FastAPI()
 
 
 def is_valid_domain(image_link: str) -> bool:
-    discord_attachment_domain = "https%3A//cdn.discordapp.com"
+    discord_attachment_domain = "https://cdn.discordapp.com"
     
     return discord_attachment_domain in image_link
 
