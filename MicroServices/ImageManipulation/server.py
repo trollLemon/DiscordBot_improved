@@ -39,6 +39,14 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+
+def is_valid_domain(image_link: str) -> bool:
+    discord_attachment_domain = "https://cdn.discordapp.com"
+    
+    return discord_attachment_domain in image_link
+
+
+
 @app.get("/api/randomFilteredImage/{image_link:path}/{kernel_size}/{low}/{high}/{kernel_type}")
 async def filter_image_random(image_link: str, kernel_size: int, low: int, high: int, kernel_type: str):
     """
@@ -50,6 +58,10 @@ async def filter_image_random(image_link: str, kernel_size: int, low: int, high:
     :param high:int           : upper bound for RNG
     :param kernel_type:string : type of kernel, normalized(norm) or not normalized (raw)
     """
+    
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
     
     if kernel_size <= 0:
@@ -68,6 +80,10 @@ async def invert_image(image_link: str):
     returns bytes in png format of the inverted version of an image
     :param image_link:string : encoded url to an image file
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
     inverted_image = Invert(image)
     image_bytes = image_to_bytes(inverted_image)
@@ -83,6 +99,10 @@ async def saturate_image(image_link: str, saturation: float):
     :param image_link:string : encoded url to an image file
     :param saturation:int    : magnitude of saturation
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
     saturated_image = Saturate(image,saturation)
     image_bytes = image_to_bytes(saturated_image)
@@ -98,6 +118,10 @@ async def edge_detect_image(image_link: str, lower: int, higher: int):
     :param lower:int         : lower bound for edge values
     :param higher:int        : upper bound for edge values
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
 
     if lower <= 0 or higher <= 0:
@@ -120,6 +144,10 @@ async def dilate_image(image_link:str, box_size: int, iterations: int):
     :param box_size:int      : width and height of the structuring element (see above link)
     :param iterations:int   : number of dilation operations to perform
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
 
     if box_size <= 0 or iterations <= 0:
@@ -141,6 +169,10 @@ async def erode_image(image_link:str, box_size: int, iterations: int):
     :param box_size:int      : width and height of the structuring element (see above link)
     :param iterations:int   : number of erosion operations to perform
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
 
     if box_size <= 0 or iterations <= 0:
@@ -164,6 +196,10 @@ async def add_text_to_image(image_link:str, text:str, font_scale:float, x:float,
     :x:float                 : percentage of the width, where the x coordinate for the text shall be
     :y:float                 : percentage of the height, where the y coordinate for the text shall be
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
     if x < 0.0 or y < 0.0 or x>1.0 or y >1.0:
         raise HTTPException(status_code=400, detail=f'x and y percentages must be between 0 and 1, got {x} and {y}')
@@ -188,6 +224,10 @@ async def reduce_image(image_link: str, quality: float):
     :param image_link:string : encoded url to an image file
     :param quality:float     : percentage of image quality relative to the original image
     """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
     image = read_HTTP_into_mat(image_link)
     if quality <= 0.0 or quality > 1.0:
         raise HTTPException(status_code=400, detail=f'quality level must be between 0 and 1, got {quality}')

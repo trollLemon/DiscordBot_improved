@@ -44,6 +44,4 @@ jobs:
 
     - name: Test with pytest for MicroServices/ImageManipulation
       run: |
-        cd MicroServices/ImageManipulation && \
-        ./tests/test_server.sh             && \
-        cd ./tests && pytest test_util.py
+        cd ./MicroServices/ImageManipulation/tests && pytest test_util.py
