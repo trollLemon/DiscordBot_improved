@@ -247,7 +247,7 @@ async def reduce_image(image_link: str, quality: float):
 
 
 
-@app.get("/api/shuffled_image/{image_link:path}/{partitions}")
+@app.get("/api/shuffledImage/{image_link:path}/{partitions}")
 async def shuffle_image(image_link: str, partitions: int):
     """
     shuffle_image
