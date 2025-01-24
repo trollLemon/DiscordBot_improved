@@ -10,7 +10,15 @@ def Invert(image) -> np.ndarray:
 
 
 def Saturate(image, value: float) -> np.ndarray:
-   
+    
+    if value <=0.0:
+        raise ValueError(f'Expected saturation value to be greater than 0, got {value}')
+    
+    color_channel = 2
+
+    if image.shape[color_channel] != 3:
+        raise ValueError(f'Expected an RGB image but got {image.shape[color_channel]} channels')
+
     sat_channel = 1
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
