@@ -18,13 +18,14 @@ import numpy as np
 
 
 class TestColors(unittest.TestCase):
-   
+    
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
 
     def test_invert(self):
         
@@ -77,9 +78,10 @@ class TestEdges(unittest.TestCase):
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
 
 
     def test_edge_detection(self):
@@ -109,13 +111,13 @@ class TestEdges(unittest.TestCase):
 
 
 class TestMorphology(unittest.TestCase):
-        
+
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
 
 
     def test_dilate(self):
@@ -151,25 +153,25 @@ class TestMorphology(unittest.TestCase):
             Erode(self.arr_bigger_g, bad_value, good_size)
 
 class TestQuality(unittest.TestCase):
- 
+
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
 
 
     def test_reduce(self):
         bad_value = 2.0
         good_value = 0.6
         other_good_value = 0.01
+        too_small = 0.01
         other_bad_value = 0.0
         
 
-        Reduce(self.arr, good_value)
         Reduce(self.arr_bigger, good_value)
-        Reduce(self.arr, other_good_value)
         Reduce(self.arr_bigger, other_good_value)
 
         with self.assertRaises(ValueError): 
@@ -177,15 +179,19 @@ class TestQuality(unittest.TestCase):
             Reduce(self.arr_bigger, bad_value)
             Reduce(self.arr, other_bad_value)
             Reduce(self.arr_bigger, other_bad_value)
+            # in this case the image is too small after shrinking, even if the quality ratio isnt super small
+            Reduce(self.arr, too_small)
+            Reduce(self.arr, good_value)
 
 class TestRandom(unittest.TestCase):
     
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
 
 
     def test_random_filter(self):
@@ -204,12 +210,15 @@ class TestRandom(unittest.TestCase):
 
 
 class TestText(unittest.TestCase):
+
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
+
 
     def test_add_text(self):
             # these should run without error
@@ -228,14 +237,15 @@ class TestText(unittest.TestCase):
 
 
 class TestMisc(unittest.TestCase):
-
     def setUp(self):
         # initialize test images
         self.arr = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
-        self.arr_bigger = np.random.randint(low=0, high=255, size=(64, 64, 3), dtype=np.uint8)
+        self.arr_bigger = np.random.randint(low=0, high=255, size=(1920, 1080, 3), dtype=np.uint8)
         self.arr_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(64, 64, 1), dtype=np.uint8)
-    
+        self.arr_bigger_g = np.random.randint(low=0, high=255, size=(1920, 1080, 1), dtype=np.uint8)
+
+
+
     def test_shuffle(self):
         
         bad_value = 1
