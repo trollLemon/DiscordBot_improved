@@ -6,8 +6,8 @@ def AddText(image : np.ndarray, text, font_scale:float, x_perc:float ,y_perc:flo
     if font_scale <= 0.0:
         raise ValueError(f'Expected font scale to be less than 0, got {font_scale}')
 
-    if x_perc < 0.0 or y_perc < 0.0:
-        raise ValueError(f'Expected x location percentage and y location percetage to be non negative, got {x_perc} and {y_perc}')
+    if x_perc < 0.0 or y_perc < 0.0 or x_perc > 100 or y_perc > 100:
+        raise ValueError(f'Expected x location percentage and y location percetage to be between 0 and 1, got {x_perc} and {y_perc}')
 
     font = cv.FONT_HERSHEY_COMPLEX
     foreground = (255,255,255)
