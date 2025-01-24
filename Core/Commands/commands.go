@@ -413,3 +413,22 @@ func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	processImageReply(image, err, s, i)
 
 }
+
+func ShuffleImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	attachmentID := i.ApplicationCommandData().Options[0].Value.(string)
+	attachmentUrl := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+
+	partitions := i.ApplicationCommandData().Options[1].IntValue()
+	encoded_url := url.QueryEscape(attachmentUrl)
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Printf("Error during interaction defer: \n %s", err.Error())
+		return
+	}
+	image, err := api.Shuffle(encoded_url, int(partitions))
+
+	processImageReply(image, err, s, i)
+
+}

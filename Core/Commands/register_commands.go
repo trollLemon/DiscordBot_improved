@@ -264,6 +264,24 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "shuffleimage",
+			Description: "shuffle partitions of an image",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
+					Description: "the image to operate on",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "partitions",
+					Description: "How many times to split the image up and shuffle",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -317,6 +335,9 @@ var (
 		},
 		"reduceimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			ReduceImage(s, i)
+		},
+		"shuffleimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			ShuffleImage(s, i)
 		},
 	}
 )
