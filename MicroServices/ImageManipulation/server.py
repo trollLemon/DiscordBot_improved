@@ -73,7 +73,7 @@ async def filter_image_random(image_link: str, kernel_size: int, low: int, high:
         image_bytes = image_to_bytes(random_filtered_image)
         return StreamingResponse(image_bytes, media_type="image/png")
     except ValueError as e:
-        HTTPException(status_code=400, detail=e)
+       raise HTTPException(status_code=400, detail=f'{e}')
 
 
 @app.get("/api/invertedImage/{image_link:path}")
@@ -113,7 +113,7 @@ async def saturate_image(image_link: str, saturation: float):
 
         return StreamingResponse(image_bytes, media_type="image/png")
     except ValueError as e:
-        HTTPException(status_code=400, detail=e)
+        raise HTTPException(status_code=400, detail=f'{e}')
 
 
 
@@ -139,7 +139,7 @@ async def edge_detect_image(image_link: str, lower: int, higher: int):
         return StreamingResponse(image_bytes, media_type="image/png")
     
     except ValueError as e:
-        HTTPException(status_code=400, detail=e)
+        raise HTTPException(status_code=400, detail=f'{e}')
 
 
 @app.get("/api/dilatedImage/{image_link:path}/{box_size}/{iterations}")
@@ -164,7 +164,7 @@ async def dilate_image(image_link:str, box_size: int, iterations: int):
         return StreamingResponse(image_bytes, media_type="image/png")
    
     except ValueError as e:
-            HTTPException(status_code=400, detail=e)
+            raise HTTPException(status_code=400, detail=f'{e}')
 
 
 
@@ -190,7 +190,7 @@ async def erode_image(image_link:str, box_size: int, iterations: int):
         return StreamingResponse(image_bytes, media_type="image/png")
     
     except ValueError as e:
-            HTTPException(status_code=400, detail=e)
+            raise HTTPException(status_code=400, detail=f'{e}')
 
 
 
@@ -218,7 +218,7 @@ async def add_text_to_image(image_link:str, text:str, font_scale:float, x:float,
         return StreamingResponse(image_bytes, media_type="image/png")
     
     except ValueError as e:
-            HTTPException(status_code=400, detail=e)
+            raise HTTPException(status_code=400, detail=f'{e}')
 
 
 @app.get("/api/reducedImage/{image_link:path}/{quality}")
@@ -242,7 +242,7 @@ async def reduce_image(image_link: str, quality: float):
         return StreamingResponse(image_bytes, media_type="image/png")
     
     except ValueError as e:
-        HTTPException(status_code=400, detail=e)
+        raise HTTPException(status_code=400, detail=f'{e}')
 
 
 
@@ -266,7 +266,7 @@ async def shuffle_image(image_link: str, partitions: int):
         return StreamingResponse(image_bytes, media_type="image/png")
     
     except ValueError as e:
-      HTTPException(status_code=400, detail=e)
+      raise HTTPException(status_code=400, detail=f'{e}')
 
 
 
