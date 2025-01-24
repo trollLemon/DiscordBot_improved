@@ -167,3 +167,12 @@ func (i *ImageAPIWrapper) Reduced(url string, quality float32) ([]byte, error) {
 
 	return i.get_image(api_url)
 }
+
+func (i *ImageAPIWrapper) Shuffle(url string, partitions int) ([]byte, error) {
+	imageType := "shuffledImage"
+
+	api_url := fmt.Sprintf("%s/%s/%s/%d", i.api_endpoint, imageType, url, partitions)
+
+	return i.get_image(api_url)
+
+}
