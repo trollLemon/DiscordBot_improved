@@ -16,6 +16,7 @@ The server provides a RESTful api with the following endpoints:
     - /api/erodedImage/{image_link:path}/{box_size}/{iterations}
     - /api/textImage/{image_link:path}/{text}/{font_scale}/{x}/{y}
     - /api/reducedImage/{image_link:path}/{quality}
+    - /api/shuffledImage/{image_link:path}/{partitions}
 
 The API supports image manipulation operations such as:
     - morphology
@@ -25,10 +26,11 @@ The API supports image manipulation operations such as:
     - edge detection
     - random filtering
     - color inverting
+    - image shuffling
 """
 
 
-from manip import Invert, Saturate, EdgeDetect, Dilate, Erode, Reduce, Add_text, RandomFilter
+from manip import *
 from util import read_HTTP_into_mat, image_to_bytes
 from fastapi import FastAPI, HTTPException
 
@@ -64,14 +66,15 @@ async def filter_image_random(image_link: str, kernel_size: int, low: int, high:
 
     image = read_HTTP_into_mat(image_link)
     
-    if kernel_size <= 0:
-        raise HTTPException(status_code=400, detail=f'Kernel size must be greater than 0, got {kernel_size}')
     
     should_norm = kernel_type == "norm"
-    random_filtered_image = RandomFilter(image,kernel_size,low,high, normalize=should_norm)
-    image_bytes = image_to_bytes(random_filtered_image)
+    try:
+        random_filtered_image = RandomFilter(image,kernel_size,low,high, normalize=should_norm)
+        image_bytes = image_to_bytes(random_filtered_image)
+        return StreamingResponse(image_bytes, media_type="image/png")
+    except ValueError as e:
+        HTTPException(status_code=400, detail=e)
 
-    return StreamingResponse(image_bytes, media_type="image/png")
 
 @app.get("/api/invertedImage/{image_link:path}")
 async def invert_image(image_link: str):
@@ -102,12 +105,17 @@ async def saturate_image(image_link: str, saturation: float):
 
     if not is_valid_domain(image_link):
          raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+    
+    try:
+        image = read_HTTP_into_mat(image_link)
+        saturated_image = Saturate(image,saturation)
+        image_bytes = image_to_bytes(saturated_image)
 
-    image = read_HTTP_into_mat(image_link)
-    saturated_image = Saturate(image,saturation)
-    image_bytes = image_to_bytes(saturated_image)
+        return StreamingResponse(image_bytes, media_type="image/png")
+    except ValueError as e:
+        HTTPException(status_code=400, detail=e)
 
-    return StreamingResponse(image_bytes, media_type="image/png")
+
 
 @app.get("/api/edgeImage/{image_link:path}/{lower}/{higher}")
 async def edge_detect_image(image_link: str, lower: int, higher: int):
@@ -124,15 +132,14 @@ async def edge_detect_image(image_link: str, lower: int, higher: int):
 
     image = read_HTTP_into_mat(image_link)
 
-    if lower <= 0 or higher <= 0:
-        raise HTTPException(status_code=400, detail=f'lower and higher bounds and iterations must be greater than 0, got {lower} and {higher}')
+    try:
+        edges = EdgeDetect(image,lower,higher)
+        image_bytes = image_to_bytes(edges)
 
-    edges = EdgeDetect(image,lower,higher)
-    image_bytes = image_to_bytes(edges)
-
-    return StreamingResponse(image_bytes, media_type="image/png")
-
-
+        return StreamingResponse(image_bytes, media_type="image/png")
+    
+    except ValueError as e:
+        HTTPException(status_code=400, detail=e)
 
 
 @app.get("/api/dilatedImage/{image_link:path}/{box_size}/{iterations}")
@@ -150,13 +157,15 @@ async def dilate_image(image_link:str, box_size: int, iterations: int):
 
     image = read_HTTP_into_mat(image_link)
 
-    if box_size <= 0 or iterations <= 0:
-        raise HTTPException(status_code=400, detail=f'box size and iterations must be greater than 0, got {box_size} and {iterations}')
+    try:
+        dilated_image = Dilate(image, kernel_size=box_size, iterations=iterations)
+        image_bytes = image_to_bytes(dilated_image)
 
-    dilated_image = Dilate(image, kernel_size=box_size, iterations=iterations)
-    image_bytes = image_to_bytes(dilated_image)
+        return StreamingResponse(image_bytes, media_type="image/png")
+   
+    except ValueError as e:
+            HTTPException(status_code=400, detail=e)
 
-    return StreamingResponse(image_bytes, media_type="image/png")
 
 
 
@@ -174,14 +183,15 @@ async def erode_image(image_link:str, box_size: int, iterations: int):
          raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
 
     image = read_HTTP_into_mat(image_link)
+    try:
+        eroded_image = Erode(image, kernel_size=box_size, iterations=iterations)
+        image_bytes = image_to_bytes(eroded_image)
 
-    if box_size <= 0 or iterations <= 0:
-        raise HTTPException(status_code=400, detail=f'box size and iterations must be greater than 0, got {box_size} and {iterations}')
+        return StreamingResponse(image_bytes, media_type="image/png")
+    
+    except ValueError as e:
+            HTTPException(status_code=400, detail=e)
 
-    eroded_image = Erode(image, kernel_size=box_size, iterations=iterations)
-    image_bytes = image_to_bytes(eroded_image)
-
-    return StreamingResponse(image_bytes, media_type="image/png")
 
 
 
@@ -201,20 +211,15 @@ async def add_text_to_image(image_link:str, text:str, font_scale:float, x:float,
          raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
 
     image = read_HTTP_into_mat(image_link)
-    if x < 0.0 or y < 0.0 or x>1.0 or y >1.0:
-        raise HTTPException(status_code=400, detail=f'x and y percentages must be between 0 and 1, got {x} and {y}')
+    try:
+        reduced_image = AddText(image,text,font_scale,x,y)
+        image_bytes = image_to_bytes(reduced_image)
     
-    if font_scale <= 0.0:
-        raise HTTPException(status_code=400, detail=f'font scale must be greater than 0.0, got {font_scale}')
+        return StreamingResponse(image_bytes, media_type="image/png")
+    
+    except ValueError as e:
+            HTTPException(status_code=400, detail=e)
 
-
-    reduced_image = Add_text(image,text,font_scale,x,y)
-    image_bytes = image_to_bytes(reduced_image)
-
-    return StreamingResponse(image_bytes, media_type="image/png")
-
-
- 
 
 @app.get("/api/reducedImage/{image_link:path}/{quality}")
 async def reduce_image(image_link: str, quality: float):
@@ -229,11 +234,39 @@ async def reduce_image(image_link: str, quality: float):
          raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
 
     image = read_HTTP_into_mat(image_link)
-    if quality <= 0.0 or quality > 1.0:
-        raise HTTPException(status_code=400, detail=f'quality level must be between 0 and 1, got {quality}')
+    
+    try:
+        reduced_image = Reduce(image, quality)
+        image_bytes = image_to_bytes(reduced_image)
+    
+        return StreamingResponse(image_bytes, media_type="image/png")
+    
+    except ValueError as e:
+        HTTPException(status_code=400, detail=e)
 
-    reduced_image = Reduce(image, quality)
-    image_bytes = image_to_bytes(reduced_image)
 
-    return StreamingResponse(image_bytes, media_type="image/png")
+
+
+@app.get("/api/reducedImage/{image_link:path}/{quality}")
+async def shuffle_image(image_link: str, partitions: int):
+    """
+    shuffle_image
+    :param image_link:string : encoded url to an image link
+    :param partitions: int   : number of partitions to cut the image and shuffle
+    """
+
+    if not is_valid_domain(image_link):
+         raise HTTPException(status_code=400, detail='Requested url is not a trusted domain')
+
+    image = read_HTTP_into_mat(image_link)
+    try:
+        shuffled_image = Shuffle(image, partitions)
+        image_bytes = image_to_bytes(shuffled_image)
+
+        return StreamingResponse(image_bytes, media_type="image/png")
+    
+    except ValueError as e:
+      HTTPException(status_code=400, detail=e)
+
+
 
