@@ -5,6 +5,9 @@ import numpy as np
 
 
 def RandomFilter(image: np.ndarray, kernel_size = 3, min = 0, max = 1, normalize = False) -> np.ndarray:
+    
+    if kernel_size <=0:
+        raise ValueError(f'Expected kernel size to be greater than 0')
 
     random_kernel_r = np.random.uniform(min,max,(kernel_size,kernel_size))
     random_kernel_g = np.random.uniform(min,max,(kernel_size,kernel_size))
