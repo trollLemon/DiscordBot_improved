@@ -2,12 +2,17 @@ package main
 
 import (
 	"bot/Core/Commands"
+	"flag"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"os/signal"
 )
+
+type Options struct {
+	RegisterCommands bool
+}
 
 func loadENV() {
 	err := godotenv.Load()
@@ -38,8 +43,22 @@ func addCommandHandlers(session *discordgo.Session) {
 	})
 }
 
+func parseCommandLineArgs() *Options {
+
+	shouldRegisterCommands := flag.Bool("register_commands", true, "register bot commands to guild")
+
+	flag.Parse()
+
+	return &Options{
+		*shouldRegisterCommands,
+	}
+
+}
+
 func main() {
 	loadENV()
+	options := parseCommandLineArgs()
+
 	token := os.Getenv("DISCORD_TOKEN")
 	if token == "" {
 		log.Fatal("No token provided. Set DISCORD_TOKEN in your .env file.")
@@ -61,7 +80,10 @@ func main() {
 
 	log.Println("Getting Commands Ready")
 
-	registerCommands(session)
+	if options.RegisterCommands {
+		registerCommands(session)
+	}
+
 	addCommandHandlers(session)
 
 	log.Println("Commands ready")
