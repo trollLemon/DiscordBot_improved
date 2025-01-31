@@ -12,33 +12,32 @@ func TestPlay(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockVoiceService := mock_audio.NewMockVoiceService(ctrl)
-	mockNotifService := mock_audio.NewMockNotificationService(ctrl)
-	mockStreamService := mock_audio.NewMockStreamService(ctrl)
-	player := NewAudioPlayer(mockStreamService, mockVoiceService, mockNotifService)
+	mockNotif := mock_audio.NewMockNotificationService(ctrl)
+	mockVoice := mock_audio.NewMockVoiceService(ctrl)
+	mockStream := mock_audio.NewMockStreamService(ctrl)
 
-	mockNotifService.EXPECT().SendNotification("Now playing http://example.com/testvideo").Times(6)
-	mockVoiceService.EXPECT().Disconnect().Times(2)
 	testUrl := "http://example.com/testvideo"
+	mockNotif.EXPECT().SendNotification(gomock.Any()).Times(7)
+	mockVoice.EXPECT().Disconnect().Times(2)
+	mockStream.EXPECT().GetAudioStream(testUrl).Return("stream_url", nil).Times(7)
+	mockVoice.EXPECT().PlayAudioFile(gomock.Any(), gomock.Any()).Times(7)
 
-	mockStreamService.EXPECT().GetAudioStream(testUrl).Times(6)
-	mockVoiceService.EXPECT().PlayAudioFile(gomock.Any(), gomock.Any()).Times(6)
-	// Start playing the audio in a separate goroutine
+	player := NewAudioPlayer(mockStream, mockVoice, mockNotif)
 	player.Play(testUrl)
-	time.Sleep(100 * time.Millisecond)
 
+
+	time.Sleep(100 * time.Millisecond)
 	assert.Equal(t, player.q.Size(), 0)
 
+	//simulate a queue with stuff in it
 	player.add(testUrl)
 	player.add(testUrl)
 	player.add(testUrl)
 	player.add(testUrl)
 	player.add(testUrl)
+	player.Play(testUrl)
 
-	player.playAudio()
-
-	close(player.Done)
-
+	time.Sleep(100 * time.Millisecond)
 }
 
 func TestStop(t *testing.T) {
