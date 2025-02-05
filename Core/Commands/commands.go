@@ -97,22 +97,8 @@ func Play(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		url = u
 	}
 
-	//vcHelper(s, i)
+	vcHelper(s, i)
 
-	guild := os.Getenv("GUILD_ID")
-	author := i.Member.User.ID
-
-	dgv, _ := util.JoinVoiceChannel(s, author, guild)
-	voiceConn := audio.Voice{
-		Vc: dgv,
-	}
-
-	notif := audio.Notifier{
-		Session: s,
-		Channel: i.ChannelID,
-	}
-	audioPlayer.SetConnection(&voiceConn)
-	audioPlayer.UpdateNotifier(&notif)
 	audioPlayer.Play(url)
 	response := util.GetBasicReply(fmt.Sprintf("Added %s to the queue.", url))
 	if err := s.InteractionRespond(i.Interaction, response); err != nil {
