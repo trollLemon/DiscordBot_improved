@@ -76,7 +76,6 @@ func (player *AudioPlayer) Play(url string) {
 func (player *AudioPlayer) Stop() {
 
 	player.Done <- true
-	player.Done = nil
 	player.isPlaying = false
 	player.q.Clear()
 	player.vc.Disconnect()

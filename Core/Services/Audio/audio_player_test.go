@@ -73,7 +73,6 @@ func TestStop(t *testing.T) {
 	player.Stop()
 
 	assert.Equal(t, 0, player.q.Size())
-	assert.Nil(t, player.Done)
 
 }
 
