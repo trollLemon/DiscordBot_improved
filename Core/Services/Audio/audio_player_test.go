@@ -25,7 +25,6 @@ func TestPlay(t *testing.T) {
 	player := NewAudioPlayer(mockStream, mockVoice, mockNotif)
 	player.Play(testUrl)
 
-
 	time.Sleep(100 * time.Millisecond)
 	assert.Equal(t, player.q.Size(), 0)
 
