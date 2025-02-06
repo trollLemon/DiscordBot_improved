@@ -34,26 +34,26 @@ func (player *AudioPlayer) playAudio() {
 	defer func() {
 		player.isPlaying = false
 		player.vc.Disconnect()
-
+		close(player.Done)
 	}()
 
-	for {
-		if player.q.Size() == 0 {
+	for player.q.Size() != 0 {
 
-			break
+		nextUrl, err := player.q.Deque()
+
+		if err != nil {
+			println(err.Error())
 		}
 
-		nextUrl, _ := player.q.Deque()
-		player.ns.SendNotification("Now playing " + nextUrl)
+		player.ns.SendNotification(nextUrl)
 
 		streamUrl, err := player.yts.GetAudioStream(nextUrl)
-
 		if err != nil {
 			player.ns.SendError(err.Error())
 			continue
 		}
-		player.Done = make(chan bool)
 		player.vc.PlayAudioFile(streamUrl, player.Done)
+
 	}
 
 }
@@ -64,13 +64,11 @@ func (player *AudioPlayer) Play(url string) {
 
 	if !player.isPlaying {
 		player.isPlaying = true
+
+		player.Done = make(chan bool)
+
 		go func() {
 			player.playAudio()
-			// Only send if the channel is open
-			select {
-			case player.Done <- true:
-			default:
-			}
 		}()
 	}
 }
@@ -78,7 +76,6 @@ func (player *AudioPlayer) Play(url string) {
 func (player *AudioPlayer) Stop() {
 
 	player.Done <- true
-	player.Done = nil
 	player.isPlaying = false
 	player.q.Clear()
 	player.vc.Disconnect()
