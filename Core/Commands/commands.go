@@ -7,6 +7,7 @@ import (
 	"bot/Core/Services/ImageManip"
 	"bot/util"
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -17,11 +18,88 @@ import (
 )
 
 var (
-	audioPlayer    = audio.NewAudioPlayer(factories.CreateStreamService(), factories.CreateVoiceService(), factories.CreateNotificationService())
-	searchDatabase = database.NewRepository(factories.CreateDatabaseService())
+	audioPlayer    audio.AudioPlayer
+	searchDatabase database.Repository
 
-	api = imagemanip.NewImageAPIWrapper("http://image:8080/api")
+	image_api imagemanip.ImageAPIWrapper //= imagemanip.NewImageAPIWrapper("http://image:8080/api")
 )
+
+func initStreamService() (audio.StreamService, error) {
+	svc, err := factories.CreateService(factories.YTStream)
+	if err != nil {
+		return nil, err
+	}
+	streamSvc, ok := svc.(audio.StreamService)
+	if !ok {
+		return nil, errors.New("unexpected type for stream service")
+	}
+	return streamSvc, nil
+}
+
+func initVoiceService() (audio.VoiceService, error) {
+	svc, err := factories.CreateService(factories.DiscordVoice)
+	if err != nil {
+		return nil, err
+	}
+	voiceSvc, ok := svc.(audio.VoiceService)
+	if !ok {
+		return nil, errors.New("unexpected type for voice service")
+	}
+	return voiceSvc, nil
+}
+
+func initNotificationService() (audio.NotificationService, error) {
+	svc, err := factories.CreateService(factories.DiscordNotification)
+	if err != nil {
+		return nil, err
+	}
+	notificationSvc, ok := svc.(audio.NotificationService)
+	if !ok {
+		return nil, errors.New("unexpected type for notification service")
+	}
+	return notificationSvc, nil
+}
+
+func initImageManipAPI() (*imagemanip.ImageAPIWrapper, error) {
+	svc, err := factories.CreateApiService(factories.Imagemanip, "http://image:8080/api")
+	if err != nil {
+		return nil, err
+	}
+	imageManipSvc, ok := svc.(imagemanip.ImageAPIWrapper)
+	if !ok {
+		return nil, errors.New("unexpected type for notification service")
+	}
+	return &imageManipSvc, nil
+}
+
+func InitDependencies() error {
+	streamSvc, err := initStreamService()
+	if err != nil {
+		return err
+	}
+
+	voiceSvc, err := initVoiceService()
+	if err != nil {
+		return err
+	}
+
+	notificationSvc, err := initNotificationService()
+	if err != nil {
+		return err
+	}
+
+	audioPlayer = *audio.NewAudioPlayer(streamSvc, voiceSvc, notificationSvc)
+
+	imageSvc, err := initImageManipAPI()
+
+	if err != nil {
+		return err
+	}
+
+	image_api = *imageSvc
+
+	return nil
+}
 
 func vcHelper(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
@@ -255,7 +333,7 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	image, err := api.RandomFilter(encoded_url, int(kernel_option), int(lower_option), int(upper_option))
+	image, err := image_api.RandomFilter(encoded_url, int(kernel_option), int(lower_option), int(upper_option))
 
 	processImageReply(image, err, s, i)
 
@@ -274,7 +352,7 @@ func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	image, err := api.InvertImage(encoded_url)
+	image, err := image_api.InvertImage(encoded_url)
 
 	processImageReply(image, err, s, i)
 
@@ -292,7 +370,7 @@ func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.SaturateImage(encoded_url, int(magnitude))
+	image, err := image_api.SaturateImage(encoded_url, int(magnitude))
 
 	processImageReply(image, err, s, i)
 
@@ -312,7 +390,7 @@ func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.EdgeDetect(encoded_url, int(lower), int(upper))
+	image, err := image_api.EdgeDetect(encoded_url, int(lower), int(upper))
 
 	processImageReply(image, err, s, i)
 
@@ -332,7 +410,7 @@ func Dilate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.DilateImage(encoded_url, int(box_size), int(iterations))
+	image, err := image_api.DilateImage(encoded_url, int(box_size), int(iterations))
 
 	processImageReply(image, err, s, i)
 
@@ -352,7 +430,7 @@ func Erode(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.ErodeImage(encoded_url, int(box_size), int(iterations))
+	image, err := image_api.ErodeImage(encoded_url, int(box_size), int(iterations))
 
 	processImageReply(image, err, s, i)
 
@@ -375,7 +453,7 @@ func AddText(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.AddText(encoded_url, text, float32(font_size), float32(x)/100.0, float32(y)/100.0)
+	image, err := image_api.AddText(encoded_url, text, float32(font_size), float32(x)/100.0, float32(y)/100.0)
 
 	processImageReply(image, err, s, i)
 
@@ -394,7 +472,7 @@ func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.Reduced(encoded_url, float32(quality)/100.0)
+	image, err := image_api.Reduced(encoded_url, float32(quality)/100.0)
 
 	processImageReply(image, err, s, i)
 
@@ -413,7 +491,7 @@ func ShuffleImage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Printf("Error during interaction defer: \n %s", err.Error())
 		return
 	}
-	image, err := api.Shuffle(encoded_url, int(partitions))
+	image, err := image_api.Shuffle(encoded_url, int(partitions))
 
 	processImageReply(image, err, s, i)
 
