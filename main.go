@@ -86,6 +86,14 @@ func main() {
 
 	addCommandHandlers(session)
 
+	log.Println("Initializing Modules for functionality")
+
+	err = Commands.InitDependencies()
+
+	if err != nil {
+		log.Panicf("Error initializing modules, %s", err.Error())
+	}
+
 	log.Println("Commands ready")
 
 	log.Println("Bot is online.")
