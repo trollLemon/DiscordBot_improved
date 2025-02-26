@@ -67,9 +67,7 @@ func (player *AudioPlayer) Play(url string) {
 
 		player.Done = make(chan bool)
 
-		go func() {
-			player.playAudio()
-		}()
+		go player.playAudio()
 	}
 }
 
