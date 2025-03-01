@@ -7,7 +7,6 @@ import (
 	"bot/Core/Services/ImageManip"
 	"bot/util"
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -21,82 +20,35 @@ var (
 	audioPlayer    audio.AudioPlayer
 	searchDatabase database.Repository
 
-	image_api imagemanip.ImageAPIWrapper //= imagemanip.NewImageAPIWrapper("http://image:8080/api")
+	image_api imagemanip.ImageAPI //= imagemanip.NewImageAPIWrapper("http://image:8080/api")
 )
 
-func initStreamService() (audio.StreamService, error) {
-	svc, err := factories.CreateService(factories.YTStream)
-	if err != nil {
-		return nil, err
-	}
-	streamSvc, ok := svc.(audio.StreamService)
-	if !ok {
-		return nil, errors.New("unexpected type for stream service")
-	}
-	return streamSvc, nil
-}
-
-func initVoiceService() (audio.VoiceService, error) {
-	svc, err := factories.CreateService(factories.DiscordVoice)
-	if err != nil {
-		return nil, err
-	}
-	voiceSvc, ok := svc.(audio.VoiceService)
-	if !ok {
-		return nil, errors.New("unexpected type for voice service")
-	}
-	return voiceSvc, nil
-}
-
-func initNotificationService() (audio.NotificationService, error) {
-	svc, err := factories.CreateService(factories.DiscordNotification)
-	if err != nil {
-		return nil, err
-	}
-	notificationSvc, ok := svc.(audio.NotificationService)
-	if !ok {
-		return nil, errors.New("unexpected type for notification service")
-	}
-	return notificationSvc, nil
-}
-
-func initImageManipAPI() (*imagemanip.ImageAPIWrapper, error) {
-	svc, err := factories.CreateApiService(factories.Imagemanip, "http://image:8080/api")
-	if err != nil {
-		return nil, err
-	}
-	imageManipSvc, ok := svc.(imagemanip.ImageAPIWrapper)
-	if !ok {
-		return nil, errors.New("unexpected type for notification service")
-	}
-	return &imageManipSvc, nil
-}
 
 func InitDependencies() error {
-	streamSvc, err := initStreamService()
+	streamSvc, err := factories.CreateStreamService(factories.YTStream)
 	if err != nil {
 		return err
 	}
 
-	voiceSvc, err := initVoiceService()
+	voiceSvc, err := factories.CreateVoiceService(factories.DiscordVoice)
 	if err != nil {
 		return err
 	}
 
-	notificationSvc, err := initNotificationService()
+	notificationSvc, err := factories.CreateNotificationService(factories.DiscordNotification)
 	if err != nil {
 		return err
 	}
 
 	audioPlayer = *audio.NewAudioPlayer(streamSvc, voiceSvc, notificationSvc)
 
-	imageSvc, err := initImageManipAPI()
+	imageSvc, err := factories.CreateApiService(factories.Imagemanip)
 
 	if err != nil {
 		return err
 	}
 
-	image_api = *imageSvc
+	image_api = imageSvc
 
 	return nil
 }
