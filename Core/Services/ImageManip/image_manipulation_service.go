@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cenkalti/backoff/v5"
 	"io"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type ErrorResponse struct {
@@ -100,8 +102,15 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 		log.Printf("Error in image API, status code = %d", resp.StatusCode)
 		return nil, fmt.Errorf("Error in image API, status code = %d ", resp.StatusCode)
 	}
+	
+	maxDuration := 30 * time.Second
 
-	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), maxDuration)
+	
+	defer cancel() 
+
+
+	resp, err := backoff.Retry(timeoutCtx, operation, backoff.WithBackOff(i.backoff))
 
 	if err != nil {
 
