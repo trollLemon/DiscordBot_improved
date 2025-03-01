@@ -30,6 +30,24 @@ type ErrorResponse struct {
 
 type ImageAPI interface {
 	get_image(string) ([]byte, error)
+
+	RandomFilter(url string, kernel_size int, lower_bound int, upper_bound int) ([]byte, error)
+
+	InvertImage(url string) ([]byte, error)
+
+	SaturateImage(url string, magnitude int) ([]byte, error)
+
+	EdgeDetect(url string, lower_bound int, upper_bound int) ([]byte, error)
+
+	DilateImage(url string, box_size int, iterations int) ([]byte, error)
+
+	ErodeImage(url string, box_size int, iterations int) ([]byte, error)
+
+	AddText(url string, text string, font_scale float32, x_percentage float32, y_percentage float32) ([]byte, error)
+
+	Reduced(url string, quality float32) ([]byte, error)
+
+	Shuffle(url string, partitions int) ([]byte, error)
 }
 
 type ImageAPIWrapper struct {
@@ -38,9 +56,9 @@ type ImageAPIWrapper struct {
 	backoff      *backoff.ExponentialBackOff
 }
 
-func NewImageAPIWrapper(api_endpoint string) ImageAPIWrapper {
+func NewImageAPIWrapper(api_endpoint string) *ImageAPIWrapper {
 
-	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
+	return &ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
 }
 
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
