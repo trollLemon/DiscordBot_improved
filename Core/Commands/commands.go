@@ -42,13 +42,23 @@ func InitDependencies() error {
 
 	audioPlayer = *audio.NewAudioPlayer(streamSvc, voiceSvc, notificationSvc)
 
-	imageSvc, err := factories.CreateApiService(factories.Imagemanip)
+	imageSvc, err := factories.CreateImageAPIService(factories.Imagemanip)
 
 	if err != nil {
 		return err
 	}
 
 	image_api = imageSvc
+
+
+	databaseSvc, err := factories.CreateDatabaseService(factories.Redis)
+	
+
+	if err != nil {
+		return err
+	}
+
+	searchDatabase = *database.NewRepository(databaseSvc)
 
 	return nil
 }
