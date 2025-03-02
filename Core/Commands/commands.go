@@ -24,6 +24,13 @@ var (
 )
 
 
+func init(){
+
+    if err := InitDependencies(); err != nil {
+        log.Fatal("Error setting up dependency services: ", err)
+    }
+}
+
 func InitDependencies() error {
 	streamSvc, err := factories.CreateStreamService(factories.YTStream)
 	if err != nil {
