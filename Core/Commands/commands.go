@@ -23,12 +23,11 @@ var (
 	image_api imagemanip.ImageAPI //= imagemanip.NewImageAPIWrapper("http://image:8080/api")
 )
 
+func init() {
 
-func init(){
-
-    if err := InitDependencies(); err != nil {
-        log.Fatal("Error setting up dependency services: ", err)
-    }
+	if err := InitDependencies(); err != nil {
+		log.Fatal("Error setting up dependency services: ", err)
+	}
 }
 
 func InitDependencies() error {
@@ -47,7 +46,11 @@ func InitDependencies() error {
 		return err
 	}
 
-	audioPlayer = *audio.NewAudioPlayer(streamSvc, voiceSvc, notificationSvc)
+	databaseSvc, err := factories.CreateDatabaseService(factories.Redis)
+
+	if err != nil {
+		return err
+	}
 
 	imageSvc, err := factories.CreateImageAPIService(factories.Imagemanip)
 
@@ -55,15 +58,9 @@ func InitDependencies() error {
 		return err
 	}
 
+	audioPlayer = *audio.NewAudioPlayer(streamSvc, voiceSvc, notificationSvc)
+
 	image_api = imageSvc
-
-
-	databaseSvc, err := factories.CreateDatabaseService(factories.Redis)
-	
-
-	if err != nil {
-		return err
-	}
 
 	searchDatabase = *database.NewRepository(databaseSvc)
 
