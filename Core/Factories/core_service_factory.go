@@ -1,7 +1,6 @@
 package factories
 
 import (
-	"bot/Core/Services"
 	"bot/Core/Services/Audio"
 	"bot/Core/Services/Database"
 	"fmt"
@@ -17,24 +16,51 @@ const (
 	Redis               Service = 3
 )
 
-func CreateService(service Service) (services.IService, error) {
+func CreateStreamService(service Service) (audio.StreamService, error) {
 
 	switch service {
-
-	case DiscordNotification:
-		return &audio.Notifier{}, nil
-	case DiscordVoice:
-		return &audio.Voice{}, nil
 	case YTStream:
 		return &audio.YTDL{
 			Yt_client: youtube.Client{},
 		}, nil
 
+	default:
+		return nil, fmt.Errorf("Invalid stream service type")
+	}
+}
+
+func CreateVoiceService(service Service) (audio.VoiceService, error) {
+
+	switch service {
+	case DiscordVoice:
+		return &audio.Voice{}, nil
+
+	default:
+		return nil, fmt.Errorf("Invalid voice service type")
+	}
+
+}
+
+func CreateNotificationService(service Service) (audio.NotificationService, error) {
+
+	switch service {
+	case DiscordNotification:
+		return &audio.Notifier{}, nil
+
+	default:
+		return nil, fmt.Errorf("Invalid notification service type")
+	}
+
+}
+
+func CreateDatabaseService(service Service) (database.DatabaseService, error) {
+
+	switch service {
 	case Redis:
 		return database.NewRedisClient(), nil
-	default:
-		return nil, fmt.Errorf("Cannot create non-existant service")
 
+	default:
+		return nil, fmt.Errorf("Invalid database service type")
 	}
 
 }

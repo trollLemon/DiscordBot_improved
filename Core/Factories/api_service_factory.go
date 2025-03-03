@@ -1,23 +1,24 @@
 package factories
 
 import (
-	"bot/Core/Services"
 	"bot/Core/Services/ImageManip"
 	"fmt"
 )
 
 const (
-	Imagemanip Service = 0
+
+	Imagemanip Service = 4
+	ImageManipEndpoint = "http://image:8080/api"
 )
 
-func CreateApiService(service Service, endpoint string) (services.IService, error) {
-
+func CreateImageAPIService(service Service) (imagemanip.ImageAPI, error) {
+	
 	switch service {
 
 	case Imagemanip:
-		return imagemanip.NewImageAPIWrapper(endpoint), nil
+		return imagemanip.NewImageAPIWrapper(ImageManipEndpoint), nil
 	default:
-		return nil, fmt.Errorf("Cannot create non-existant service")
+		return nil, fmt.Errorf("Invalid image manipulation service")
 
 	}
 

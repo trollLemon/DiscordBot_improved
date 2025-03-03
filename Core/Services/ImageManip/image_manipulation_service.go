@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cenkalti/backoff/v5"
 	"io"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type ErrorResponse struct {
@@ -30,6 +32,24 @@ type ErrorResponse struct {
 
 type ImageAPI interface {
 	get_image(string) ([]byte, error)
+
+	RandomFilter(url string, kernel_size int, lower_bound int, upper_bound int) ([]byte, error)
+
+	InvertImage(url string) ([]byte, error)
+
+	SaturateImage(url string, magnitude int) ([]byte, error)
+
+	EdgeDetect(url string, lower_bound int, upper_bound int) ([]byte, error)
+
+	DilateImage(url string, box_size int, iterations int) ([]byte, error)
+
+	ErodeImage(url string, box_size int, iterations int) ([]byte, error)
+
+	AddText(url string, text string, font_scale float32, x_percentage float32, y_percentage float32) ([]byte, error)
+
+	Reduced(url string, quality float32) ([]byte, error)
+
+	Shuffle(url string, partitions int) ([]byte, error)
 }
 
 type ImageAPIWrapper struct {
@@ -38,9 +58,9 @@ type ImageAPIWrapper struct {
 	backoff      *backoff.ExponentialBackOff
 }
 
-func NewImageAPIWrapper(api_endpoint string) ImageAPIWrapper {
+func NewImageAPIWrapper(api_endpoint string) *ImageAPIWrapper {
 
-	return ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
+	return &ImageAPIWrapper{client: &http.Client{}, api_endpoint: api_endpoint, backoff: backoff.NewExponentialBackOff()}
 }
 
 func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
@@ -82,8 +102,15 @@ func (i *ImageAPIWrapper) get_image(url string) ([]byte, error) {
 		log.Printf("Error in image API, status code = %d", resp.StatusCode)
 		return nil, fmt.Errorf("Error in image API, status code = %d ", resp.StatusCode)
 	}
+	
+	maxDuration := 30 * time.Second
 
-	resp, err := backoff.Retry(context.TODO(), operation, backoff.WithBackOff(i.backoff))
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), maxDuration)
+	
+	defer cancel() 
+
+
+	resp, err := backoff.Retry(timeoutCtx, operation, backoff.WithBackOff(i.backoff))
 
 	if err != nil {
 
