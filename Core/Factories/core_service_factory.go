@@ -14,6 +14,7 @@ const (
 	DiscordVoice        Service = 1
 	YTStream            Service = 2
 	Redis               Service = 3
+	YTDLP		    Service = 5
 )
 
 func CreateStreamService(service Service) (audio.StreamService, error) {
@@ -23,6 +24,8 @@ func CreateStreamService(service Service) (audio.StreamService, error) {
 		return &audio.YTDL{
 			Yt_client: youtube.Client{},
 		}, nil
+	case YTDLP:
+		return &audio.YtDLP{}, nil
 
 	default:
 		return nil, fmt.Errorf("Invalid stream service type")
