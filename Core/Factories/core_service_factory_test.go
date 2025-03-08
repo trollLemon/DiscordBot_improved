@@ -18,6 +18,14 @@ func TestCreateStreamService(t *testing.T) {
 			wantErr:    false,
 			wantNotNil: true,
 		},
+{
+			name:       "Valid YTStream service",
+			service:    YTDLP,
+			wantErr:    false,
+			wantNotNil: true,
+		},
+
+
 		{
 			name:       "Invalid stream service",
 			service:    DiscordNotification,
