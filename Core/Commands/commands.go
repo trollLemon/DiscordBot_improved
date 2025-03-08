@@ -31,7 +31,7 @@ func init() {
 }
 
 func InitDependencies() error {
-	streamSvc, err := factories.CreateStreamService(factories.YTStream)
+	streamSvc, err := factories.CreateStreamService(factories.YTDLP)
 	if err != nil {
 		return err
 	}
