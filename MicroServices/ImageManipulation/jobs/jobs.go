@@ -5,7 +5,7 @@ import (
 )
 
 type Operation interface {
-	Run(input gocv.Mat, output gocv.Mat) error
+	Run(input *gocv.Mat) (*gocv.Mat,  error)
 }
 
 
@@ -18,17 +18,14 @@ Job Struct
 type Job struct {
 	jobId       uint8
 	Operation
-	inputImage  gocv.Mat
-	outputImage gocv.Mat
+	inputImage  *gocv.Mat
 }
 
-func (j *Job) Process() error {
-	return j.Run(j.inputImage, j.outputImage)
+func (j *Job) Process() (*gocv.Mat, error) {
+
+	return j.Run(j.inputImage)
 }
 
-func (j *Job) GetResult() gocv.Mat {
-	return j.outputImage
-}
 
 func (j *Job) GetJobId() uint8 {
 	return j.jobId
