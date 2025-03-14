@@ -15,14 +15,15 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -o bot main.go
 
 # Runtime Stage
-FROM debian:bookworm-slim 
+FROM archlinux:latest
 
-RUN apt-get update && \
-    apt-get install -y \
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
     ffmpeg \
     pulseaudio \
-    libasound2 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    alsa-lib \
+    yt-dlp   \
+    && pacman -Scc --noconfirm
 
 WORKDIR /
 
