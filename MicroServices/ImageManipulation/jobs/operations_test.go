@@ -258,14 +258,19 @@ func TestReduce(t *testing.T) {
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Reduce{},
+			op:        Reduce{quality: 0.8},
 		},
-
+		{
+			name:      "Handle invalid quality (<=0)",
+			wantError: true,
+			images:    testImages,
+			op:        Reduce{quality: 0.0},
+		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Reduce{},
+			op:        Reduce{quality: 0.5},
 		},
 	}
 
