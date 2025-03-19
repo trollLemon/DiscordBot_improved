@@ -63,9 +63,9 @@ func TestInvert(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
@@ -121,17 +121,15 @@ func TestSaturate(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
 	}
 
 }
-
-
 
 func TestEdgeDetect(t *testing.T) {
 	testImages := generateTestImages()
@@ -163,15 +161,13 @@ func TestEdgeDetect(t *testing.T) {
 			name:      "Handle t_higher < 0.0 (Should err)",
 			wantError: true,
 			images:    testImages,
-			op:        EdgeDetect{t_lower: 10, t_higher:-20},
-
+			op:        EdgeDetect{t_lower: 10, t_higher: -20},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:         EdgeDetect{t_lower: 10, t_higher: 20},
-
+			op:        EdgeDetect{t_lower: 10, t_higher: 20},
 		},
 	}
 
@@ -182,16 +178,15 @@ func TestEdgeDetect(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
 	}
 
 }
-
 
 func TestMorphology(t *testing.T) {
 	testImages := generateTestImages()
@@ -241,9 +236,9 @@ func TestMorphology(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
@@ -281,9 +276,9 @@ func TestReduce(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
@@ -356,9 +351,9 @@ func TestAddText(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
@@ -427,9 +422,9 @@ func TestRandomFilter(t *testing.T) {
 			_, err := tt.op.Run(image)
 
 			if tt.wantError && err == nil {
-				t.Errorf("Run(*gocv.Mat) expected error but got nil")
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
 			} else if !tt.wantError && err != nil {
-				t.Errorf("Run(*gocv.Mat) error = %v, wantErr %v", err, tt.wantError)
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
 		}
 
