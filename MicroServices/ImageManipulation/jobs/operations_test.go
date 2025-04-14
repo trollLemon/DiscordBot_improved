@@ -1,8 +1,9 @@
 package jobs
 
 import (
-	"gocv.io/x/gocv"
 	"testing"
+
+	"gocv.io/x/gocv"
 )
 
 func generateTestImages() []*gocv.Mat {
@@ -307,7 +308,7 @@ func TestAddText(t *testing.T) {
 		},
 		{
 			name:      "Handle invalid text (empty)",
-			wantError: false,
+			wantError: true,
 			images:    testImages,
 			op:        AddText{text: "", font_scale: 1.0, x: 0.5, y: 0.5},
 		},
@@ -417,6 +418,64 @@ func TestRandomFilter(t *testing.T) {
 			wantError: true,
 			images:    testImages,
 			op:        RandomFilter{kernel_size: 0, min: -1, max: 1, normalize: false},
+		},
+
+		{
+			name:      "Handle Nil image case",
+			wantError: true,
+			images:    []*gocv.Mat{nil},
+			op:        RandomFilter{kernel_size: 1, min: -1, max: 1, normalize: false},
+		},
+	}
+
+	for _, tt := range tests {
+
+		for _, image := range tt.images {
+
+			_, err := tt.op.Run(image)
+
+			if tt.wantError && err == nil {
+				t.Errorf("Test: %s, expected error but got nil", tt.name)
+			} else if !tt.wantError && err != nil {
+				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+			}
+		}
+
+	}
+
+}
+
+func TestShuffle(t *testing.T) {
+	testImages := generateTestImages()
+	tests := []struct {
+		name      string
+		wantError bool
+		images    []*gocv.Mat
+		op        Shuffle
+	}{
+		{
+			name:      "test with various image sizes",
+			wantError: false,
+			images:    testImages,
+			op:        Shuffle{partitions: 10},
+		},
+		{
+			name:      "test with various image sizes",
+			wantError: false,
+			images:    testImages,
+			op:        Shuffle{partitions: 100},
+		},
+		{
+			name:      "Handle partitions greater than image size, or a ridiculously large parition size",
+			wantError: true,
+			images:    testImages,
+			op:        Shuffle{partitions: 9999999999999},
+		},
+		{
+			name:      "Handle Nil image case",
+			wantError: true,
+			images:    []*gocv.Mat{nil},
+			op:        Shuffle{partitions: 10},
 		},
 	}
 
