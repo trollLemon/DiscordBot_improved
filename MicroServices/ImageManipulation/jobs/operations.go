@@ -320,7 +320,7 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	part_cols := int(part_cols_flr)
 
 	slice_width := cols / int(part_cols)
-	slice_height := cols / int(part_rows)
+	slice_height := rows / int(part_rows)
 
 	slices := []gocv.Mat{}
 
@@ -330,10 +330,13 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 			row_range := r * slice_height
 			col_range := c * slice_width
 
-			//select a partition, but keep it within the bounds of the image
-			roiRect := image.Rect(col_range, row_range,
-				min(col_range+slice_width, cols),
-				min(row_range+slice_height, rows))
+			rowStart := row_range
+			rowEnd := min(row_range+slice_height, rows)
+			
+			colStart := col_range
+			colEnd := min(col_range+slice_width, cols)
+
+			roiRect := image.Rect(colStart, rowStart, colEnd, rowEnd)
 
 			img_slice := input.Region(roiRect)
 			slices = append(slices, img_slice)
@@ -360,7 +363,6 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 		sliceRows := slice.Rows()
 		sliceCols := slice.Cols()
-
 		roiRect := image.Rect(colStart, rowStart, colStart+sliceCols, rowStart+sliceRows)
 		roi := shuffled_image.Region(roiRect)
 		slice.CopyTo(&roi)
