@@ -125,7 +125,7 @@ func TestIntegration(t *testing.T) {
 			}
 
 			if result != nil && job.GetTimeElapsed() == 0 {
-				t.Errorf("Test: %s, expected job to take time to complete, StartTime: %d, EndTime: %d ", tt.name, job.GetStartTime(), job.GetEndTime())
+				t.Errorf("Test: %s, expected job to take time to complete, StartTime: %d, EndTime: %d ", tt.name, job.GetStartTime().UnixMilli(), job.GetEndTime().UnixMilli())
 			}
 
 		}
