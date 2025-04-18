@@ -18,6 +18,7 @@ func generateTestImages() []*gocv.Mat {
 		{width: 64, height: 32},
 		{width: 256, height: 256},
 		{width: 128, height: 128},
+		{width: 359, height: 474},
 		{width: 512, height: 512},
 		{width: 1280, height: 720},
 		{width: 1920, height: 1080},
@@ -33,9 +34,11 @@ func generateTestImages() []*gocv.Mat {
 	return images
 }
 
-func TestInvert(t *testing.T) {
+var (
+	testImages = generateTestImages()
+)
 
-	testImages := generateTestImages()
+func TestInvert(t *testing.T) {
 
 	tests := []struct {
 		name      string
@@ -75,7 +78,6 @@ func TestInvert(t *testing.T) {
 }
 
 func TestSaturate(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -133,7 +135,6 @@ func TestSaturate(t *testing.T) {
 }
 
 func TestEdgeDetect(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -190,7 +191,6 @@ func TestEdgeDetect(t *testing.T) {
 }
 
 func TestMorphology(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -248,7 +248,6 @@ func TestMorphology(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -293,7 +292,6 @@ func TestReduce(t *testing.T) {
 }
 
 func TestAddText(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -368,7 +366,6 @@ func TestAddText(t *testing.T) {
 }
 
 func TestRandomFilter(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool
@@ -446,7 +443,6 @@ func TestRandomFilter(t *testing.T) {
 }
 
 func TestShuffle(t *testing.T) {
-	testImages := generateTestImages()
 	tests := []struct {
 		name      string
 		wantError bool

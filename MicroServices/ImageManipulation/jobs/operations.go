@@ -332,7 +332,7 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 			rowStart := row_range
 			rowEnd := min(row_range+slice_height, rows)
-			
+
 			colStart := col_range
 			colEnd := min(col_range+slice_width, cols)
 
