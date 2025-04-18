@@ -18,8 +18,8 @@ func NewMorphology(kernel_size, iterations int, op choice) Operation {
 	return &Morphology{kernel_size: kernel_size, iterations: iterations, op: op}
 }
 
-func NewReduce() Operation {
-	return &Reduce{}
+func NewReduce(quality float32) Operation {
+	return &Reduce{quality: quality}
 }
 
 func NewAddText(text string, fontScale, xPercentage, yPercentage float64) Operation {
