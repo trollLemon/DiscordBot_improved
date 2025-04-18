@@ -1,72 +1,80 @@
 package jobs
 
 import (
+	"fmt"
 	"testing"
 
 	"gocv.io/x/gocv"
 )
 
-type mockOperation struct{}
+type TestBasicOP struct{}
 
-func (m *mockOperation) Run(input *gocv.Mat) (*gocv.Mat, error) {
+func (t *TestBasicOP) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	return input, nil
 }
 
-func TestJob(t *testing.T) {
+type TestFailureOP struct{}
 
-	mockImage := gocv.NewMatWithSize(64, 64, gocv.MatTypeCV16UC3)
+func (t *TestFailureOP) Run(input *gocv.Mat) (*gocv.Mat, error) {
+	return nil, fmt.Errorf("Operation Failed")
+}
+
+func TestJobs(t *testing.T) {
+	inputImage := gocv.NewMatWithSize(32, 32, gocv.MatTypeCV8U)
+	defer inputImage.Close()
+
+	outputImage := gocv.NewMatWithSize(32, 32, gocv.MatTypeCV8U)
+	defer outputImage.Close()
 
 	tests := []struct {
-		name    string
-		job     *Job
-		wantId  uint8
-		wantErr bool
+		name          string
+		inputImage    gocv.Mat
+		expectedImage gocv.Mat
+		operation     Operation
+		expectError   bool
 	}{
 		{
-			name:    "TestNewJob",
-			job:     NewJob(1, &mockOperation{}, &mockImage),
-			wantId:  1,
-			wantErr: false,
+			name:          "Basic Operation Test",
+			inputImage:    inputImage,
+			expectedImage: outputImage,
+			operation:     &TestBasicOP{},
+			expectError:   false,
 		},
 		{
-			name:    "TestProcess",
-			job:     NewJob(2, &mockOperation{}, &mockImage),
-			wantId:  2,
-			wantErr: false,
+			name:          "Failure Operation Test",
+			inputImage:    inputImage,
+			expectedImage: outputImage,
+			operation:     &TestFailureOP{},
+			expectError:   true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.job.GetJobId(); got != tt.wantId {
-				t.Errorf("GetJobId() = %v, want %v", got, tt.wantId)
+
+			job := Job{
+				inputImage: &inputImage,
+				jobId:      1,
+				Operation:  tt.operation,
 			}
 
-			_, err := tt.job.Process()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("%s: Process() returned unexpected error: %v", tt.name, err)
+			img, err := job.Process()
+
+			if tt.expectError && err == nil {
+				t.Errorf("expected error but got none")
+			} else if !tt.expectError && err != nil {
+				t.Errorf("expected no error but got: %v", err)
+			} else if !tt.expectError {
+
+				diff := gocv.NewMat()
+				gocv.AbsDiff(*img, tt.expectedImage, &diff)
+
+				if gocv.CountNonZero(diff) != 0 {
+					t.Errorf("Expected Image differs from actual image")
+				}
+
 			}
 
-			if !tt.job.endTime.After(tt.job.startTime) {
-				t.Error("endTime must be after startTime")
-			}
-
-			elapsed := tt.job.GetTimeElapsed()
-
-			if elapsed == 0 {
-				t.Errorf("GetTimeElapsed reported no time elapsed")
-			}
 		})
 	}
-
-	// Test case where Process hasn't been called
-	job := NewJob(3, &mockOperation{}, &mockImage)
-	if job.endTime.IsZero() {
-		t.Run("TestJobNotRun", func(t *testing.T) {
-			if got := job.GetTimeElapsed(); got != 0 {
-				t.Errorf("GetTimeElapsed returned %d when Process wasn't called", got)
-			}
-		})
-	}
-
 }

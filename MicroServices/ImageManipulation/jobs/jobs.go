@@ -1,53 +1,48 @@
 package jobs
 
 import (
-	"time"
-
 	"gocv.io/x/gocv"
 )
 
 type Operation interface {
-	Run(input *gocv.Mat) (*gocv.Mat, error)
+	Run(input *gocv.Mat) (*gocv.Mat,  error)
 }
 
-func NewJob(id uint8, operation Operation, image *gocv.Mat) *Job {
 
-	return &Job{jobId: id, operation: operation, inputImage: image}
-}
+
 
 /*
 Job Struct
+
 */
 type Job struct {
-	jobId uint8
-	operation Operation
-	inputImage *gocv.Mat
-	startTime  time.Time
-	endTime    time.Time
+	jobId       uint8
+	Operation
+	inputImage  *gocv.Mat
 }
 
 func (j *Job) Process() (*gocv.Mat, error) {
 
-	j.startTime = time.Now()
-	result, err := j.operation.Run(j.inputImage)
-	j.endTime = time.Now()
-
-	return result, err
+	return j.Run(j.inputImage)
 }
+
 
 func (j *Job) GetJobId() uint8 {
 	return j.jobId
 }
 
-func (j *Job) GetTimeElapsed() int {
+type Invert struct{}
 
-	return int(j.endTime.Local().Nanosecond()) - int(j.startTime.Nanosecond())
+func (i Invert) Run(input gocv.Mat, output gocv.Mat) error {
+	return nil
 }
 
-func (j *Job) GetStartTime() int {
-	return int(j.startTime.UnixMilli())
+
+type EdgeDetect struct {
+	t_lower  float64
+	t_higher float64
 }
 
-func (j *Job) GetEndTime() int {
-	return int(j.endTime.UnixMilli())
+func (e EdgeDetect) Run(input gocv.Mat, output gocv.Mat) error {
+	return nil
 }
