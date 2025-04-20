@@ -52,7 +52,7 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if s.value <= 0.0 {
-		return nil, fmt.Errorf("Expected saturation value to be greater than 0, got %f", s.value)
+		return nil, fmt.Errorf("expected saturation value to be greater than 0, got %f", s.value)
 	}
 
 	hsvImage := gocv.NewMat()
@@ -93,8 +93,8 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 /* Edge Detection */
 
 type EdgeDetect struct {
-	t_lower  float32
-	t_higher float32
+	tLower  float32
+	tHigher float32
 }
 
 func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
@@ -103,13 +103,13 @@ func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
 		return nil, errors.New("input image is empty")
 	}
 
-	if e.t_lower < 0 || e.t_higher < 0 {
-		return nil, fmt.Errorf("Expected t_lower and t_higher to be greater than or equal to 0, got %0.2f and %0.2f", e.t_lower, e.t_higher)
+	if e.tLower < 0 || e.tHigher < 0 {
+		return nil, fmt.Errorf("expected t_lower and t_higher to be greater than or equal to 0, got %0.2f and %0.2f", e.tLower, e.tHigher)
 	}
 
 	edges := gocv.NewMat()
 
-	gocv.Canny(*input, &edges, e.t_lower, e.t_higher)
+	gocv.Canny(*input, &edges, e.tLower, e.tHigher)
 
 	return &edges, nil
 
@@ -124,9 +124,9 @@ const (
 )
 
 type Morphology struct {
-	kernel_size int
-	iterations  int
-	op          choice
+	kernelSize int
+	iterations int
+	op         choice
 }
 
 func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
@@ -135,11 +135,11 @@ func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 		return nil, errors.New("input image is empty")
 	}
 
-	if m.kernel_size <= 0 || m.iterations <= 0 {
-		return nil, fmt.Errorf("Expected kernel size and iterations to be greater than 0, got %d and %d", m.kernel_size, m.iterations)
+	if m.kernelSize <= 0 || m.iterations <= 0 {
+		return nil, fmt.Errorf("expected kernel size and iterations to be greater than 0, got %d and %d", m.kernelSize, m.iterations)
 	}
 
-	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{X: m.kernel_size, Y: m.kernel_size})
+	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{X: m.kernelSize, Y: m.kernelSize})
 	morphedImage := gocv.NewMat()
 
 	switch m.op {
@@ -150,7 +150,7 @@ func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	default:
 
 		defer morphedImage.Close()
-		return nil, errors.New("Invalid morphology operation")
+		return nil, errors.New("invalid morphology operation")
 	}
 
 	return &morphedImage, nil
@@ -168,7 +168,7 @@ func (r *Reduce) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if r.quality <= 0.0 {
-		return nil, fmt.Errorf("Expected quality to be greater than 0.0, got %0.2f", r.quality)
+		return nil, fmt.Errorf("expected quality to be greater than 0.0, got %0.2f", r.quality)
 	}
 
 	resizedImage := gocv.NewMat()
@@ -187,30 +187,30 @@ func (r *Reduce) Run(input *gocv.Mat) (*gocv.Mat, error) {
 /* Text */
 
 type AddText struct {
-	text       string
-	font_scale float64
-	x          float64
-	y          float64
+	text      string
+	fontScale float64
+	x         float64
+	y         float64
 }
 
 func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
 
-		return nil, errors.New("Input image is empty")
+		return nil, errors.New("input image is empty")
 
 	}
 
 	if a.text == "" {
-		return nil, errors.New("Must be given a non-empty string")
+		return nil, errors.New("must be given a non-empty string")
 	}
 
 	if a.x < 0.0 || a.y < 0.0 || a.x > 1.0 || a.y > 1.0 {
-		return nil, fmt.Errorf("Expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.x, a.y)
+		return nil, fmt.Errorf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.x, a.y)
 	}
 
-	if a.font_scale <= 0.0 {
-		return nil, fmt.Errorf("Expected font scale to be greater than 0, got %0.2f", a.font_scale)
+	if a.fontScale <= 0.0 {
+		return nil, fmt.Errorf("expected font scale to be greater than 0, got %0.2f", a.fontScale)
 	}
 
 	rows, cols := input.Rows(), input.Cols()
@@ -220,7 +220,7 @@ func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	thickness := 1
 	lineType := gocv.LineAA
 
-	gocv.PutTextWithParams(input, a.text, image.Point{X: xPos, Y: yPos}, gocv.FontHersheyPlain, a.font_scale, color.RGBA{255, 255, 255, 255}, thickness, lineType, false)
+	gocv.PutTextWithParams(input, a.text, image.Point{X: xPos, Y: yPos}, gocv.FontHersheyPlain, a.fontScale, color.RGBA{255, 255, 255, 255}, thickness, lineType, false)
 
 	return input, nil
 }
@@ -228,30 +228,30 @@ func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 /* Misc */
 
 type RandomFilter struct {
-	kernel_size int
-	min         int
-	max         int
-	normalize   bool
+	kernelSize int
+	min        int
+	max        int
+	normalize  bool
 }
 
 func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
 
-		return nil, errors.New("Input image is empty")
+		return nil, errors.New("input image is empty")
 
 	}
 
-	if r.kernel_size <= 0 {
+	if r.kernelSize <= 0 {
 
-		return nil, fmt.Errorf("Expected kernel size to be greater than 0, got %d", r.kernel_size)
+		return nil, fmt.Errorf("expected kernel size to be greater than 0, got %d", r.kernelSize)
 
 	}
 
 	kernels := []gocv.Mat{
-		gocv.NewMatWithSize(r.kernel_size, r.kernel_size, gocv.MatTypeCV64F),
-		gocv.NewMatWithSize(r.kernel_size, r.kernel_size, gocv.MatTypeCV64F),
-		gocv.NewMatWithSize(r.kernel_size, r.kernel_size, gocv.MatTypeCV64F),
+		gocv.NewMatWithSize(r.kernelSize, r.kernelSize, gocv.MatTypeCV64F),
+		gocv.NewMatWithSize(r.kernelSize, r.kernelSize, gocv.MatTypeCV64F),
+		gocv.NewMatWithSize(r.kernelSize, r.kernelSize, gocv.MatTypeCV64F),
 	}
 	rng := gocv.TheRNG()
 
@@ -313,33 +313,33 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	cols := input.Cols()
 	dataType := input.Type()
 
-	part_rows_flr := math.Floor(math.Sqrt(float64(s.partitions)))
-	part_cols_flr := math.Floor(float64(s.partitions) / part_rows_flr)
+	partRowsFlr := math.Floor(math.Sqrt(float64(s.partitions)))
+	partColsFlr := math.Floor(float64(s.partitions) / partRowsFlr)
 
-	part_rows := int(part_rows_flr)
-	part_cols := int(part_cols_flr)
+	partRows := int(partRowsFlr)
+	partCols := int(partColsFlr)
 
-	slice_width := cols / int(part_cols)
-	slice_height := rows / int(part_rows)
+	sliceWidth := cols / int(partCols)
+	sliceHeight := rows / int(partRows)
 
-	slices := []gocv.Mat{}
+	var slices []gocv.Mat
 
-	for r := range part_rows {
-		for c := range part_cols {
+	for r := range partRows {
+		for c := range partCols {
 
-			row_range := r * slice_height
-			col_range := c * slice_width
+			rowRange := r * sliceHeight
+			colRange := c * sliceWidth
 
-			rowStart := row_range
-			rowEnd := min(row_range+slice_height, rows)
+			rowStart := rowRange
+			rowEnd := min(rowRange+sliceHeight, rows)
 
-			colStart := col_range
-			colEnd := min(col_range+slice_width, cols)
+			colStart := colRange
+			colEnd := min(colRange+sliceWidth, cols)
 
 			roiRect := image.Rect(colStart, rowStart, colEnd, rowEnd)
 
-			img_slice := input.Region(roiRect)
-			slices = append(slices, img_slice)
+			imgSlice := input.Region(roiRect)
+			slices = append(slices, imgSlice)
 		}
 
 	}
@@ -348,26 +348,26 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 		slices[i], slices[j] = slices[j], slices[i]
 	})
 
-	new_height := min(part_rows*slice_height, rows)
-	new_width := min(part_cols*slice_width, cols)
+	newHeight := min(partRows*sliceHeight, rows)
+	newWidth := min(partCols*sliceWidth, cols)
 
-	shuffled_image := gocv.NewMatWithSize(new_height, new_width, dataType)
+	shuffledImage := gocv.NewMatWithSize(newHeight, newWidth, dataType)
 
 	for idx, slice := range slices {
 
-		row_idx := idx / part_cols
-		col_idx := idx % part_cols
+		rowIdx := idx / partCols
+		colIdx := idx % partCols
 
-		rowStart := row_idx * slice_height
-		colStart := col_idx * slice_width
+		rowStart := rowIdx * sliceHeight
+		colStart := colIdx * sliceWidth
 
 		sliceRows := slice.Rows()
 		sliceCols := slice.Cols()
 		roiRect := image.Rect(colStart, rowStart, colStart+sliceCols, rowStart+sliceRows)
-		roi := shuffled_image.Region(roiRect)
+		roi := shuffledImage.Region(roiRect)
 		slice.CopyTo(&roi)
 		roi.Close()
 	}
 
-	return &shuffled_image, nil
+	return &shuffledImage, nil
 }

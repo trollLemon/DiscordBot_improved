@@ -8,14 +8,14 @@ func NewSaturate(value float32) Operation {
 	return &Saturate{value: value}
 }
 
-func NewEdgeDetection(t_lower, t_higher float32) Operation {
+func NewEdgeDetection(tLower, tHigher float32) Operation {
 
-	return &EdgeDetect{t_lower: t_lower, t_higher: t_higher}
+	return &EdgeDetect{tLower: tLower, tHigher: tHigher}
 
 }
 
-func NewMorphology(kernel_size, iterations int, op choice) Operation {
-	return &Morphology{kernel_size: kernel_size, iterations: iterations, op: op}
+func NewMorphology(kernelSize, iterations int, op choice) Operation {
+	return &Morphology{kernelSize: kernelSize, iterations: iterations, op: op}
 }
 
 func NewReduce(quality float32) Operation {
@@ -24,13 +24,13 @@ func NewReduce(quality float32) Operation {
 
 func NewAddText(text string, fontScale, xPercentage, yPercentage float64) Operation {
 
-	return &AddText{text: text, font_scale: fontScale, x: xPercentage, y: yPercentage}
+	return &AddText{text: text, fontScale: fontScale, x: xPercentage, y: yPercentage}
 
 }
 
-func NewRandomFilter(kernel_size, min, max int, normalize bool) Operation {
+func NewRandomFilter(kernelSize, min, max int, normalize bool) Operation {
 
-	return &RandomFilter{kernel_size: kernel_size, min: min, max: max, normalize: normalize}
+	return &RandomFilter{kernelSize: kernelSize, min: min, max: max, normalize: normalize}
 
 }
 
