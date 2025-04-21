@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
+	"sync"
 
 	"gocv.io/x/gocv"
 )
@@ -269,12 +270,21 @@ func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 		gocv.NewMat(),
 	}
 
+	wg := sync.WaitGroup{}
+
+	// convolve the 3D filter over the RBG image concurrently
 	for idx, kernel := range kernels {
 
-		gocv.Filter2D(channels[idx], &filteredChannels[idx], gocv.MatType(ddepth), kernel, image.Point{-1, -1}, 0, gocv.BorderDefault)
-		kernel.Close()
-		channels[idx].Close()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			gocv.Filter2D(channels[idx], &filteredChannels[idx], gocv.MatType(ddepth), kernel, image.Point{-1, -1}, 0, gocv.BorderDefault)
+			kernel.Close()
+			channels[idx].Close()
+		}()
 	}
+
+	wg.Wait()
 
 	filteredImage := gocv.NewMat()
 
@@ -296,17 +306,17 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
 
-		return nil, errors.New("Input image is empty")
+		return nil, errors.New("input image is empty")
 
 	}
 	if s.partitions <= 1 {
 
-		return nil, fmt.Errorf("Expected partitions to be greater than 1, got %d", s.partitions)
+		return nil, fmt.Errorf("expected partitions to be greater than 1, got %d", s.partitions)
 
 	}
 
 	if s.partitions >= input.Rows()*input.Cols() {
-		return nil, fmt.Errorf("Cannot fit %d partitions in a %d by %d image", s.partitions, input.Rows(), input.Cols())
+		return nil, fmt.Errorf("cannot fit %d partitions in a %d by %d image", s.partitions, input.Rows(), input.Cols())
 	}
 
 	rows := input.Rows()
