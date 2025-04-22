@@ -14,6 +14,7 @@ var (
 )
 
 func getNewJobId() uint8 {
+	jobId++
 	return uint8(jobId + 1)
 }
 
