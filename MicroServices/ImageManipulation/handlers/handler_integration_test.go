@@ -1,9 +1,12 @@
 package handlers_test
 
 import (
+	"context"
+	"go.uber.org/goleak"
 	"gocv.io/x/gocv"
 	"image_manip/jobs"
 	"image_manip/worker"
+	"sync"
 	"testing"
 )
 
@@ -18,11 +21,15 @@ func jobsToRequests(jobArr []*jobs.Job) []*jobs.JobRequest {
 }
 
 func TestJobDispatch(t *testing.T) {
+
+	defer goleak.VerifyNone(t)
+
 	testImage := gocv.NewMatWithSize(1920, 1080, gocv.MatTypeCV8UC3) // RGB image
 	defer testImage.Close()
 	numWorkers := 4
 	requestsChan := make(chan *jobs.JobRequest, numWorkers)
-	defer close(requestsChan)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	tests := []struct {
 		name      string
@@ -62,8 +69,10 @@ func TestJobDispatch(t *testing.T) {
 		},
 	}
 
+	wg := &sync.WaitGroup{}
 	for idx := range numWorkers {
-		go worker.Worker(idx, requestsChan)
+		wg.Add(1)
+		go worker.Worker(ctx, idx, requestsChan, wg)
 	}
 
 	for _, tt := range tests {
@@ -88,4 +97,6 @@ func TestJobDispatch(t *testing.T) {
 		}
 
 	}
+	close(requestsChan)
+	wg.Wait()
 }
