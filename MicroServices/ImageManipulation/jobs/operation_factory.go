@@ -14,7 +14,7 @@ func NewEdgeDetection(tLower, tHigher float32) Operation {
 
 }
 
-func NewMorphology(kernelSize, iterations int, op choice) Operation {
+func NewMorphology(kernelSize, iterations int, op Choice) Operation {
 	return &Morphology{kernelSize: kernelSize, iterations: iterations, op: op}
 }
 
