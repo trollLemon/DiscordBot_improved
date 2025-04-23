@@ -1,10 +1,13 @@
 package worker_test
 
 import (
+	"context"
 	"errors"
+	"go.uber.org/goleak"
 	"gocv.io/x/gocv"
 	"image_manip/jobs"
 	"image_manip/worker"
+	"sync"
 	"testing"
 	"time"
 )
@@ -23,6 +26,9 @@ func (m MockOperationSuccess) Run(input *gocv.Mat) (*gocv.Mat, error) {
 }
 
 func TestWorker(t *testing.T) {
+
+	defer goleak.VerifyNone(t)
+
 	timeLimit := time.Second * 5
 	testImage := gocv.NewMat()
 	tests := []struct {
@@ -55,9 +61,12 @@ func TestWorker(t *testing.T) {
 			jobRequestChannel: make(chan *jobs.JobRequest, 1),
 		},
 	}
-
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	wg := &sync.WaitGroup{}
 	for _, tt := range tests {
-		go worker.Worker(0, tt.jobRequestChannel)
+		wg.Add(1)
+		go worker.Worker(ctx, 0, tt.jobRequestChannel, wg)
 
 		for _, jobRequest := range tt.jobRequests {
 			tt.jobRequestChannel <- jobRequest
@@ -74,11 +83,11 @@ func TestWorker(t *testing.T) {
 			case <-time.After(timeLimit):
 				t.Errorf("worker() timeout, did not send to err or result channels")
 			}
-			close(jobRequest.Error)
-			close(jobRequest.Result)
+
 		}
 
 		close(tt.jobRequestChannel)
 	}
+	wg.Wait()
 
 }
