@@ -117,17 +117,17 @@ func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
 }
 
 /* Morphology */
-type choice int
+type Choice string
 
 const (
-	Dilate choice = iota
-	Erode
+	Dilate Choice = "Dilate"
+	Erode         = "Erode"
 )
 
 type Morphology struct {
 	kernelSize int
 	iterations int
-	op         choice
+	op         Choice
 }
 
 func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
