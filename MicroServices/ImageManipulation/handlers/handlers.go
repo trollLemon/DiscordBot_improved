@@ -18,25 +18,22 @@ func getNewJobId() uint8 {
 	return uint8(jobId + 1)
 }
 
-func ProcessImage(job *jobs.Job, jobRequests chan *jobs.JobRequest, ctx context.Context) ([]byte, error) {
+func ProcessImage(job *jobs.Job, jobRequests chan *jobs.JobRequest, ctx context.Context) (*gocv.NativeByteBuffer, error) {
 	jobRequest := jobs.NewJobRequest(job)
 	resultChan := jobRequest.Result
 	errChan := jobRequest.Error
 	jobRequests <- jobRequest
-
-	//defer cancel()
-	defer close(resultChan)
-	defer close(errChan)
-
 	select {
 	case result := <-resultChan:
 		{
+			defer result.Close()
 			buf, err := gocv.IMEncode(".png", *result)
 			if err != nil {
 				log.Err(err).Msg("failed to encode result into png format")
 				return nil, err
 			}
-			return buf.GetBytes(), nil
+
+			return buf, nil
 		}
 	case err := <-errChan:
 		{
@@ -50,7 +47,7 @@ func ProcessImage(job *jobs.Job, jobRequests chan *jobs.JobRequest, ctx context.
 
 }
 
-func InvertImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat) ([]byte, error) {
+func InvertImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
 	job := jobs.NewJob(getNewJobId(), jobs.NewInvert(), image)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -58,17 +55,24 @@ func InvertImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat) ([]byte, er
 
 }
 
-func SaturateImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat, value float32) ([]byte, error) {
+func SaturateImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat, value float32) (*gocv.NativeByteBuffer, error) {
 	job := jobs.NewJob(getNewJobId(), jobs.NewSaturate(value), image)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	return ProcessImage(job, jobRequests, ctx)
 }
 
-func DetectEdges(jobRequests chan *jobs.JobRequest, image *gocv.Mat, tLower, tHigher float32) ([]byte, error) {
+func DetectEdges(jobRequests chan *jobs.JobRequest, image *gocv.Mat, tLower, tHigher float32) (*gocv.NativeByteBuffer, error) {
 	job := jobs.NewJob(getNewJobId(), jobs.NewEdgeDetection(tLower, tHigher), image)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	return ProcessImage(job, jobRequests, ctx)
 
+}
+
+func MorphImage(jobRequests chan *jobs.JobRequest, image *gocv.Mat, choice jobs.Choice, kernelSize, iterations int) (*gocv.NativeByteBuffer, error) {
+	job := jobs.NewJob(getNewJobId(), jobs.NewMorphology(kernelSize, iterations, choice), image)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	return ProcessImage(job, jobRequests, ctx)
 }

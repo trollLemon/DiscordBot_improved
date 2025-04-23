@@ -1,6 +1,9 @@
 package handlers_test
 
 import (
+	"go.uber.org/goleak"
+	"sync"
+
 	"context"
 	"errors"
 	"gocv.io/x/gocv"
@@ -20,8 +23,8 @@ type MockOperationTimeOut struct{}
 
 func (m MockOperationTimeOut) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
-	time.Sleep(time.Second * 15)
-	return nil, nil
+	time.Sleep(time.Millisecond * 3)
+	return input, nil
 }
 
 func (m MockOperationErr) Run(input *gocv.Mat) (*gocv.Mat, error) {
@@ -32,12 +35,16 @@ func (m MockOperationSuccess) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	return input, nil
 }
 
-func TestInvertImageHandler(t *testing.T) {
-
+func TestImageHandler(t *testing.T) {
+	defer goleak.VerifyNone(t)
 	requests := make(chan *jobs.JobRequest)
 	testImage := gocv.NewMatWithSize(1920, 1080, gocv.MatTypeCV32F)
-	testCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	testCtx, timeOutCancel := context.WithTimeout(context.Background(), time.Millisecond)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer testImage.Close()
 	defer cancel()
+	defer timeOutCancel()
+
 	tests := []struct {
 		name        string
 		wantErr     bool
@@ -64,13 +71,13 @@ func TestInvertImageHandler(t *testing.T) {
 			job:         jobs.NewJob(0, MockOperationTimeOut{}, &testImage),
 		},
 	}
-
-	go worker.Worker(0, requests)
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go worker.Worker(ctx, 0, requests, wg)
 
 	timeOutError := errors.New("job cancelled due to timeout")
 
 	for _, tt := range tests {
-
 		_, err := handlers.ProcessImage(tt.job, requests, testCtx)
 
 		if tt.wantTimeout && !errors.Is(err, timeOutError) {
