@@ -6,14 +6,14 @@ import (
 	"io"
 )
 
-func BytesToMat(data []byte) (*gocv.Mat, error) {
+func bytesToMat(data []byte) (*gocv.Mat, error) {
 
 	mat, err := gocv.IMDecode(data, gocv.IMReadUnchanged)
 
 	return &mat, err
 }
 
-func getImageFromBody(c echo.Context) (*gocv.Mat, error) {
+func GetImageFromBody(c echo.Context) (*gocv.Mat, error) {
 	imageBytes, err := io.ReadAll(c.Request().Body)
 	defer c.Request().Body.Close()
 
@@ -21,7 +21,7 @@ func getImageFromBody(c echo.Context) (*gocv.Mat, error) {
 		return nil, err
 	}
 
-	mat, err := BytesToMat(imageBytes)
+	mat, err := bytesToMat(imageBytes)
 
 	return mat, err
 }
