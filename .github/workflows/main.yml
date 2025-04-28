@@ -34,9 +34,12 @@ jobs:
       
       - name: Run tests for core application
         run: go test -v ./...
-
-      - name: Run tests for ImageManipulation microservice
-        working-directory: ./MicroServices/ImageManipulation
-        run: |
-          docker build --target tester  -t gomanip-test . 
-          docker run --rm gomanip-test          
+      - name: Build and test ImageManipulation microservice with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: ./MicroServices/ImageManipulation
+          target: tester
+          tags: gomanip-test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max  
