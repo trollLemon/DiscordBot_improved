@@ -31,8 +31,13 @@ jobs:
 
       - name: Build
         run: go build -v ./...
-
+      
       - name: Run tests for core application
         run: go test -v ./...
+
       - name: Run tests for ImageManipulation microservice
-        run: go test -v ./MicroServices/ImageManipulation/...
+        working-directory: ./MicroServices/ImageManipulation
+        run: |
+          go build
+          go mod download
+          go test -v ./...
