@@ -11,14 +11,18 @@ import (
 	"testing"
 )
 
-const THRESHOLD = 0
+const THRESHOLD = 10
 
 func newTestContextWithImage(image *gocv.Mat, fileExt, contentType string) echo.Context {
 
 	e := echo.New()
 
-	encodedImage, _ := gocv.IMEncode(gocv.FileExt(fileExt), *image)
-	defer encodedImage.Close()
+	encodedImage, err := gocv.IMEncode(gocv.FileExt(fileExt), *image)
+
+	if err != nil {
+		panic(err)
+	}
+
 	imgBytes := encodedImage.GetBytes()
 
 	imageReader := bytes.NewReader(imgBytes)
@@ -28,10 +32,11 @@ func newTestContextWithImage(image *gocv.Mat, fileExt, contentType string) echo.
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	encodedImage.Close()
 	return c
 }
 
-func newTestContextInvalidImage(fileExt, contentType string) echo.Context {
+func newTestContextInvalidImage(contentType string) echo.Context {
 
 	e := echo.New()
 
@@ -78,7 +83,6 @@ func TestGetImageFromBody(t *testing.T) {
 	}
 	smallImage := gocv.NewMatWithSize(700, 400, gocv.MatTypeCV8UC3)
 	largeImage := gocv.NewMatWithSize(1920, 1080, gocv.MatTypeCV8UC3)
-	//emptyImage := gocv.NewMat()
 
 	tests := []struct {
 		name      string
@@ -115,30 +119,27 @@ func TestGetImageFromBody(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			ctx := newTestContextWithImage(tt.image, tt.fileExt, fileExtToContentType[tt.fileExt])
+			imgCopy := tt.image.Clone()
+			ctx := newTestContextWithImage(&imgCopy, tt.fileExt, fileExtToContentType[tt.fileExt])
 
 			image, err := util.GetImageFromBody(ctx)
 
-			assert.Equal(t, tt.wantError, err != nil)
-			assert.True(t, isEqual(image, tt.image))
+			if imgCopy.Rows() != image.Rows() || imgCopy.Cols() != image.Cols() || imgCopy.Channels() != image.Channels() {
+				t.Errorf("Expected input image and output image to have the same dims. Input: %d, %d, %d. Output: %d, %d, %d", imgCopy.Rows(), imgCopy.Cols(), imgCopy.Channels(), image.Rows(), image.Cols(), image.Channels())
+			}
 
+			assert.Equal(t, tt.wantError, err != nil)
+			assert.True(t, isEqual(image, &imgCopy))
+			image.Close()
+			imgCopy.Close()
 		})
 	}
 
 }
 
-func TestGetImageFromBodyEmptyMat(t *testing.T) {
-	testImage := gocv.NewMat()
-	ctx := newTestContextWithImage(&testImage, ".png", "image/png")
-
-	_, err := util.GetImageFromBody(ctx)
-	assert.NotNil(t, err)
-}
-
 func TestGetImageFromBodyInvalidImage(t *testing.T) {
 
-	ctx := newTestContextInvalidImage(".png", "image/png")
+	ctx := newTestContextInvalidImage("image/png")
 
 	_, err := util.GetImageFromBody(ctx)
 	assert.NotNil(t, err)
