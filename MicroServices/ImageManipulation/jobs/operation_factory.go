@@ -5,36 +5,36 @@ func NewInvert() Operation {
 }
 
 func NewSaturate(value float32) Operation {
-	return &Saturate{value: value}
+	return &Saturate{Value: value}
 }
 
 func NewEdgeDetection(tLower, tHigher float32) Operation {
 
-	return &EdgeDetect{tLower: tLower, tHigher: tHigher}
+	return &EdgeDetect{TLower: tLower, THigher: tHigher}
 
 }
 
 func NewMorphology(kernelSize, iterations int, op Choice) Operation {
-	return &Morphology{kernelSize: kernelSize, iterations: iterations, op: op}
+	return &Morphology{KernelSize: kernelSize, Iterations: iterations, Op: op}
 }
 
 func NewReduce(quality float32) Operation {
-	return &Reduce{quality: quality}
+	return &Reduce{Quality: quality}
 }
 
 func NewAddText(text string, fontScale, xPercentage, yPercentage float64) Operation {
 
-	return &AddText{text: text, fontScale: fontScale, x: xPercentage, y: yPercentage}
+	return &AddText{Text: text, FontScale: fontScale, X: xPercentage, Y: yPercentage}
 
 }
 
 func NewRandomFilter(kernelSize, min, max int, normalize bool) Operation {
 
-	return &RandomFilter{kernelSize: kernelSize, min: min, max: max, normalize: normalize}
+	return &RandomFilter{KernelSize: kernelSize, Min: min, Max: max, Normalize: normalize}
 
 }
 
 func NewShuffle(partitions int) Operation {
 
-	return &Shuffle{partitions: partitions}
+	return &Shuffle{Partitions: partitions}
 }
