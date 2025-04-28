@@ -35,5 +35,5 @@ jobs:
       - name: Run tests for core application
         run: go test -v ./...
       - name: Run tests for ImageManipulation microservice
-        working-directory: ./Microservices/ImageManipulation/
+        working-directory: Microservices/ImageManipulation/
         run: go test -v ./...
