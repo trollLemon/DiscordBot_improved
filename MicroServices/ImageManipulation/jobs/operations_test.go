@@ -1,9 +1,9 @@
-package jobs
+package jobs_test
 
 import (
-	"testing"
-
+	"goManip/jobs"
 	"gocv.io/x/gocv"
+	"testing"
 )
 
 func generateTestImages() []*gocv.Mat {
@@ -44,92 +44,105 @@ func TestInvert(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        Invert
+		op        jobs.Invert
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Invert{},
+			op:        jobs.Invert{},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Invert{},
+			op:        jobs.Invert{},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
 			}
-		}
+
+		})
 
 	}
 
 }
 
 func TestSaturate(t *testing.T) {
+
+	nonRgbTestImage := gocv.NewMatWithSize(64, 64, gocv.MatTypeCV8UC3)
+	defer nonRgbTestImage.Close()
 	tests := []struct {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        Saturate
+		op        jobs.Saturate
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Saturate{value: 0.1},
+			op:        jobs.Saturate{Value: 0.1},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Saturate{value: 0.5},
+			op:        jobs.Saturate{Value: 0.5},
 		},
 		{
 			name:      "Handle value = 0.0 (Should err)",
 			wantError: true,
 			images:    testImages,
-			op:        Saturate{value: 0.0},
+			op:        jobs.Saturate{Value: 0.0},
 		},
 		{
 			name:      "Handle value < 0.0 (Should err)",
 			wantError: true,
 			images:    testImages,
-			op:        Saturate{value: -0.1},
+			op:        jobs.Saturate{Value: -0.1},
 		},
 
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Saturate{value: 0.1},
+			op:        jobs.Saturate{Value: 0.1},
+		},
+		{
+			name:      "Handle non RGB image case",
+			wantError: false,
+			images:    []*gocv.Mat{&nonRgbTestImage},
+			op:        jobs.Saturate{Value: 0.1},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
@@ -139,53 +152,54 @@ func TestEdgeDetect(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        EdgeDetect
+		op        jobs.EdgeDetect
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        EdgeDetect{tLower: 100, tHigher: 200},
+			op:        jobs.EdgeDetect{TLower: 100, THigher: 200},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        EdgeDetect{tLower: 10, tHigher: 20},
+			op:        jobs.EdgeDetect{TLower: 10, THigher: 20},
 		},
 		{
 			name:      "Handle tLower < 0.0 (Should err)",
 			wantError: true,
 			images:    testImages,
-			op:        EdgeDetect{tLower: -1, tHigher: 20},
+			op:        jobs.EdgeDetect{TLower: -1, THigher: 20},
 		},
 		{
 			name:      "Handle tHigher < 0.0 (Should err)",
 			wantError: true,
 			images:    testImages,
-			op:        EdgeDetect{tLower: 10, tHigher: -20},
+			op:        jobs.EdgeDetect{TLower: 10, THigher: -20},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        EdgeDetect{tLower: 10, tHigher: 20},
+			op:        jobs.EdgeDetect{TLower: 10, THigher: 20},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
@@ -195,54 +209,55 @@ func TestMorphology(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        Morphology
+		op        jobs.Morphology
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Morphology{kernelSize: 3, iterations: 3, op: Dilate},
+			op:        jobs.Morphology{KernelSize: 3, Iterations: 3, Op: jobs.Dilate},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Morphology{kernelSize: 3, iterations: 3, op: Erode},
+			op:        jobs.Morphology{KernelSize: 3, Iterations: 3, Op: jobs.Erode},
 		},
 		{
 			name:      "Handle invalid kernelSize (less than or equal to 0)",
 			wantError: true,
 			images:    testImages,
-			op:        Morphology{kernelSize: 0, iterations: 3, op: Dilate},
+			op:        jobs.Morphology{KernelSize: 0, Iterations: 3, Op: jobs.Dilate},
 		},
 		{
 			name:      "Handle invalid iterations (less than or equal to 0)",
 			wantError: true,
 			images:    testImages,
-			op:        Morphology{kernelSize: 3, iterations: 0, op: Dilate},
+			op:        jobs.Morphology{KernelSize: 3, Iterations: 0, Op: jobs.Dilate},
 		},
 
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Morphology{kernelSize: 3, iterations: 3, op: Erode},
+			op:        jobs.Morphology{KernelSize: 3, Iterations: 3, Op: jobs.Erode},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
@@ -252,41 +267,42 @@ func TestReduce(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        Reduce
+		op        jobs.Reduce
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Reduce{quality: 0.8},
+			op:        jobs.Reduce{Quality: 0.8},
 		},
 		{
 			name:      "Handle invalid quality (<=0)",
 			wantError: true,
 			images:    testImages,
-			op:        Reduce{quality: 0.0},
+			op:        jobs.Reduce{Quality: 0.0},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Reduce{quality: 0.5},
+			op:        jobs.Reduce{Quality: 0.5},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
@@ -296,148 +312,160 @@ func TestAddText(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        AddText
+		op        jobs.AddText
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        AddText{text: "text", fontScale: 1.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "text", FontScale: 1.0, X: 0.5, Y: 0.5},
 		},
 		{
 			name:      "Handle invalid text (empty)",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "", fontScale: 1.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "", FontScale: 1.0, X: 0.5, Y: 0.5},
 		},
 		{
 			name:      "Handle invalid fontScale (less than or equal to 0.0)",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "text", fontScale: -1.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "text", FontScale: -1.0, X: 0.5, Y: 0.5},
 		},
 		{
 			name:      "Handle invalid fontScale (less than or equal to 0.0)",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "text", fontScale: 0.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "text", FontScale: 0.0, X: 0.5, Y: 0.5},
 		},
 		{
 			name:      "Handle invalid xy scale",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "text", fontScale: 1.0, x: 0.2, y: 1.5},
+			op:        jobs.AddText{Text: "text", FontScale: 1.0, X: 0.2, Y: 1.5},
 		},
 		{
 			name:      "Handle invalid xy",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "text", fontScale: 1.0, x: -0.5, y: -0.5},
+			op:        jobs.AddText{Text: "text", FontScale: 1.0, X: -0.5, Y: -0.5},
 		},
 		{
 			name:      "Empty Case",
 			wantError: true,
 			images:    testImages,
-			op:        AddText{text: "", fontScale: 1.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "", FontScale: 1.0, X: 0.5, Y: 0.5},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        AddText{text: "text", fontScale: 1.0, x: 0.5, y: 0.5},
+			op:        jobs.AddText{Text: "text", FontScale: 1.0, X: 0.5, Y: 0.5},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
+		})
 
 	}
 
 }
 
 func TestRandomFilter(t *testing.T) {
+
+	nonRgbTestImage := gocv.NewMatWithSize(64, 64, gocv.MatTypeCV8UC3)
+	defer nonRgbTestImage.Close()
+
 	tests := []struct {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        RandomFilter
+		op        jobs.RandomFilter
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 3, min: -1, max: 1, normalize: false},
+			op:        jobs.RandomFilter{KernelSize: 3, Min: -1, Max: 1, Normalize: false},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 5, min: -2, max: 2, normalize: false},
+			op:        jobs.RandomFilter{KernelSize: 5, Min: -2, Max: 2, Normalize: false},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 7, min: -3, max: 3, normalize: false},
+			op:        jobs.RandomFilter{KernelSize: 7, Min: -3, Max: 3, Normalize: false},
 		},
 
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 3, min: -1, max: 1, normalize: true},
+			op:        jobs.RandomFilter{KernelSize: 3, Min: -1, Max: 1, Normalize: true},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 5, min: -2, max: 2, normalize: true},
+			op:        jobs.RandomFilter{KernelSize: 5, Min: -2, Max: 2, Normalize: true},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 7, min: -3, max: 3, normalize: true},
+			op:        jobs.RandomFilter{KernelSize: 7, Min: -3, Max: 3, Normalize: true},
 		},
 
 		{
 			name:      "Handle invalid kernel size",
 			wantError: true,
 			images:    testImages,
-			op:        RandomFilter{kernelSize: 0, min: -1, max: 1, normalize: false},
+			op:        jobs.RandomFilter{KernelSize: 0, Min: -1, Max: 1, Normalize: false},
 		},
 
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        RandomFilter{kernelSize: 1, min: -1, max: 1, normalize: false},
+			op:        jobs.RandomFilter{KernelSize: 1, Min: -1, Max: 1, Normalize: false},
+		},
+		{
+			name:      "Handle non RGB image case",
+			wantError: false,
+			images:    []*gocv.Mat{&nonRgbTestImage},
+			op:        jobs.RandomFilter{KernelSize: 1, Min: -1, Max: 1, Normalize: false},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
@@ -447,47 +475,48 @@ func TestShuffle(t *testing.T) {
 		name      string
 		wantError bool
 		images    []*gocv.Mat
-		op        Shuffle
+		op        jobs.Shuffle
 	}{
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Shuffle{partitions: 10},
+			op:        jobs.Shuffle{Partitions: 10},
 		},
 		{
 			name:      "test with various image sizes",
 			wantError: false,
 			images:    testImages,
-			op:        Shuffle{partitions: 100},
+			op:        jobs.Shuffle{Partitions: 100},
 		},
 		{
 			name:      "Handle partitions greater than image size, or a ridiculously large parition size",
 			wantError: true,
 			images:    testImages,
-			op:        Shuffle{partitions: 9999999999999},
+			op:        jobs.Shuffle{Partitions: 9999999999999},
 		},
 		{
 			name:      "Handle Nil image case",
 			wantError: true,
 			images:    []*gocv.Mat{nil},
-			op:        Shuffle{partitions: 10},
+			op:        jobs.Shuffle{Partitions: 10},
 		},
 	}
 
 	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, image := range tt.images {
 
-		for _, image := range tt.images {
+				_, err := tt.op.Run(image)
 
-			_, err := tt.op.Run(image)
-
-			if tt.wantError && err == nil {
-				t.Errorf("Test: %s, expected error but got nil", tt.name)
-			} else if !tt.wantError && err != nil {
-				t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				if tt.wantError && err == nil {
+					t.Errorf("Test: %s, expected error but got nil", tt.name)
+				} else if !tt.wantError && err != nil {
+					t.Errorf("Test: %s, error = %v, wantErr %v", tt.name, err.Error(), tt.wantError)
+				}
 			}
-		}
 
+		})
 	}
 
 }
