@@ -13,7 +13,7 @@ jobs:
       matrix:
         dockerfile-path: 
           - { path: ".", tag: "gomanip:$(date +%s)" }
-          - { path: "MicroServices/ImageManipulation", tag: "my-image-name-image-manipulation:$(date +%s)" }
+          - { path: "MicroServices/ImageManipulation", tag: "gomanip:$(date +%s)" }
 
     steps:
     - uses: actions/checkout@v4
