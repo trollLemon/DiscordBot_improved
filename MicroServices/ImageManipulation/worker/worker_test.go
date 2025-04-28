@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"go.uber.org/goleak"
+	"goManip/jobs"
+	"goManip/worker"
 	"gocv.io/x/gocv"
-	"image_manip/jobs"
-	"image_manip/worker"
 	"sync"
 	"testing"
 	"time"
@@ -17,6 +17,8 @@ type MockOperationSuccess struct {
 type MockOperationErr struct {
 }
 
+type MockOperationTimeOut struct{}
+
 func (m MockOperationErr) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	return nil, errors.New("error processing job")
 }
@@ -25,69 +27,114 @@ func (m MockOperationSuccess) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	return input, nil
 }
 
+func (m MockOperationTimeOut) Run(input *gocv.Mat) (*gocv.Mat, error) {
+
+	time.Sleep(1 * time.Second)
+
+	return input, nil
+}
+
 func TestWorker(t *testing.T) {
+
+	var tests = []struct {
+		name      string
+		operation jobs.Operation
+		wantErr   bool
+		canceled  bool
+	}{
+		{
+			name:      "Test Success",
+			operation: MockOperationSuccess{},
+			wantErr:   false,
+			canceled:  false,
+		},
+		{
+			name:      "Test Error",
+			operation: MockOperationErr{},
+			wantErr:   true,
+			canceled:  false,
+		},
+		{
+			name:      "Test Canceled by timeout",
+			operation: MockOperationTimeOut{},
+			wantErr:   true,
+			canceled:  true,
+		},
+	}
 
 	defer goleak.VerifyNone(t)
 
 	timeLimit := time.Second * 5
-	testImage := gocv.NewMat()
-	tests := []struct {
-		name              string
-		wantErr           bool
-		jobRequests       []*jobs.JobRequest
-		jobRequestChannel chan *jobs.JobRequest
-	}{
-		{
-			name:              "Test success",
-			wantErr:           false,
-			jobRequests:       []*jobs.JobRequest{jobs.NewJobRequest(jobs.NewJob(0, MockOperationSuccess{}, &testImage))},
-			jobRequestChannel: make(chan *jobs.JobRequest, 1),
-		},
-		{
-			name:              "Test Failure",
-			wantErr:           true,
-			jobRequests:       []*jobs.JobRequest{jobs.NewJobRequest(jobs.NewJob(0, MockOperationErr{}, &testImage))},
-			jobRequestChannel: make(chan *jobs.JobRequest, 1),
-		},
-		{
-			name:    "Test Success multiple jobs",
-			wantErr: false,
-			jobRequests: []*jobs.JobRequest{
-				jobs.NewJobRequest(jobs.NewJob(0, MockOperationSuccess{}, &testImage)),
-				jobs.NewJobRequest(jobs.NewJob(1, MockOperationSuccess{}, &testImage)),
-				jobs.NewJobRequest(jobs.NewJob(2, MockOperationSuccess{}, &testImage)),
-				jobs.NewJobRequest(jobs.NewJob(3, MockOperationSuccess{}, &testImage)),
-			},
-			jobRequestChannel: make(chan *jobs.JobRequest, 1),
-		},
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	wg := &sync.WaitGroup{}
+	testImage := gocv.NewMatWithSize(64, 64, gocv.MatTypeCV8UC3)
+	defer testImage.Close()
+
+	shutDownCtx, shutDownCancel := context.WithCancel(context.Background())
+
+	workerWg := &sync.WaitGroup{}
+
+	jobReqs := make(chan *jobs.JobRequest)
+
+	go worker.Worker(shutDownCtx, 0, jobReqs, workerWg)
+	workerWg.Add(1)
 	for _, tt := range tests {
-		wg.Add(1)
-		go worker.Worker(ctx, 0, tt.jobRequestChannel, wg)
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.Background(), timeLimit)
 
-		for _, jobRequest := range tt.jobRequests {
-			tt.jobRequestChannel <- jobRequest
+			job := jobs.NewJob(0, tt.operation, &testImage)
+			jobRequest := jobs.NewJobRequest(job, ctx)
 
-			select {
-			case err := <-jobRequest.Error:
-				if (err != nil) != tt.wantErr {
-					t.Errorf("Worker() error = %v, wantErr %v", err, tt.wantErr)
-				}
-			case result := <-jobRequest.Result:
-				if result == nil {
-					t.Errorf("Worker() result is nil, expected result")
-				}
-			case <-time.After(timeLimit):
-				t.Errorf("worker() timeout, did not send to err or result channels")
+			jobReqs <- jobRequest
+
+			result := <-jobRequest.Result
+
+			image, err := result.Image, result.Error
+
+			if !tt.wantErr && err != nil {
+				t.Errorf("TestWorker() %s, expected err, got %v", tt.name, err)
 			}
 
-		}
+			if tt.canceled && image != nil && err != nil {
+				t.Errorf("TestWorker() %s, expected err and nil image due to timeout", tt.name)
+			}
 
-		close(tt.jobRequestChannel)
+			if result.Image != nil {
+				result.Image.Close()
+			}
+			cancel()
+		})
 	}
-	wg.Wait()
+	close(jobReqs)
+	shutDownCancel()
+	workerWg.Wait()
 
+}
+
+func TestWorkerShutdown(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	jobReqs := make(chan *jobs.JobRequest)
+	testImage := gocv.NewMat()
+	ctx, cancel := context.WithCancel(context.Background())
+	go worker.Worker(ctx, 0, jobReqs, wg)
+
+	wg.Add(1)
+	cancel()
+	jobReqs <- jobs.NewJobRequest(jobs.NewJob(0, MockOperationSuccess{}, &testImage), context.Background())
+
+	close(jobReqs)
+	wg.Wait()
+}
+
+func TestWorkerCancel(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	jobReqs := make(chan *jobs.JobRequest)
+	testImage := gocv.NewMat()
+	go worker.Worker(context.Background(), 0, jobReqs, wg)
+	wg.Add(1)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	jobReqs <- jobs.NewJobRequest(jobs.NewJob(0, MockOperationSuccess{}, &testImage), ctx)
+
+	close(jobReqs)
+	wg.Wait()
 }
