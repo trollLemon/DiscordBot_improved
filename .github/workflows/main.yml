@@ -38,5 +38,5 @@ jobs:
       - name: Run tests for ImageManipulation microservice
         working-directory: ./MicroServices/ImageManipulation
         run: |
-          docker build --target application  -t gomanip-test . 
+          docker build --target tester  -t gomanip-test . 
           docker run --rm gomanip-test          
