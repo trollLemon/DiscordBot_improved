@@ -1,19 +1,25 @@
 package jobs
 
 import (
+	"context"
 	"gocv.io/x/gocv"
 )
 
-type JobRequest struct {
-	Job    *Job
-	Result chan *gocv.Mat
-	Error  chan error
+type Result struct {
+	Image *gocv.Mat
+	Error error
 }
 
-func NewJobRequest(job *Job) *JobRequest {
+type JobRequest struct {
+	Job    *Job
+	Result chan *Result
+	Ctx    context.Context
+}
+
+func NewJobRequest(job *Job, ctx context.Context) *JobRequest {
 	return &JobRequest{
 		Job:    job,
-		Result: make(chan *gocv.Mat, 1),
-		Error:  make(chan error, 1),
+		Result: make(chan *Result, 1),
+		Ctx:    ctx,
 	}
 }
