@@ -1,9 +1,9 @@
 package jobs
 
 import (
-	"testing"
-
+	"github.com/stretchr/testify/assert"
 	"gocv.io/x/gocv"
+	"testing"
 )
 
 type mockOperation struct{}
@@ -19,7 +19,7 @@ func TestJob(t *testing.T) {
 	tests := []struct {
 		name    string
 		job     *Job
-		wantId  uint8
+		wantId  uint32
 		wantErr bool
 	}{
 		{
@@ -43,19 +43,17 @@ func TestJob(t *testing.T) {
 			}
 
 			_, err := tt.job.Process()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("%s: Process() returned unexpected error: %v", tt.name, err)
-			}
+
+			assert.Equal(t, tt.wantErr, err != nil)
 
 			if !tt.job.endTime.After(tt.job.startTime) {
 				t.Error("endTime must be after startTime")
 			}
 
 			elapsed := tt.job.GetTimeElapsed()
-
-			if elapsed == 0 {
-				t.Errorf("GetTimeElapsed reported no time elapsed")
-			}
+			assert.True(t, tt.job.GetStartTime().UnixMilli() != 0)
+			assert.True(t, tt.job.GetEndTime().UnixMilli() != 0)
+			assert.True(t, elapsed > 0)
 		})
 	}
 
