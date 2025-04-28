@@ -1,16 +1,15 @@
 package jobs
 
 import (
-	"time"
-
 	"gocv.io/x/gocv"
+	"time"
 )
 
 type Operation interface {
 	Run(input *gocv.Mat) (*gocv.Mat, error)
 }
 
-func NewJob(id uint8, operation Operation, image *gocv.Mat) *Job {
+func NewJob(id uint32, operation Operation, image *gocv.Mat) *Job {
 
 	return &Job{jobId: id, operation: operation, inputImage: image}
 }
@@ -19,7 +18,7 @@ func NewJob(id uint8, operation Operation, image *gocv.Mat) *Job {
 Job Struct
 */
 type Job struct {
-	jobId       uint8
+	jobId       uint32
 	operation   Operation
 	inputImage  *gocv.Mat
 	startTime   time.Time
@@ -28,7 +27,6 @@ type Job struct {
 }
 
 func (j *Job) Process() (*gocv.Mat, error) {
-
 	j.startTime = time.Now()
 	result, err := j.operation.Run(j.inputImage)
 
@@ -39,7 +37,7 @@ func (j *Job) Process() (*gocv.Mat, error) {
 	return result, err
 }
 
-func (j *Job) GetJobId() uint8 {
+func (j *Job) GetJobId() uint32 {
 	return j.jobId
 }
 
