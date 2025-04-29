@@ -13,7 +13,7 @@ import (
 
 const THRESHOLD = 10
 
-func newTestContextWithImage(image *gocv.Mat, fileExt, contentType string) echo.Context {
+func newTestContextWithImage(image *gocv.Mat, fileExt, contentType string) (echo.Context, *gocv.NativeByteBuffer) {
 
 	e := echo.New()
 
@@ -32,8 +32,7 @@ func newTestContextWithImage(image *gocv.Mat, fileExt, contentType string) echo.
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	encodedImage.Close()
-	return c
+	return c, encodedImage
 }
 
 func newTestContextInvalidImage(contentType string) echo.Context {
@@ -120,7 +119,7 @@ func TestGetImageFromBody(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			imgCopy := tt.image.Clone()
-			ctx := newTestContextWithImage(&imgCopy, tt.fileExt, fileExtToContentType[tt.fileExt])
+			ctx, encodedBytes := newTestContextWithImage(&imgCopy, tt.fileExt, fileExtToContentType[tt.fileExt])
 
 			image, err := util.GetImageFromBody(ctx)
 
@@ -132,6 +131,7 @@ func TestGetImageFromBody(t *testing.T) {
 			assert.True(t, isEqual(image, &imgCopy))
 			image.Close()
 			imgCopy.Close()
+			encodedBytes.Close()
 		})
 	}
 
