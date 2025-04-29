@@ -100,6 +100,12 @@ var (
 					Description: "highest value for random values",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "normalize",
+					Description: "normalize the filter, may soften artifacts in result image",
+					Required:    true,
+				},
 			},
 		},
 
