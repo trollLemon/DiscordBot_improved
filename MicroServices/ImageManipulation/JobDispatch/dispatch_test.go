@@ -72,7 +72,7 @@ func TestDispatchJob(t *testing.T) {
 	requests := make(chan *jobs.JobRequest)
 	ctx, cancel := context.WithCancel(context.Background())
 
-	jobDispatcher := JobDispatch.NewJobDispatcher(requests, time.Millisecond*3)
+	jobDispatcher := JobDispatch.NewJobDispatcher(requests, time.Millisecond*2)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
