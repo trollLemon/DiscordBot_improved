@@ -24,19 +24,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
-
-      - name: Install dependencies
-        run: go get ./...
-
-      - name: Build
-        run: go build -v ./...
-      
-      - name: Run tests for core application
-        run: go test -v ./...
       - name: Build and test ImageManipulation microservice with cache
         uses: docker/build-push-action@v5
         with:
@@ -46,3 +33,5 @@ jobs:
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max  
+      - name: Run the Docker image
+        run: docker run --rm gomanip-test
