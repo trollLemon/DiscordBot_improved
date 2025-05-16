@@ -1,34 +1,33 @@
-package factories
+package factories_test
 
 import (
+	factories "bot/Core/Factories"
 	"testing"
-
 )
 
 func TestCreateStreamService(t *testing.T) {
 	tests := []struct {
 		name       string
-		service    Service
+		service    factories.Service
 		wantErr    bool
 		wantNotNil bool
 	}{
 		{
 			name:       "Valid YTStream service",
-			service:    YTStream,
+			service:    factories.YTStream,
 			wantErr:    false,
 			wantNotNil: true,
 		},
-{
+		{
 			name:       "Valid YTStream service",
-			service:    YTDLP,
+			service:    factories.YTDLP,
 			wantErr:    false,
 			wantNotNil: true,
 		},
-
 
 		{
 			name:       "Invalid stream service",
-			service:    DiscordNotification,
+			service:    factories.DiscordNotification,
 			wantErr:    true,
 			wantNotNil: false,
 		},
@@ -36,7 +35,7 @@ func TestCreateStreamService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateStreamService(tt.service)
+			got, err := factories.CreateStreamService(tt.service)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateStreamService() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -51,19 +50,19 @@ func TestCreateStreamService(t *testing.T) {
 func TestCreateVoiceService(t *testing.T) {
 	tests := []struct {
 		name       string
-		service    Service
+		service    factories.Service
 		wantErr    bool
 		wantNotNil bool
 	}{
 		{
 			name:       "Valid DiscordVoice service",
-			service:    DiscordVoice,
+			service:    factories.DiscordVoice,
 			wantErr:    false,
 			wantNotNil: true,
 		},
 		{
 			name:       "Invalid voice service",
-			service:    YTStream,
+			service:    factories.YTStream,
 			wantErr:    true,
 			wantNotNil: false,
 		},
@@ -71,7 +70,7 @@ func TestCreateVoiceService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateVoiceService(tt.service)
+			got, err := factories.CreateVoiceService(tt.service)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateVoiceService() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -86,19 +85,19 @@ func TestCreateVoiceService(t *testing.T) {
 func TestCreateNotificationService(t *testing.T) {
 	tests := []struct {
 		name       string
-		service    Service
+		service    factories.Service
 		wantErr    bool
 		wantNotNil bool
 	}{
 		{
 			name:       "Valid DiscordNotification service",
-			service:    DiscordNotification,
+			service:    factories.DiscordNotification,
 			wantErr:    false,
 			wantNotNil: true,
 		},
 		{
 			name:       "Invalid notification service",
-			service:    Redis,
+			service:    factories.Redis,
 			wantErr:    true,
 			wantNotNil: false,
 		},
@@ -106,7 +105,7 @@ func TestCreateNotificationService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateNotificationService(tt.service)
+			got, err := factories.CreateNotificationService(tt.service)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateNotificationService() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -121,19 +120,19 @@ func TestCreateNotificationService(t *testing.T) {
 func TestCreateDatabaseService(t *testing.T) {
 	tests := []struct {
 		name       string
-		service    Service
+		service    factories.Service
 		wantErr    bool
 		wantNotNil bool
 	}{
 		{
 			name:       "Valid Redis service",
-			service:    Redis,
+			service:    factories.Redis,
 			wantErr:    false,
 			wantNotNil: true,
 		},
 		{
 			name:       "Invalid database service",
-			service:    DiscordVoice,
+			service:    factories.DiscordVoice,
 			wantErr:    true,
 			wantNotNil: false,
 		},
@@ -141,7 +140,7 @@ func TestCreateDatabaseService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateDatabaseService(tt.service)
+			got, err := factories.CreateDatabaseService(tt.service)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateDatabaseService() error = %v, wantErr %v", err, tt.wantErr)
 				return

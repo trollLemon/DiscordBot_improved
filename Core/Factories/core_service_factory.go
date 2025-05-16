@@ -14,7 +14,7 @@ const (
 	DiscordVoice        Service = 1
 	YTStream            Service = 2
 	Redis               Service = 3
-	YTDLP		    Service = 5
+	YTDLP               Service = 5
 )
 
 func CreateStreamService(service Service) (audio.StreamService, error) {
@@ -56,7 +56,7 @@ func CreateNotificationService(service Service) (audio.NotificationService, erro
 
 }
 
-func CreateDatabaseService(service Service) (database.DatabaseService, error) {
+func CreateDatabaseService(service Service) (database.AbstractDatabaseService, error) {
 
 	switch service {
 	case Redis:
