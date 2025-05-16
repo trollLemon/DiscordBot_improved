@@ -9,7 +9,7 @@ func TestQueue(t *testing.T) {
 	testCases := []struct {
 		name          string
 		initialQueue  []string
-		enqueItems    []string
+		enqueueItems  []string
 		dequeCount    int
 		expectedItems []string
 		expectedSize  int
@@ -18,7 +18,7 @@ func TestQueue(t *testing.T) {
 	}{
 		{
 			name:          "Basic Enqueue and Dequeue",
-			enqueItems:    []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
+			enqueueItems:  []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
 			dequeCount:    3,
 			expectedItems: []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
 			expectedSize:  0,
@@ -26,7 +26,7 @@ func TestQueue(t *testing.T) {
 		},
 		{
 			name:          "Enqueue and Size",
-			enqueItems:    []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
+			enqueueItems:  []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
 			expectedSize:  3,
 			dequeCount:    0,
 			expectedItems: []string{},
@@ -41,7 +41,7 @@ func TestQueue(t *testing.T) {
 		},
 		{
 			name:          "Clear Queue",
-			enqueItems:    []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
+			enqueueItems:  []string{"http://example.com/1", "http://example.com/2", "http://example.com/3"},
 			clearQueue:    true,
 			expectedSize:  0,
 			dequeCount:    0,
@@ -68,7 +68,7 @@ func TestQueue(t *testing.T) {
 			}
 
 			// Enqueue items
-			for _, item := range tc.enqueItems {
+			for _, item := range tc.enqueueItems {
 				q.Enque(item)
 			}
 
@@ -136,7 +136,7 @@ func TestShuffle(t *testing.T) {
 			originalOrder := make([]string, len(q.items))
 			copy(originalOrder, q.items)
 
-			rand.Seed(tc.seed) //depricated but used here for reproducability
+			rand.Seed(tc.seed)
 			q.Shuffle()
 
 			if len(q.items) != len(originalOrder) {
