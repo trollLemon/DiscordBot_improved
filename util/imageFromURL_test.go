@@ -19,6 +19,7 @@ const maxDiff = 256 // allow for error for jpeg compression
 func newTestServer(buf bytes.Buffer, contentType string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", contentType)
+		w.WriteHeader(http.StatusOK)
 		_, err := w.Write(buf.Bytes())
 		if err != nil {
 			panic(err) // if we fail to write during the test we shouldn't continue running

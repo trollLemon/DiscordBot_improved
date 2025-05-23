@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bot/Application"
 	"bot/Core/Commands"
+	factories "bot/Core/Factories"
+	"bot/Core/Wrappers"
 	"flag"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
-	"log"
+	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
 )
@@ -17,7 +20,7 @@ type Options struct {
 func loadENV() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal().Msg("Error loading .env file")
 	}
 
 }
@@ -28,17 +31,28 @@ func registerCommands(session *discordgo.Session) {
 	for i, v := range Commands.SlashCommands {
 		cmd, err := session.ApplicationCommandCreate(session.State.User.ID, gid, v)
 		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			log.Panic().Msgf("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
 		log.Printf("Registered Command %v", v.Name)
 	}
 }
 
-func addCommandHandlers(session *discordgo.Session) {
+func addCommandHandlers(session *discordgo.Session, app *application.Application) {
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := Commands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+
+			wrappedSession := Wrappers.DiscordSessionWrapper{
+				Session: s,
+			}
+
+			wrappedInteractionCreate := Wrappers.InteractionCreateWrapper{
+				InteractionCreate: i,
+			}
+			if err := h(wrappedSession, wrappedInteractionCreate, app); err != nil {
+				log.Error().Err(err).Msg("Failed to execute command")
+			}
+
 		}
 	})
 }
@@ -55,50 +69,63 @@ func parseCommandLineArgs() *Options {
 
 }
 
+func InitializeApplication() *application.Application {
+
+	imageApi, err := factories.CreateImageAPIService(factories.GoManip)
+	if err != nil {
+		log.Printf("warning, error creating image api service: %v", err)
+	}
+
+	databaseService, err := factories.CreateDatabaseService(factories.Redis)
+	if err != nil {
+		log.Printf("warning, error creating database service: %v", err)
+	}
+
+	return &application.Application{
+		ImageApi:     imageApi,
+		WordDatabase: databaseService,
+	}
+}
+
 func main() {
 	loadENV()
 	options := parseCommandLineArgs()
 
 	token := os.Getenv("DISCORD_TOKEN")
 	if token == "" {
-		log.Fatal("No token provided. Set DISCORD_TOKEN in your .env file.")
+		log.Fatal().Msg("No token provided. Set DISCORD_TOKEN in your .env file.")
 	}
 
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
-		log.Fatalf("error creating Discord session: %v", err)
+		log.Fatal().Msgf("error creating Discord session: %v", err)
 	}
 
-	log.Println("Created a Discord Session")
+	log.Info().Msg("Created a Discord Session")
 
 	err = session.Open()
 	if err != nil {
-		log.Fatalf("error opening connection: %v", err)
+		log.Fatal().Msgf("error opening connection: %v", err)
 	}
 
-	log.Println("Connected to Discord")
-
-	log.Println("Getting Commands Ready")
+	log.Info().Msg("Connected to Discord")
 
 	if options.RegisterCommands {
+		log.Info().Msg("Registering commands...")
 		registerCommands(session)
 	}
 
-	addCommandHandlers(session)
+	log.Info().Msg("Initializing application")
+	app := InitializeApplication()
 
+	addCommandHandlers(session, app)
 
-	if err != nil {
-		log.Panicf("Error initializing modules, %s", err.Error())
-	}
-
-	log.Println("Commands ready")
-
-	log.Println("Bot is online.")
+	log.Info().Msg("Bot is online.")
 	defer session.Close()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	log.Println("Press Ctrl+C to stop the bot")
+	log.Info().Msg("Press Ctrl+C to stop the bot")
 	<-stop
 
 }

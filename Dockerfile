@@ -14,16 +14,24 @@ COPY . .
 
 RUN CGO_ENABLED=1 GOOS=linux go build -o bot main.go
 
-# Runtime Stage
-FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm \
+FROM golang:1.23.1 AS tester
+WORKDIR /app
+
+COPY . .
+RUN go mod download
+
+CMD ["go", "test", "-v", "./..."]
+
+# Runtime Stage
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+    apt-get install -y \
     ffmpeg \
     pulseaudio \
-    alsa-lib \
-    yt-dlp   \
-    && pacman -Scc --noconfirm
+    libasound2 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /
 

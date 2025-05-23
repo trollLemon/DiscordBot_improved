@@ -59,21 +59,6 @@ func (mr *MockDiscordSessionMockRecorder) ChannelMessageSend(channelID, content 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChannelMessageSend", reflect.TypeOf((*MockDiscordSession)(nil).ChannelMessageSend), varargs...)
 }
 
-// ChannelVoiceJoin mocks base method.
-func (m *MockDiscordSession) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (*discordgo.VoiceConnection, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChannelVoiceJoin", gID, cID, mute, deaf)
-	ret0, _ := ret[0].(*discordgo.VoiceConnection)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ChannelVoiceJoin indicates an expected call of ChannelVoiceJoin.
-func (mr *MockDiscordSessionMockRecorder) ChannelVoiceJoin(gID, cID, mute, deaf any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChannelVoiceJoin", reflect.TypeOf((*MockDiscordSession)(nil).ChannelVoiceJoin), gID, cID, mute, deaf)
-}
-
 // InteractionRespond mocks base method.
 func (m *MockDiscordSession) InteractionRespond(interaction *discordgo.Interaction, resp *discordgo.InteractionResponse, options ...discordgo.RequestOption) error {
 	m.ctrl.T.Helper()
@@ -113,21 +98,6 @@ func (mr *MockDiscordSessionMockRecorder) InteractionResponseEdit(interaction, n
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InteractionResponseEdit", reflect.TypeOf((*MockDiscordSession)(nil).InteractionResponseEdit), varargs...)
 }
 
-// VoiceState mocks base method.
-func (m *MockDiscordSession) VoiceState(guildID, userID string) (*discordgo.VoiceState, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VoiceState", guildID, userID)
-	ret0, _ := ret[0].(*discordgo.VoiceState)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// VoiceState indicates an expected call of VoiceState.
-func (mr *MockDiscordSessionMockRecorder) VoiceState(guildID, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VoiceState", reflect.TypeOf((*MockDiscordSession)(nil).VoiceState), guildID, userID)
-}
-
 // MockDiscordInteraction is a mock of DiscordInteraction interface.
 type MockDiscordInteraction struct {
 	ctrl     *gomock.Controller
@@ -152,10 +122,10 @@ func (m *MockDiscordInteraction) EXPECT() *MockDiscordInteractionMockRecorder {
 }
 
 // ApplicationCommandData mocks base method.
-func (m *MockDiscordInteraction) ApplicationCommandData() *discordgo.ApplicationCommandInteractionData {
+func (m *MockDiscordInteraction) ApplicationCommandData() discordgo.ApplicationCommandInteractionData {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ApplicationCommandData")
-	ret0, _ := ret[0].(*discordgo.ApplicationCommandInteractionData)
+	ret0, _ := ret[0].(discordgo.ApplicationCommandInteractionData)
 	return ret0
 }
 
@@ -177,6 +147,20 @@ func (m *MockDiscordInteraction) GetChannel() string {
 func (mr *MockDiscordInteractionMockRecorder) GetChannel() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannel", reflect.TypeOf((*MockDiscordInteraction)(nil).GetChannel))
+}
+
+// GetImageURLFromAttachmentID mocks base method.
+func (m *MockDiscordInteraction) GetImageURLFromAttachmentID(id string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImageURLFromAttachmentID", id)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetImageURLFromAttachmentID indicates an expected call of GetImageURLFromAttachmentID.
+func (mr *MockDiscordInteractionMockRecorder) GetImageURLFromAttachmentID(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageURLFromAttachmentID", reflect.TypeOf((*MockDiscordInteraction)(nil).GetImageURLFromAttachmentID), id)
 }
 
 // GetInteraction mocks base method.

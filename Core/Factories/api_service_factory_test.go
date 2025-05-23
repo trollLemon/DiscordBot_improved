@@ -8,7 +8,7 @@ import (
 func TestCreateImageManipService(t *testing.T) {
 	tests := []struct {
 		name       string
-		service    factories.Service
+		service    factories.ImageApiService
 		wantErr    bool
 		wantNotNil bool
 	}{
@@ -20,7 +20,7 @@ func TestCreateImageManipService(t *testing.T) {
 		},
 		{
 			name:       "Invalid manip service",
-			service:    factories.DiscordNotification,
+			service:    -1, //simulate invalid service
 			wantErr:    true,
 			wantNotNil: false,
 		},

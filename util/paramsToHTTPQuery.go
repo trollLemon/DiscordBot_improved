@@ -25,11 +25,11 @@ func ReduceQuery(quality float32) string {
 	return fmt.Sprintf("?quality=%0.2f", quality)
 }
 
-func AddTextQuery(text string, fontscale, xPerc, yPerc float32) string {
+func AddTextQuery(text string, fontScale, xPerc, yPerc float32) string {
 
 	uriText := url.QueryEscape(text)
 
-	return fmt.Sprintf("?text=%s&fontScale=%0.2f&xPerc=%0.2f&yPerc=%0.2f", uriText, fontscale, xPerc, yPerc)
+	return fmt.Sprintf("?text=%s&fontScale=%0.2f&xPerc=%0.2f&yPerc=%0.2f", uriText, fontScale, xPerc, yPerc)
 }
 
 func RandomFilterQuery(kernelSize, minVal, maxVal int64, normalize bool) string {

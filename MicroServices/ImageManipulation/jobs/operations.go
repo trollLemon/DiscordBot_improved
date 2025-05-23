@@ -260,16 +260,17 @@ func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	kernels := make([]gocv.Mat, input.Channels())
 
 	for i := 0; i < input.Channels(); i++ {
-		kernels[i] = gocv.NewMatWithSize(r.KernelSize, r.KernelSize, input.Type())
+		kernels[i] = gocv.NewMatWithSize(r.KernelSize, r.KernelSize, gocv.MatTypeCV32F)
 	}
 
 	gocv.SetRNGSeed(int(time.Now().UnixNano()))
 	rng := gocv.TheRNG()
 
-	for _, mat := range kernels {
-		rng.Fill(&mat, gocv.RNGDistUniform, float64(r.Min), float64(r.Max), false)
+	for i := range kernels {
+		rng.Fill(&kernels[i], gocv.RNGDistUniform, float64(r.Min), float64(r.Max), false)
+
 		if r.Normalize {
-			gocv.Normalize(mat, &mat, 1, 0, gocv.NormL2)
+			gocv.Normalize(kernels[i], &kernels[i], 1, 0, gocv.NormL2)
 		}
 	}
 

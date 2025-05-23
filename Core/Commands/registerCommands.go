@@ -8,42 +8,7 @@ import (
 
 var (
 	SlashCommands = []*discordgo.ApplicationCommand{
-		{
-			Name:        "play",
-			Description: "Enqueue a youtube video and play it",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "query",
-					Description: "The search query",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "stop",
-			Description: "Stop bot audio stream and leave vc",
-		},
-		{
-			Name:        "skip",
-			Description: "Skip what is playing, and start the next audio in the queue",
-		},
-		{
-			Name:        "shuffle",
-			Description: "Shuffle the queue",
-		},
-		{
-			Name:        "randomplay",
-			Description: "Play a random youtube video, searched with random terms",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "number",
-					Description: "Number of terms to use",
-					Required:    true,
-				},
-			},
-		},
+
 		{
 			Name:        "add",
 			Description: "add text for the random play section",
@@ -293,23 +258,7 @@ var (
 	}
 
 	CommandHandlers = map[string]func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error{
-		"play": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-			return Play(s, i, a)
 
-		},
-		"stop": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-			return Stop(s, i, a)
-		},
-		"shuffle": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-			return Shuffle(s, i, a)
-		},
-		"skip": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-			return Skip(s, i, a)
-		},
-
-		"randomplay": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-			return RandomPlay(s, i, a)
-		},
 		"add": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
 			return Add(s, i, a)
 		},

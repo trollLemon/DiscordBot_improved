@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -18,6 +19,10 @@ func GetImageFromURL(imageURL string) ([]byte, string, error) {
 
 	if err != nil {
 		return nil, "", err
+	}
+	
+	if resp.StatusCode != 200 {
+		return nil, "", fmt.Errorf("cannot download image from url: %s. Status Code %d", imageURL, resp.StatusCode)
 	}
 
 	format := resp.Header.Get("Content-Type")
