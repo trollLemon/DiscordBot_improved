@@ -24,7 +24,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build and test ImageManipulation microservice with cache
+      - name: Build ImageManipulation microservice container with cache
         uses: docker/build-push-action@v5
         with:
           context: ./MicroServices/ImageManipulation
@@ -32,6 +32,18 @@ jobs:
           tags: gomanip-test
           load: true
           cache-from: type=gha
-          cache-to: type=gha,mode=max  
-      - name: Run the Docker image
+          cache-to: type=gha,mode=max
+      - name: Build Main Bot container with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: ./MicroServices/ImageManipulation
+          target: tester
+          tags: bot-test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run the GoManip docker image tests
         run: docker run --rm gomanip-test
+      - name: Run the Bot docker image tests
+        run: docker run --rm bot-test
