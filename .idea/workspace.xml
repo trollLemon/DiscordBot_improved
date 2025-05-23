@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="827b4ac0-c9ce-4742-a9f5-f72ef20985dc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/DiscordBot_improved.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Core/Wrappers/discordgoWrapper.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/application.go" beforeDir="false" afterPath="$PROJECT_DIR$/Application/application.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/audioCommands.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/audioCommands_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/databaseCommands.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Commands/databaseCommands.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/databaseCommands_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Commands/databaseCommands_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/imageManipCommands.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Commands/imageManipCommands.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/imageManipCommands_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Commands/imageManipCommands_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Commands/registerCommands.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Commands/registerCommands.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Common/replies.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Common/replies.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Factories/api_service_factory.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Factories/api_service_factory.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Factories/api_service_factory_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Factories/api_service_factory_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Factories/audioDependencyFactory.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Factories/core_service_factory.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Factories/core_service_factory_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Interfaces/Mocks/mockDiscord.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Interfaces/Mocks/mockDiscord.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Interfaces/Mocks/mockImageFromHTTP.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Interfaces/Mocks/mockSearch.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Interfaces/discord.go" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Interfaces/discord.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Interfaces/imageFromHTTP.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/Mocks/mock_notification_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/Mocks/mock_stream_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/Mocks/mock_voice_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/audioPlayer.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/audioPlayer_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/notificationService.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/streamService.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/voiceService.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Audio/yt_dlp_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Database/Mocks/mock_database_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Database/database_service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Database/redis.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Database/repository.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Services/Database/repository_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MicroServices/ImageManipulation/jobs/operations.go" beforeDir="false" afterPath="$PROJECT_DIR$/MicroServices/ImageManipulation/jobs/operations.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/imageFromURL.go" beforeDir="false" afterPath="$PROJECT_DIR$/util/imageFromURL.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/imageFromURL_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/util/imageFromURL_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/interactionResponseBuilder.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/paramsToHTTPQuery.go" beforeDir="false" afterPath="$PROJECT_DIR$/util/paramsToHTTPQuery.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/paramsToHTTPQuery_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/util/paramsToHTTPQuery_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/queue.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/queue_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/search.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/voice.go" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file:///usr/lib/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2w0Plfdbz7oQAssPvfVXWy9tOjj" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Docker.MicroServices/ImageManipulation/Dockerfile build-stage.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.MicroServices/ImageManipulation/Dockerfile opencv-builder.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build bot.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build image_manip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestAdd in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestAdd/Shitass in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestAdd/Test_add_to_db in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestAddText in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestAddText/Success in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestCreateImageManipService in bot/Core/Factories.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDilate in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDilateQuery in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDispatch in image_manip/JobDispatch.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDispatchIntegration in image_manip/JobDispatch.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDispatchIntegration/Test_Random_Filter in image_manip/JobDispatch.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDispatchIntegration/Test_Shuffle in image_manip/JobDispatch.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestDispatchJob in image_manip/JobDispatch.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestEdgeDetectQuery in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestEdgeDetection in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestErode in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetAllItems/Get_all_items in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetAllItems/Get_all_items_with_error in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody in goManip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_large_image_(jpg) in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_large_image_(png) in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_nil_image in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_small_image_(jpg) in goManip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_small_image_(jpg) in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBody/Test_with_small_image_(png) in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBodyEmptyMat in goManip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBodyEmptyMat in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetImageFromBodyInvalidImage in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage/Bad_Request in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage/Bad_Request_and_error_reading_body in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage/Server_Side_Error in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage/Server_Side_Error_(Will_do_exponential_backoff) in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGoManip_ProcessImage/Success in bot/Core/Services/ImageManip.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestImageFromURL in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestImageFromURL/ImageFromURL_.JPG in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestImageFromURL/ImageFromURL_.PNG in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestImageHandler in image_manip/handlers.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestIntegration in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestInvert in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestInvertImage in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestInvertImageHandler in image_manip/handlers.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestJob in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestJobDispatch in image_manip/handlers.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseAddText in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseAddText/invalid_font_scale_ in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseAddText/invalid_yPerc_ in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseAddText/valid_text in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseEdgeDetection in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseEdgeDetection/invalid_lower_parameter in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseEdgeDetection/valid_edge_detection in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseMorphology in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseRandomFilter in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseRandomFilter/missing_kernelSize in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseRandomFilter/missing_minVal in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseRandomFilter/normalize_false in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseReduce in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseSaturation in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseSaturation/missing_saturation in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseSaturation/valid_saturation in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseShuffle/missing_partition_param in image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay in bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Join_VC_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Play_Success in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Play_audio_ in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Play_audio_URL_query in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Play_audio_non-URL_query in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Search_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Test_Voice_State_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_Voice_State_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_play_successful in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_play_successful_non_url_input in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_play_successful_non_url_input_search_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestPlay/Test_user_not_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomFilter in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomFilter/Handle_non_RGB_image_case in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomImageFilter in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomImageFilter/Test_RandomImageFilter_CDN_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomImageFilter/Test_RandomImageFilter_GoManip_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomImageFilter/Test_RandomImageFilter_Success in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomImageFilter/Test_RandomImageFilter_Success#01 in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay/Test_Random_Play_Voice_State_Database_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay/Test_Random_Play_Voice_State_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay/Test_Random_Play_database_has_data in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay/Test_Random_Play_database_has_data_Search_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRandomPlay/Test_Random_Play_join_VC_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRedis_Delete in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRedis_FetchRandom in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRedis_GetAll in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRedis_Insert in bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestReduceImage in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestRemove in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSaturate in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSaturate/Handle_non_RGB_image_case in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSaturateImage in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSaturateQuery in bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShow in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShuffle in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShuffle in bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShuffle/Handle_Nil_image_case in image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShuffle/Test_Shuffle in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestShuffleImage in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip in bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_Voice_State_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_audio,_user_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_playing_audio in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_playing_audio_not_playing in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_queue_empty in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestSkip/Test_Skip_user_not_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop in bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Stop_with_populated_queue in bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_audio,_user_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_audio,_user_in_vc_but_voice_state_error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_audio_user_not_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_audio_user_not_in_vc#01 in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_playing_audio in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_playing_audio_User_not_in_vc in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStop/Test_Stop_playing_audio_Voice_State_Error in bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestWorker in image_manip/worker.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestWorkerShutdown in image_manip/worker.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test bot/Core/Commands.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test bot/Core/Factories.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test bot/Core/Services/Audio.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test bot/Core/Services/Database.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test bot/util.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test image_manip/handlers.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test image_manip/jobs.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test image_manip/util.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;coreImprovements&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/haydn/Github/DiscordGoBot/GO/DiscordBot_improved&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Application" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Test.go test bot/util">
+    <configuration name="TestAdd/Test_add_to_db in bot/Core/Commands" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="DiscordBot_improved" />
+      <working_directory value="$PROJECT_DIR$/Core/Commands" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="bot/Core/Commands" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestAdd\E$/^\QTest_add_to_db\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestRedis_GetAll in bot/Core/Services/Database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="DiscordBot_improved" />
+      <working_directory value="$PROJECT_DIR$/Core/Services/Database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="bot/Core/Services/Database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestRedis_GetAll\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test bot/Core/Commands" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="DiscordBot_improved" />
+      <working_directory value="$PROJECT_DIR$/Core/Commands" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="bot/Core/Commands" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test bot/Core/Services/Database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="DiscordBot_improved" />
+      <working_directory value="$PROJECT_DIR$/Core/Services/Database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="bot/Core/Services/Database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test bot/util" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="DiscordBot_improved" />
+      <working_directory value="$PROJECT_DIR$/util" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="bot/util" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.go test bot/util" />
+        <item itemvalue="Go Test.go test bot/Core/Commands" />
+        <item itemvalue="Go Test.TestAdd/Test_add_to_db in bot/Core/Commands" />
+        <item itemvalue="Go Test.go test bot/Core/Services/Database" />
+        <item itemvalue="Go Test.TestRedis_GetAll in bot/Core/Services/Database" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-3b128438d3f6-34ac7aa8f6ab-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-251.23774.430" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-GO-251.23774.430" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="827b4ac0-c9ce-4742-a9f5-f72ef20985dc" name="Changes" comment="" />
+      <created>1745175671209</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745175671209</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

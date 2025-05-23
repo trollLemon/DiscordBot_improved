@@ -16,12 +16,12 @@ func TestSaturateQuery(t *testing.T) {
 		{
 			name:     "Test single digit",
 			param:    1.0,
-			expected: "?saturation=1.0",
+			expected: "?saturation=1.00",
 		},
 		{
 			name:     "Test several digits",
 			param:    25.0,
-			expected: "?saturation=25.0",
+			expected: "?saturation=25.00",
 		},
 	}
 	for _, tt := range tests {
@@ -130,7 +130,7 @@ func TestReduceQuery(t *testing.T) {
 		{
 			name:     "Test query",
 			params:   0.2,
-			expected: "?quality=0.2",
+			expected: "?quality=0.20",
 		},
 	}
 
@@ -153,13 +153,13 @@ func TestAddTextQuery(t *testing.T) {
 			name:     "Test adding text query",
 			text:     "text",
 			params:   [3]float32{1.0, 0.5, 0.5},
-			expected: "?text=text&fontScale=1.0&xPerc=0.5&yPerc=0.5",
+			expected: "?text=text&fontScale=1.00&xPerc=0.50&yPerc=0.50",
 		},
 		{
 			name:     "Test adding text query with spaces",
 			text:     "I love golang",
 			params:   [3]float32{1.0, 0.5, 0.5},
-			expected: "?text=I+love+golang&fontScale=1.0&xPerc=0.5&yPerc=0.5",
+			expected: "?text=I+love+golang&fontScale=1.00&xPerc=0.50&yPerc=0.50",
 		},
 	}
 

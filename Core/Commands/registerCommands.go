@@ -1,47 +1,14 @@
 package Commands
 
 import (
+	application "bot/Application"
+	"bot/Core/Interfaces"
 	"github.com/bwmarrin/discordgo"
 )
 
 var (
 	SlashCommands = []*discordgo.ApplicationCommand{
-		{
-			Name:        "play",
-			Description: "Enqueue a youtube video and play it",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "query",
-					Description: "The search query",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "stop",
-			Description: "Stop bot audio stream and leave vc",
-		},
-		{
-			Name:        "skip",
-			Description: "Skip what is playing, and start the next audio in the queue",
-		},
-		{
-			Name:        "shuffle",
-			Description: "Shuffle the queue",
-		},
-		{
-			Name:        "randomplay",
-			Description: "Play a random youtube video, searched with random terms",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "number",
-					Description: "Number of terms to use",
-					Required:    true,
-				},
-			},
-		},
+
 		{
 			Name:        "add",
 			Description: "add text for the random play section",
@@ -290,60 +257,44 @@ var (
 		},
 	}
 
-	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"play": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Play(s, i)
+	CommandHandlers = map[string]func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error{
 
-		},
-		"stop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Stop(s, i)
-		},
-		"shuffle": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Shuffle(s, i)
-		},
-		"skip": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Skip(s, i)
+		"add": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Add(s, i, a)
 		},
 
-		"randomplay": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			RandomPlay(s, i)
+		"remove": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Remove(s, i, a)
 		},
-		"add": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Add(s, i)
+		"show": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Show(s, i, a)
 		},
-
-		"remove": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Remove(s, i)
+		"randomfilter": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return RandomImageFilter(s, i, a)
 		},
-		"show": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Show(s, i)
+		"invertimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return InvertImage(s, i, a)
 		},
-		"randomfilter": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			RandomImageFilter(s, i)
+		"saturateimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return SaturateImage(s, i, a)
 		},
-		"invertimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			InvertImage(s, i)
+		"edgedetect": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return EdgeDetection(s, i, a)
 		},
-		"saturateimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			SaturateImage(s, i)
+		"dilateimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Dilate(s, i, a)
 		},
-		"edgedetect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			EdgeDetection(s, i)
+		"erodeimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Erode(s, i, a)
 		},
-		"dilateimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Dilate(s, i)
+		"addtext": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return AddText(s, i, a)
 		},
-		"erodeimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Erode(s, i)
+		"reduceimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return ReduceImage(s, i, a)
 		},
-		"addtext": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			AddText(s, i)
-		},
-		"reduceimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			ReduceImage(s, i)
-		},
-		"shuffleimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			ShuffleImage(s, i)
+		"shuffleimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return ShuffleImage(s, i, a)
 		},
 	}
 )

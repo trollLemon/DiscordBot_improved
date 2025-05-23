@@ -2,73 +2,77 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 )
 
 type Redis struct {
-	ctx      context.Context
-	rdb      *redis.Client
-	set_name string
+	ctx     context.Context
+	rdb     *redis.Client
+	setName string
 }
 
-func NewRedisClient() *Redis {
-
+func NewRedisClient(ctx context.Context, redisClient *redis.Client, defaultSetName string) *Redis {
 	return &Redis{
-		ctx: context.TODO(),
-		rdb: redis.NewClient(&redis.Options{
-			Addr:     "redis:6379",
-			Password: "", // no password set
-			DB:       0,  // use default DB
-		}),
-		set_name: "items",
+		ctx:     ctx,
+		rdb:     redisClient,
+		setName: defaultSetName,
 	}
 }
 
 func (r *Redis) Insert(item string) error {
-	err := r.rdb.SAdd(r.ctx, r.set_name, item).Err()
-	return err
-}
-
-func (r *Redis) Delete(item string) error {
-	res, err := r.rdb.SRem(r.ctx, r.set_name, item).Result()
+	num, err := r.rdb.SAdd(r.ctx, r.setName, item).Result()
 	if err != nil {
-		return fmt.Errorf("Error deleting from Redis: %s", err.Error())
+		return err
 	}
 
-	if res == 0 {
-		return fmt.Errorf("Item is not present in Redis")
+	if num == 0 {
+		return errors.New(fmt.Sprintf("item %s already in set", item))
 	}
 
 	return nil
 }
 
+func (r *Redis) Delete(item string) error {
+	num, err := r.rdb.SRem(r.ctx, r.setName, item).Result()
+
+	if err != nil {
+		return err
+	}
+	if num == 0 {
+		return errors.New(fmt.Sprintf("item %s not in set", item))
+	}
+	return nil
+}
+
 func (r *Redis) FetchRandom(n int) ([]string, error) {
 
-	values, err := r.rdb.SRandMemberN(r.ctx, r.set_name, int64(n)).Result()
+	values, err := r.rdb.SRandMemberN(r.ctx, r.setName, int64(n)).Result()
 	if err != nil {
 		return nil, err
+	}
+
+	if len(values) == 0 {
+		return []string{}, errors.New("error fetching random data, got 0 items")
 	}
 
 	return values, nil
 
 }
 
-func (r *Redis) IsPresent(item string) bool {
-
-	exists, err := r.rdb.SIsMember(r.ctx, r.set_name, item).Result()
-
-	if err != nil {
-		return false //todo: better error checking
-	}
-
-	return exists
-}
-
 func (r *Redis) GetAll() ([]string, error) {
 
-	values, err := r.rdb.SMembers(r.ctx, r.set_name).Result()
+	values, err := r.rdb.SMembers(r.ctx, r.setName).Result()
 
-	return values, err
+	if len(values) == 0 {
+		return []string{}, errors.New("error fetching all data, got 0 items")
+	}
+
+	if err != nil {
+		return []string{}, err
+	}
+
+	return values, nil
 
 }
