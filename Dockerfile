@@ -17,8 +17,12 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o bot main.go
 
 FROM golang:1.23.1 AS tester
 WORKDIR /app
+COPY main.go ./
+COPY Application ./Application
+COPY Core ./Core
+COPY util ./util
+COPY go.mod go.sum ./
 
-COPY . .
 RUN go mod download
 
 CMD ["go", "test", "-v", "./..."]
