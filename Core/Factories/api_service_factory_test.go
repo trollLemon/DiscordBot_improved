@@ -30,11 +30,11 @@ func TestCreateImageManipService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := factories.CreateImageAPIService(tt.service)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("CreateAPIService() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create Service error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if (got != nil) != tt.wantNotNil {
-				t.Errorf("CreateAPIService() got = %v, wantNotNil %v", got, tt.wantNotNil)
+				t.Errorf("Create Service got = %v, wantNotNil %v", got, tt.wantNotNil)
 			}
 		})
 	}
@@ -65,11 +65,11 @@ func TestCreateDatabaseService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := factories.CreateDatabaseService(tt.service)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("CreateAPIService() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create Service error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if (got != nil) != tt.wantNotNil {
-				t.Errorf("CreateAPIService() got = %v, wantNotNil %v", got, tt.wantNotNil)
+				t.Errorf("Create Service got = %v, wantNotNil %v", got, tt.wantNotNil)
 			}
 		})
 	}
