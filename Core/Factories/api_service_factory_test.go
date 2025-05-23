@@ -39,3 +39,38 @@ func TestCreateImageManipService(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateDatabaseService(t *testing.T) {
+	tests := []struct {
+		name       string
+		service    factories.DatabaseService
+		wantErr    bool
+		wantNotNil bool
+	}{
+		{
+			name:       "Valid database service",
+			service:    factories.Redis,
+			wantErr:    false,
+			wantNotNil: true,
+		},
+		{
+			name:       "Invalid database service",
+			service:    -1, //simulate invalid service
+			wantErr:    true,
+			wantNotNil: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := factories.CreateDatabaseService(tt.service)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateAPIService() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if (got != nil) != tt.wantNotNil {
+				t.Errorf("CreateAPIService() got = %v, wantNotNil %v", got, tt.wantNotNil)
+			}
+		})
+	}
+}
