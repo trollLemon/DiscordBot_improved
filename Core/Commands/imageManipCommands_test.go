@@ -4,10 +4,14 @@ import (
 	application "bot/Application"
 	"bot/Core/Commands"
 	mockinterfaces "bot/Core/Interfaces/Mocks"
+	database "bot/Core/Services/Database"
 	imagemanip "bot/Core/Services/ImageManip"
 	"bytes"
+	"context"
 	"encoding/json"
+	"github.com/alicebob/miniredis/v2"
 	"github.com/bwmarrin/discordgo"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"image"
@@ -21,6 +25,16 @@ type GeneralImageTestCase struct {
 	name               string
 	wantApiErr         bool
 	wantCDNErr         bool
+	userInput          discordgo.ApplicationCommandInteractionData
+	apiHandlerFunc     func(w http.ResponseWriter, r *http.Request)
+	mockCDNHandlerFunc func(w http.ResponseWriter, r *http.Request)
+}
+
+type DatabaseImageTestCase struct {
+	name               string
+	wantApiErr         bool
+	wantCDNErr         bool
+	wantDatabaseErr    bool
 	userInput          discordgo.ApplicationCommandInteractionData
 	apiHandlerFunc     func(w http.ResponseWriter, r *http.Request)
 	mockCDNHandlerFunc func(w http.ResponseWriter, r *http.Request)
@@ -1180,6 +1194,267 @@ func TestAddText(t *testing.T) {
 			err := Commands.AddText(mockSession, mockInteractionCreate, mockApplication)
 
 			assert.Equal(t, tt.wantApiErr || tt.wantCDNErr, err != nil)
+			ctrl.Finish()
+		})
+	}
+}
+
+func TestRandomText(t *testing.T) {
+	testImg := image.NewRGBA(image.Rect(0, 0, 100, 100))
+
+	var buf bytes.Buffer
+	err := png.Encode(&buf, testImg)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	testImgBytes := buf.Bytes()
+
+	testContentType := "image/png"
+	tests := []DatabaseImageTestCase{
+		{
+			name:            "Success",
+			wantApiErr:      false,
+			wantCDNErr:      false,
+			wantDatabaseErr: false,
+			userInput: discordgo.ApplicationCommandInteractionData{
+				Options: []*discordgo.ApplicationCommandInteractionDataOption{
+					{
+						Name:  "image",
+						Value: "imageId",
+						Type:  discordgo.ApplicationCommandOptionAttachment,
+					},
+					{
+						Name:  "numterms",
+						Value: 5.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "fontScale",
+						Value: 1.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "x",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "y",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+				},
+			},
+			apiHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+			mockCDNHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+		},
+		{
+			name:            "CDN error",
+			wantApiErr:      false,
+			wantCDNErr:      true,
+			wantDatabaseErr: false,
+			userInput: discordgo.ApplicationCommandInteractionData{
+				Options: []*discordgo.ApplicationCommandInteractionDataOption{
+					{
+						Name:  "image",
+						Value: "imageId",
+						Type:  discordgo.ApplicationCommandOptionAttachment,
+					},
+					{
+						Name:  "numterms",
+						Value: 5.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "fontScale",
+						Value: 1.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "x",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "y",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+				},
+			},
+			apiHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+			mockCDNHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusNotFound)
+			},
+		},
+		{
+			name:            "Gomanip error",
+			wantApiErr:      true,
+			wantCDNErr:      false,
+			wantDatabaseErr: false,
+
+			userInput: discordgo.ApplicationCommandInteractionData{
+				Options: []*discordgo.ApplicationCommandInteractionDataOption{
+					{
+						Name:  "image",
+						Value: "imageId",
+						Type:  discordgo.ApplicationCommandOptionAttachment,
+					},
+					{
+						Name:  "numterms",
+						Value: 5.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "fontScale",
+						Value: 1.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "x",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "y",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+				},
+			},
+			apiHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest) // or another error status code
+
+				errResp := imagemanip.ErrorResponse{
+					Detail: "api error",
+				}
+
+				json.NewEncoder(w).Encode(errResp)
+			},
+			mockCDNHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+		},
+		{
+			name:            "Database error",
+			wantApiErr:      false,
+			wantCDNErr:      false,
+			wantDatabaseErr: true,
+			userInput: discordgo.ApplicationCommandInteractionData{
+				Options: []*discordgo.ApplicationCommandInteractionDataOption{
+					{
+						Name:  "image",
+						Value: "imageId",
+						Type:  discordgo.ApplicationCommandOptionAttachment,
+					},
+					{
+						Name:  "numterms",
+						Value: 5.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "fontScale",
+						Value: 1.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "x",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+					{
+						Name:  "y",
+						Value: 50.0,
+						Type:  discordgo.ApplicationCommandOptionInteger,
+					},
+				},
+			},
+			apiHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+			mockCDNHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", testContentType)
+				w.WriteHeader(http.StatusOK)
+				w.Write(testImgBytes)
+			},
+		},
+	}
+
+	databaseTerms := []string{"hello", "world", "aaaa", "bbbb", "text", "ccc", "dddd", "eeee"}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctrl := gomock.NewController(t)
+			testHttpClient := &http.Client{}
+
+			testCDN := httptest.NewServer(http.HandlerFunc(tt.mockCDNHandlerFunc))
+			testGoManipServer := httptest.NewServer(http.HandlerFunc(tt.apiHandlerFunc))
+
+			api := imagemanip.NewGoManip(testHttpClient, testGoManipServer.URL)
+
+			mockSession := mockinterfaces.NewMockDiscordSession(ctrl)
+			mockInteractionCreate := mockinterfaces.NewMockDiscordInteraction(ctrl)
+
+			s := miniredis.RunT(t)
+			defer s.Close()
+			rdb := redis.NewClient(&redis.Options{
+				Addr: s.Addr(),
+			})
+
+			redisClient := database.NewRedisClient(context.Background(), rdb, "set")
+
+			interaction := &discordgo.Interaction{}
+
+			//common expectations
+			mockInteractionCreate.EXPECT().ApplicationCommandData().Return(tt.userInput).Times(1)
+			mockInteractionCreate.EXPECT().GetImageURLFromAttachmentID("imageId").Return(testCDN.URL).Times(1)
+			mockInteractionCreate.EXPECT().GetInteraction().Return(interaction)
+
+			if !tt.wantDatabaseErr {
+
+				for _, term := range databaseTerms {
+					redisClient.Insert(term)
+				}
+
+			}
+
+			if !tt.wantCDNErr && !tt.wantDatabaseErr {
+				mockInteractionCreate.EXPECT().GetInteraction().Return(interaction)
+				mockSession.EXPECT().InteractionResponseEdit(interaction, gomock.Any()).Times(1)
+			}
+
+			mockSession.EXPECT().InteractionRespond(interaction, gomock.Any()).Times(1)
+
+			mockApplication := &application.Application{
+				ImageApi:     api,
+				WordDatabase: redisClient,
+				GuildID:      "guildID",
+			}
+
+			err := Commands.RandomText(mockSession, mockInteractionCreate, mockApplication)
+
+			assert.Equal(t, tt.wantApiErr || tt.wantCDNErr || tt.wantDatabaseErr, err != nil)
 			ctrl.Finish()
 		})
 	}

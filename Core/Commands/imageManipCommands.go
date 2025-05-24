@@ -6,6 +6,7 @@ import (
 	"bot/Core/Interfaces"
 	imagemanip "bot/Core/Services/ImageManip"
 	"bot/util"
+	"strings"
 )
 
 func RandomImageFilter(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
@@ -154,7 +155,7 @@ func AddText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *ap
 	xOption := applicationData.Options[3].IntValue()
 	yOption := applicationData.Options[4].IntValue()
 
-	fontScale := float32(fontScaleOption) / 100.0
+	fontScale := float32(fontScaleOption)
 	x := float32(xOption) / 100.0
 	y := float32(yOption) / 100.0
 
@@ -173,7 +174,44 @@ func AddText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *ap
 	return err
 
 }
+func RandomText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+	applicationData := i.ApplicationCommandData()
+	attachmentID := applicationData.Options[0].Value.(string)
+	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	numTerms := applicationData.Options[1].IntValue()
+	fontScaleOption := applicationData.Options[2].IntValue()
+	xOption := applicationData.Options[3].IntValue()
+	yOption := applicationData.Options[4].IntValue()
 
+	fontScale := float32(fontScaleOption)
+	x := float32(xOption) / 100.0
+	y := float32(yOption) / 100.0
+
+	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
+
+	if err != nil {
+		Common.Reply(s, i, "Error downloading given attachment")
+		return err
+	}
+
+	terms, err := a.WordDatabase.FetchRandom(int(numTerms))
+
+	if err != nil {
+		Common.Reply(s, i, "Error fetching random words")
+		return err
+	}
+
+	text := strings.Join(terms, " ")
+
+	Common.DeferReply(s, i)
+
+	img, err := imagemanip.AddText(a.ImageApi, imgBytes, format, text, fontScale, x, y)
+
+	Common.ReplyImage(img, err, s, i)
+
+	return err
+
+}
 func ReduceImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)

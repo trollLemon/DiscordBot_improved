@@ -218,7 +218,43 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "randomtext",
+			Description: "add random text to an image (uses text database). ",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
+					Description: "the image to operate on",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "terms",
+					Description: "number of terms to get from database",
+					Required:    true,
+				},
 
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "fontscale",
+					Description: "how big the text shall be",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "x",
+					Description: "percentage of the image width between 0 and 100 (50 will be in the middle of the image",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "y",
+					Description: "percentage of the image height between 0 and 100 (50 will be in the middle of the image)",
+					Required:    true,
+				},
+			},
+		},
 		{
 			Name:        "reduceimage",
 			Description: "lower the quality of an image",
@@ -289,6 +325,9 @@ var (
 		},
 		"addtext": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
 			return AddText(s, i, a)
+		},
+		"randomtext": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return RandomText(s, i, a)
 		},
 		"reduceimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
 			return ReduceImage(s, i, a)
