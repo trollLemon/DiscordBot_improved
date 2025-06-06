@@ -51,6 +51,7 @@ jobs:
           context: ./MicroServices/Ml/Classification
           target: tester
           tags: class-test
+          load: true
 
       - name: Run the GoManip docker image tests
         run: docker run --rm gomanip-test
