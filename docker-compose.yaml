@@ -21,9 +21,48 @@ services:
     networks:
       - network
 
+  init-shared_volume_permissions:
+    image: busybox
+    command: ["sh", "-c", "chown -R 100:101 /app/shared"]
+    volumes:
+      - shared-data:/app/shared
+    restart: "no"
+
+  worker-data:
+    image: "redis:alpine"
+    mem_limit: "2048m"
+    command: [ "redis-server", "--save", "120", "1" ]
+    networks:
+      - network
+
+  classification:
+    build: ./MicroServices/Ml/Classification
+    ports:
+      - "8081:8081"
+    command: ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8081", "--workers" ,"4" ]
+    networks:
+      - network
+    depends_on:
+      - init-shared_volume_permissions
+    volumes:
+      - shared-data:/app/shared
+
+  classification-worker:
+    build: ./MicroServices/Ml/Classification
+
+    command: [ "celery" ,"-A" ,"Tasks.task_queue", "worker", "--loglevel=info", "--concurrency=1"  ]
+    networks:
+      - network
+    depends_on:
+      - init-shared_volume_permissions
+    volumes:
+      - shared-data:/app/shared
+
 networks:
   network:
     driver: bridge
 
 volumes:
   redis_data:
+  shared-data:
+
