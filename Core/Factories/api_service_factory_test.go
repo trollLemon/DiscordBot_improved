@@ -74,3 +74,38 @@ func TestCreateDatabaseService(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateClassificationService(t *testing.T) {
+	tests := []struct {
+		name       string
+		service    factories.ClassificationService
+		wantErr    bool
+		wantNotNil bool
+	}{
+		{
+			name:       "Valid classification service",
+			service:    factories.VitClassification,
+			wantErr:    false,
+			wantNotNil: true,
+		},
+		{
+			name:       "Invalid classification service",
+			service:    -1, //simulate invalid service
+			wantErr:    true,
+			wantNotNil: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := factories.CreateClassificationAPIService(tt.service)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Create Service error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if (got != nil) != tt.wantNotNil {
+				t.Errorf("Create Service got = %v, wantNotNil %v", got, tt.wantNotNil)
+			}
+		})
+	}
+}

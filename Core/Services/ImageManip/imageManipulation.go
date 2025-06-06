@@ -17,7 +17,7 @@ type ErrorResponse struct {
 }
 
 type AbstractImageAPI interface {
-	ProcessImage(image []byte, contentType string, saturationNorm string, query string) ([]byte, error)
+	ProcessImage(image []byte, contentType string, endpoint string, query string) ([]byte, error)
 	_TryApi(apiURI, contentType string, imageBytesBuffer *bytes.Buffer) (*http.Response, error)
 }
 
