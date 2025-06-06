@@ -1,3 +1,13 @@
+FROM python:3.13.3-slim AS tester
+
+WORKDIR /app
+
+COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pytest
+CMD ["pytest", "-v"]
+
+
 FROM python:3.13.3-slim
 
 WORKDIR /app
