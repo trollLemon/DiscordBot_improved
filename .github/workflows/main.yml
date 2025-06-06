@@ -45,7 +45,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build Classification container with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: ./MicroServices/Ml/Classification
+          target: tester
+          tags: class-test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Run the GoManip docker image tests
         run: docker run --rm gomanip-test
       - name: Run the Bot docker image tests
         run: docker run --rm bot-test
+      - name: Run the classification docker image tests
+        run: docker run --rm class-test
