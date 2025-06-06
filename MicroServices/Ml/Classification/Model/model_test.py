@@ -1,6 +1,9 @@
 import unittest
+import logging
 
 import numpy as np
+import torch
+
 from Model.model import Classifier
 from PIL import Image
 
@@ -9,8 +12,8 @@ class TestModelOutput:
         self.logits = logits
 
 class TestModelConfig:
-    def __init__(self, labels):
-        self.id2label = labels
+    def __init__(self, test_labels):
+        self.id2label = test_labels
 
 class FakeModel:
     def __init__(self, config, test_output):
@@ -27,13 +30,16 @@ class FakeProcessor:
         return {'input': 0.0}
 
 
+output_logits = torch.tensor([0.0,0.1,0.2,0.7]) # max index is 3
+labels = ['a', 'b', 'c','d']
 
 class TestModel(unittest.TestCase):
     def test_invalid_processor(self):
 
         test_params = {
             'processor' : None,
-            'model': FakeModel(None),
+            'model':  FakeModel( config= TestModelConfig(labels), test_output=output_logits),
+            'logger': logging.getLogger(__name__)
 
         }
 
@@ -48,6 +54,7 @@ class TestModel(unittest.TestCase):
         test_params = {
             'processor': FakeProcessor(),
             'model': None ,
+            'logger': logging.getLogger(__name__)
 
         }
 
@@ -59,12 +66,11 @@ class TestModel(unittest.TestCase):
 
     def test_model(self):
 
-        output_logits = [0.0,0.1,0.2,0.7] # max index is 3
 
-        labels = ['a', 'b', 'c','d']
         test_params = {
             'processor': FakeProcessor(),
             'model': FakeModel( config= TestModelConfig(labels), test_output=output_logits),
+            'logger': logging.getLogger(__name__)
 
         }
 
