@@ -1,16 +1,11 @@
 services:
   bot:
     build: .
-    ports:
-      - "8000:8000"
     networks:
       - network
 
   image:
     build: ./MicroServices/ImageManipulation
-    ports:
-      - "8080:8080"
-
     networks:
       - network
 
@@ -39,8 +34,6 @@ services:
     build:
       context: ./MicroServices/Ml/Classification
       dockerfile : Dockerfile.fastapi
-    ports:
-      - "8081:8081"
     networks:
       - network
     depends_on:
