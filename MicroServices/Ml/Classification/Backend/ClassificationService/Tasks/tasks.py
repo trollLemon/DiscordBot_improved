@@ -4,12 +4,13 @@ import shutil
 from typing import Optional
 from PIL import Image
 
-import config
-from Tasks.task_queue import app
-from Model import Classifier
+from Backend.ClassificationService import model_config
 
-model_config = config.get_model_and_processor(config.ModelType.VITBASE)
+from Broker.broker import celery
+from Backend.ClassificationService.Model import Classifier
 
+
+model_config = model_config.get_model_and_processor(model_config.ModelType.VITBASE)
 
 model = Classifier(
     processor = model_config['preprocessor'],
@@ -18,7 +19,7 @@ model = Classifier(
 )
 
 
-@app.task()
+@celery.task(name="tasks.classification")
 def classify(image_path)-> Optional[str]:
     image = Image.open(image_path)
     image = image.convert('RGB')

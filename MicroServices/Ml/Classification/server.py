@@ -1,12 +1,13 @@
 import os
 import tempfile
-import shutil
 
+from celery.result import AsyncResult
+
+from Broker.broker import celery
 from PIL import Image
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from io import BytesIO
-from Tasks import classify
 
 app = FastAPI()
 
@@ -24,14 +25,14 @@ async def enqueue_classification(file: UploadFile = File(...)):
     image_path = os.path.join(temp_dir, file.filename)
     image.save(image_path)  # store image later for processing
 
-    result = classify.delay(image_path)
+    result = celery.send_task("tasks.classification", args=[image_path])#classify.delay(image_path)
 
     return JSONResponse(status_code=202, content={"jobId": result.task_id})
 
 
 @app.get("/api/v1/images/classifications/{task_id}")
 def get_result(task_id: str):
-    result = classify.AsyncResult(task_id)
+    result = AsyncResult(task_id, app=celery)
 
     if result.state == "SUCCESS":
         value = result.result

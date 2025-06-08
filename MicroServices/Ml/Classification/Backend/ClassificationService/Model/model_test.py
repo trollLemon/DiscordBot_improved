@@ -4,14 +4,15 @@ import logging
 import numpy as np
 import torch
 
-from Model.model import Classifier
+from ClassificationService.Model import Classifier
 from PIL import Image
 
-class TestModelOutput:
+
+class FakeModelOutput:
     def __init__(self, logits):
         self.logits = logits
 
-class TestModelConfig:
+class FakeModelConfig:
     def __init__(self, test_labels):
         self.id2label = test_labels
 
@@ -21,14 +22,13 @@ class FakeModel:
         self.test_output = test_output
         pass
     def __call__(self, *args, **kwargs):
-        return TestModelOutput(self.test_output)
+        return FakeModelOutput(self.test_output)
 
 class FakeProcessor:
     def __init__(self):
         pass
     def __call__(self, *args, **kwargs):
         return {'input': 0.0}
-
 
 output_logits = torch.tensor([0.0,0.1,0.2,0.7]) # max index is 3
 labels = ['a', 'b', 'c','d']
@@ -38,7 +38,7 @@ class TestModel(unittest.TestCase):
 
         test_params = {
             'processor' : None,
-            'model':  FakeModel( config= TestModelConfig(labels), test_output=output_logits),
+            'model':  FakeModel(config= FakeModelConfig(labels), test_output=output_logits),
             'logger': logging.getLogger(__name__)
 
         }
@@ -69,7 +69,7 @@ class TestModel(unittest.TestCase):
 
         test_params = {
             'processor': FakeProcessor(),
-            'model': FakeModel( config= TestModelConfig(labels), test_output=output_logits),
+            'model': FakeModel(config= FakeModelConfig(labels), test_output=output_logits),
             'logger': logging.getLogger(__name__)
 
         }

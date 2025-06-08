@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM python:3.13.3-slim AS tester
 
 WORKDIR /app
@@ -5,6 +7,7 @@ WORKDIR /app
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir pytest
+
 CMD ["pytest", "-v"]
 
 
@@ -12,9 +15,13 @@ FROM python:3.13.3-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY Backend /app/Backend
+COPY Broker /app/Broker
+COPY backend_requirements.txt /app/Backend
 
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app/Backend
+
+RUN pip install --no-cache-dir -r backend_requirements.txt
 RUN addgroup --system --gid 101 celery && \
     adduser --system --uid 100 --ingroup celery celery
 
@@ -23,7 +30,10 @@ RUN mkdir -p /app/.cache/huggingface && chown -R celery:celery /app/.cache
 
 # Set environment variables for cache
 ENV HF_HOME=/app/.cache/huggingface
-COPY . .
 
 USER celery
-EXPOSE 8081
+EXPOSE 8082
+
+WORKDIR /app
+
+CMD [ "celery" ,"-A" ,"Backend.ClassificationService.Tasks.tasks", "worker", "--loglevel=info", "--concurrency=1"  ]

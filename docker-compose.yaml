@@ -36,10 +36,11 @@ services:
       - network
 
   classification:
-    build: ./MicroServices/Ml/Classification
+    build:
+      context: ./MicroServices/Ml/Classification
+      dockerfile : Dockerfile.fastapi
     ports:
       - "8081:8081"
-    command: ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8081", "--workers" ,"4" ]
     networks:
       - network
     depends_on:
@@ -48,9 +49,10 @@ services:
       - shared-data:/app/shared
 
   classification-worker:
-    build: ./MicroServices/Ml/Classification
+    build:
+      context: ./MicroServices/Ml/Classification
+      dockerfile : Dockerfile.backend
 
-    command: [ "celery" ,"-A" ,"Tasks.task_queue", "worker", "--loglevel=info", "--concurrency=1"  ]
     networks:
       - network
     depends_on:
