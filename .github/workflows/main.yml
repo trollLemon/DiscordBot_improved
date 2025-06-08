@@ -48,10 +48,11 @@ jobs:
       - name: Build Classification container (backend tests)
         uses: docker/build-push-action@v5
         with:
-          context: ./MicroServices/Ml/Classification/Backend
+          context: ./MicroServices/Ml/Classification/
           target: tester
           tags: class-test
           load: true
+          file: ./MicroServices/Ml/Classification/Backend/Dockerfile.backend
       - name: Build Classification container (Frontend api)
         uses: docker/build-push-action@v5
         with:
