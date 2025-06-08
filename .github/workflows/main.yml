@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./MicroServices/Ml/Classification/
-          file: Dockerfile.fastapi
+          file: ./MicroServices/Ml/Classification/Dockerfile.fastapi
           tags: class-test
           load: true
           cache-from: type=gha
