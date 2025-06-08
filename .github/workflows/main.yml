@@ -52,12 +52,12 @@ jobs:
           target: tester
           tags: class-test
           load: true
-          file: ./MicroServices/Ml/Classification/Dockerfile.backend
+          file: Dockerfile.backend
       - name: Build Classification container (Frontend api)
         uses: docker/build-push-action@v5
         with:
           context: ./MicroServices/Ml/Classification/
-          target: tester
+          file: Dockerfile.fastapi
           tags: class-test
           load: true
           cache-from: type=gha
