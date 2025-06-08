@@ -58,7 +58,7 @@ jobs:
         with:
           context: ./MicroServices/Ml/Classification/
           file: ./MicroServices/Ml/Classification/Dockerfile.fastapi
-          tags: class-test
+          tags: class-fastapi
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
