@@ -81,9 +81,15 @@ func InitializeApplication() *application.Application {
 		log.Printf("warning, error creating database service: %v", err)
 	}
 
+	classificationService, err := factories.CreateClassificationAPIService(factories.VitClassification)
+	if err != nil {
+		log.Printf("warning, error creating classification api service: %v", err)
+	}
+
 	return &application.Application{
-		ImageApi:     imageApi,
-		WordDatabase: databaseService,
+		ImageApi:          imageApi,
+		WordDatabase:      databaseService,
+		ClassificationApi: classificationService,
 	}
 }
 

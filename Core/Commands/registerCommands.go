@@ -291,6 +291,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "classify",
+			Description: "classify an image",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionAttachment,
+					Name:        "image",
+					Description: "the image to classify",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	CommandHandlers = map[string]func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error{
@@ -334,6 +346,9 @@ var (
 		},
 		"shuffleimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
 			return ShuffleImage(s, i, a)
+		},
+		"classify": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+			return Classify(s, i, a)
 		},
 	}
 )

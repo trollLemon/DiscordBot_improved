@@ -1,16 +1,11 @@
 services:
   bot:
     build: .
-    ports:
-      - "8000:8000"
     networks:
       - network
 
   image:
     build: ./MicroServices/ImageManipulation
-    ports:
-      - "8080:8080"
-
     networks:
       - network
 
@@ -21,9 +16,48 @@ services:
     networks:
       - network
 
+  init-shared_volume_permissions:
+    image: busybox
+    command: ["sh", "-c", "chown -R 100:101 /app/shared"]
+    volumes:
+      - shared-data:/app/shared
+    restart: "no"
+
+  worker-data:
+    image: "redis:alpine"
+    mem_limit: "2048m"
+    command: [ "redis-server", "--save", "120", "1" ]
+    networks:
+      - network
+
+  classification:
+    build:
+      context: ./MicroServices/Ml/Classification
+      dockerfile : Dockerfile.fastapi
+    networks:
+      - network
+    depends_on:
+      - init-shared_volume_permissions
+    volumes:
+      - shared-data:/app/shared
+
+  classification-worker:
+    build:
+      context: ./MicroServices/Ml/Classification
+      dockerfile : Dockerfile.backend
+
+    networks:
+      - network
+    depends_on:
+      - init-shared_volume_permissions
+    volumes:
+      - shared-data:/app/shared
+
 networks:
   network:
     driver: bridge
 
 volumes:
   redis_data:
+  shared-data:
+

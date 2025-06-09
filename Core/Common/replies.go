@@ -21,6 +21,35 @@ func Reply(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, text st
 
 }
 
+func ReplyImageClassification(image []byte, err error, classification string, s Interfaces.DiscordSession, i Interfaces.DiscordInteraction) {
+
+	var responseEdit *discordgo.WebhookEdit
+
+	classificationMsg := "This is: " + classification
+
+	if err != nil {
+
+		errResponse := err.Error()
+		responseEdit = &discordgo.WebhookEdit{
+			Content: &errResponse,
+		}
+	} else {
+		responseEdit = &discordgo.WebhookEdit{
+			Files: []*discordgo.File{
+				{
+					Name:   "processed_image.png",
+					Reader: bytes.NewReader(image),
+				},
+			},
+			Content: &classificationMsg,
+		}
+	}
+
+	if _, err := s.InteractionResponseEdit(i.GetInteraction(), responseEdit); err != nil {
+		log.Printf("error responding to interaction: %v", err)
+	}
+}
+
 func ReplyImage(image []byte, err error, s Interfaces.DiscordSession, i Interfaces.DiscordInteraction) {
 
 	var responseEdit *discordgo.WebhookEdit

@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3.10.0
+      - name: Prune Docker buildx cache older than 24 hours
+        run: docker buildx prune --filter "until=24h" -f
       
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,7 +47,27 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build Classification container (backend tests)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./MicroServices/Ml/Classification/
+          target: tester
+          tags: class-test
+          load: true
+          file: ./MicroServices/Ml/Classification/Dockerfile.backend
+      - name: Build Classification container (Frontend api)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./MicroServices/Ml/Classification/
+          file: ./MicroServices/Ml/Classification/Dockerfile.fastapi
+          tags: class-fastapi
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Run the GoManip docker image tests
         run: docker run --rm gomanip-test
       - name: Run the Bot docker image tests
         run: docker run --rm bot-test
+      - name: Run the classification backend docker image tests
+        run: docker run --rm class-test

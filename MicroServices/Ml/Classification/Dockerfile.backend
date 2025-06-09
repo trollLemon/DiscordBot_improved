@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+
+FROM python:3.13.3-slim AS tester
+
+WORKDIR /app
+
+COPY . .
+RUN pip install --no-cache-dir -r  backend_requirements.txt
+RUN pip install --no-cache-dir pytest
+
+CMD ["pytest", "-v"]
+
+
+FROM python:3.13.3-slim
+
+WORKDIR /app
+
+COPY Backend /app/Backend
+COPY Broker /app/Broker
+COPY backend_requirements.txt /app/Backend
+
+WORKDIR /app/Backend
+
+RUN pip install --no-cache-dir -r backend_requirements.txt
+RUN addgroup --system --gid 101 celery && \
+    adduser --system --uid 100 --ingroup celery celery
+
+# Create a directory for Hugging Face cache and give ownership to celery
+RUN mkdir -p /app/.cache/huggingface && chown -R celery:celery /app/.cache
+
+# Set environment variables for cache
+ENV HF_HOME=/app/.cache/huggingface
+
+USER celery
+EXPOSE 8082
+
+WORKDIR /app
+
+CMD [ "celery" ,"-A" ,"Backend.ClassificationService.Tasks.tasks", "worker", "--loglevel=info", "--concurrency=1"  ]
