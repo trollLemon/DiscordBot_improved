@@ -73,7 +73,7 @@ GoManip has two command line arguments:
  - `--pretty_print` to enable pretty printing rather than json in the logs. The default value is false.
  - `--num_workers`  to specify how many worker goroutines to spawn. The default value is the max number of logical cpus available to the process. 
 
-Since all operations are vectorized due to opencv, image manipulation functions are fast, but can clog up the CPU scheduler if too many jobs are running. `--num_workers` can help set a bound for how many
-jobs will have opencv operations.
+Since all operations are vectorized due to opencv, image manipulation functions are fast, but can clog up the CPU if too many jobs are dispatched. `--num_workers` can help set a bound for how many
+jobs will have threaded OpenCV operations.
 
 
