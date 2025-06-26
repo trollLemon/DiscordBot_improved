@@ -40,7 +40,7 @@ jobs:
       - name: Build Main Bot container with cache
         uses: docker/build-push-action@v5
         with:
-          context: ./MicroServices/ImageManipulation
+          context: ./MicroServices/GoManip
           target: tester
           tags: bot-test
           load: true
