@@ -19,8 +19,8 @@ const (
 	GoManip                ImageApiService       = 0
 	Redis                  DatabaseService       = 1
 	VitClassification      ClassificationService = 2
-	ImageManipEndpoint                           = "http://image:8080/api/image"
-	classificationEndpoint                       = "http://classification:8081"
+	ImageManipEndpoint                           = "http://image/api/image"
+	classificationEndpoint                       = "http://classification"
 	classificationSend                           = "/api/v1/images"
 	classificationPoll                           = "/api/v1/images/classifications"
 )

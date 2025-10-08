@@ -3,13 +3,12 @@ package Commands
 import (
 	"bot/Application"
 	"bot/Core/Common"
-	"bot/Core/Interfaces"
 	"fmt"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
-
-func Add(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-
+func Add(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	term := i.ApplicationCommandData().Options[0].StringValue()
 
 	if err := a.WordDatabase.Insert(term); err != nil {
@@ -20,8 +19,7 @@ func Add(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *applic
 	Common.Reply(s, i, fmt.Sprintf("Added %s to database", term))
 	return nil
 }
-func Remove(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-
+func Remove(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	term := i.ApplicationCommandData().Options[0].StringValue()
 
 	if err := a.WordDatabase.Delete(term); err != nil {
@@ -32,8 +30,7 @@ func Remove(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *app
 	Common.Reply(s, i, fmt.Sprintf("Added %s to database", term))
 	return nil
 }
-func Show(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
-
+func Show(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	terms, err := a.WordDatabase.GetAll()
 
 	if err != nil {

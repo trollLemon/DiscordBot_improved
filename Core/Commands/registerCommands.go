@@ -2,7 +2,6 @@ package Commands
 
 import (
 	application "bot/Application"
-	"bot/Core/Interfaces"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -305,49 +304,49 @@ var (
 		},
 	}
 
-	CommandHandlers = map[string]func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error{
+	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error{
 
-		"add": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"add": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Add(s, i, a)
 		},
 
-		"remove": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"remove": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Remove(s, i, a)
 		},
-		"show": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"show": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Show(s, i, a)
 		},
-		"randomfilter": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"randomfilter": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return RandomImageFilter(s, i, a)
 		},
-		"invertimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"invertimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return InvertImage(s, i, a)
 		},
-		"saturateimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"saturateimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return SaturateImage(s, i, a)
 		},
-		"edgedetect": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"edgedetect": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return EdgeDetection(s, i, a)
 		},
-		"dilateimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"dilateimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Dilate(s, i, a)
 		},
-		"erodeimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"erodeimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Erode(s, i, a)
 		},
-		"addtext": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"addtext": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return AddText(s, i, a)
 		},
-		"randomtext": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"randomtext": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return RandomText(s, i, a)
 		},
-		"reduceimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"reduceimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return ReduceImage(s, i, a)
 		},
-		"shuffleimage": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"shuffleimage": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return ShuffleImage(s, i, a)
 		},
-		"classify": func(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+		"classify": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Classify(s, i, a)
 		},
 	}

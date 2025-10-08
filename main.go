@@ -1,28 +1,20 @@
 package main
 
 import (
-	"bot/Application"
-	"bot/Core/Commands"
-	factories "bot/Core/Factories"
-	"bot/Core/Wrappers"
 	"flag"
-	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog/log"
+
+	application "bot/Application"
+	"bot/Core/Commands"
+	factories "bot/Core/Factories"
 )
 
 type Options struct {
 	RegisterCommands bool
-}
-
-func loadENV() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal().Msg("Error loading .env file")
-	}
-
 }
 
 func registerCommands(session *discordgo.Session) {
@@ -41,15 +33,7 @@ func registerCommands(session *discordgo.Session) {
 func addCommandHandlers(session *discordgo.Session, app *application.Application) {
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := Commands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
-
-			wrappedSession := Wrappers.DiscordSessionWrapper{
-				Session: s,
-			}
-
-			wrappedInteractionCreate := Wrappers.InteractionCreateWrapper{
-				InteractionCreate: i,
-			}
-			if err := h(wrappedSession, wrappedInteractionCreate, app); err != nil {
+			if err := h(s, i, app); err != nil {
 				log.Error().Err(err).Msg("Failed to execute command")
 			}
 
@@ -94,13 +78,9 @@ func InitializeApplication() *application.Application {
 }
 
 func main() {
-	loadENV()
 	options := parseCommandLineArgs()
 
 	token := os.Getenv("DISCORD_TOKEN")
-	if token == "" {
-		log.Fatal().Msg("No token provided. Set DISCORD_TOKEN in your .env file.")
-	}
 
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {

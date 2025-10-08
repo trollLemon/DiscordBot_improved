@@ -1,18 +1,19 @@
 package Commands
 
 import (
-	"bot/Application"
+	application "bot/Application"
 	"bot/Core/Common"
-	"bot/Core/Interfaces"
 	imagemanip "bot/Core/Services/ImageManip"
 	"bot/util"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-func RandomImageFilter(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	kernelOption := applicationData.Options[1].IntValue()
 	lowerOption := applicationData.Options[2].IntValue()
 	higherOption := applicationData.Options[3].IntValue()
@@ -33,11 +34,11 @@ func RandomImageFilter(s Interfaces.DiscordSession, i Interfaces.DiscordInteract
 	return err
 }
 
-func InvertImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
@@ -55,10 +56,11 @@ func InvertImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a
 
 }
 
-func SaturateImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+
 	saturationMagnitude := applicationData.Options[1].IntValue()
 
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
@@ -77,10 +79,11 @@ func SaturateImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction,
 
 }
 
-func EdgeDetection(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
+
 	lowerBound := applicationData.Options[1].IntValue()
 	upperBound := applicationData.Options[2].IntValue()
 
@@ -100,10 +103,10 @@ func EdgeDetection(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction,
 
 }
 
-func Dilate(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func Dilate(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	boxSize := applicationData.Options[1].IntValue()
 	iterations := applicationData.Options[2].IntValue()
 
@@ -123,10 +126,10 @@ func Dilate(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *app
 
 }
 
-func Erode(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func Erode(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	boxSize := applicationData.Options[1].IntValue()
 	iterations := applicationData.Options[2].IntValue()
 
@@ -146,10 +149,10 @@ func Erode(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *appl
 
 }
 
-func AddText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func AddText(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	text := applicationData.Options[1].Value.(string)
 	fontScaleOption := applicationData.Options[2].IntValue()
 	xOption := applicationData.Options[3].IntValue()
@@ -174,10 +177,10 @@ func AddText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *ap
 	return err
 
 }
-func RandomText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func RandomText(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	numTerms := applicationData.Options[1].IntValue()
 	fontScaleOption := applicationData.Options[2].IntValue()
 	xOption := applicationData.Options[3].IntValue()
@@ -212,10 +215,10 @@ func RandomText(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a 
 	return err
 
 }
-func ReduceImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	qualityOption := applicationData.Options[1].IntValue()
 
 	quality := float32(qualityOption) / 100.0
@@ -236,10 +239,10 @@ func ReduceImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a
 
 }
 
-func ShuffleImage(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func ShuffleImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL  := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 	partitionsOption := applicationData.Options[1].IntValue()
 
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)

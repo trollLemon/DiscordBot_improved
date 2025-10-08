@@ -3,14 +3,15 @@ package Commands
 import (
 	application "bot/Application"
 	"bot/Core/Common"
-	"bot/Core/Interfaces"
 	"bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-func Classify(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, a *application.Application) error {
+func Classify(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
-	attachmentURL := i.GetImageURLFromAttachmentID(attachmentID)
+	attachmentURL := i.ApplicationCommandData().Resolved.Attachments[attachmentID].URL
 
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 

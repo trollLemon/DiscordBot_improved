@@ -1,13 +1,13 @@
 package Common
 
 import (
-	"bot/Core/Interfaces"
 	"bytes"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
 )
 
-func Reply(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, text string) {
+func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -15,13 +15,13 @@ func Reply(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction, text st
 		},
 	}
 
-	if err := s.InteractionRespond(i.GetInteraction(), response); err != nil {
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
 		log.Error().Err(err).Msg("Interaction Response")
 	}
 
 }
 
-func ReplyImageClassification(image []byte, err error, classification string, s Interfaces.DiscordSession, i Interfaces.DiscordInteraction) {
+func ReplyImageClassification(image []byte, err error, classification string, s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	var responseEdit *discordgo.WebhookEdit
 
@@ -45,12 +45,12 @@ func ReplyImageClassification(image []byte, err error, classification string, s 
 		}
 	}
 
-	if _, err := s.InteractionResponseEdit(i.GetInteraction(), responseEdit); err != nil {
+	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
 		log.Printf("error responding to interaction: %v", err)
 	}
 }
 
-func ReplyImage(image []byte, err error, s Interfaces.DiscordSession, i Interfaces.DiscordInteraction) {
+func ReplyImage(image []byte, err error, s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	var responseEdit *discordgo.WebhookEdit
 
@@ -71,13 +71,13 @@ func ReplyImage(image []byte, err error, s Interfaces.DiscordSession, i Interfac
 		}
 	}
 
-	if _, err := s.InteractionResponseEdit(i.GetInteraction(), responseEdit); err != nil {
+	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
 		log.Printf("error responding to interaction: %v", err)
 	}
 }
 
-func DeferReply(s Interfaces.DiscordSession, i Interfaces.DiscordInteraction) {
-	err := s.InteractionRespond(i.GetInteraction(), &discordgo.InteractionResponse{
+func DeferReply(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
 
