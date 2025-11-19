@@ -2,7 +2,6 @@ package Classification
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/trollLemon/DiscordBot/internal/apiErrors"
@@ -17,16 +16,16 @@ var (
 
 func errorChecker(err error) error {
 	if errors.Is(err, apierrors.ErrRetry) {
-		return fmt.Errorf("request timed out. %w", ErrRequestTimedOut)
+		return ErrRequestTimedOut
 	}
 	if errors.Is(err, apierrors.ErrAPI) {
-		return fmt.Errorf("given parameters were invalid. %w", ErrRequestBadParams)
+		return ErrRequestBadParams
 	}
 	if errors.Is(err, errBadFileType) {
-		return fmt.Errorf("given image is not a png or jpeg image. %w", ErrNotPngOrJpg)
+		return ErrNotPngOrJpg
 	}
 	if err != nil {
-		return fmt.Errorf("failed to get image from api. %w", ErrGeneral)
+		return ErrGeneral
 	}
 	return nil
 }
