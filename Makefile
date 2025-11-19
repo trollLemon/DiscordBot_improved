@@ -1,4 +1,3 @@
-COVERAGE_FILE=coverage.out
 APP_NAME=bot
 all: build
 
@@ -20,15 +19,8 @@ compose-up:
 test-coverage:
 	go test -v ./... -cover -race -count=1
 
-test:
-	go test ./... -v -coverprofile=$(COVERAGE_FILE)
-
-coverage: test
-	go tool cover -html=$(COVERAGE_FILE)
-
 clean:
 	go clean
-	rm -f $(COVERAGE_FILE)
 	rm -f $(APP_NAME)
 
 .PHONY: all fmt vet build test coverage clean
