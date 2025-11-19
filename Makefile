@@ -17,6 +17,9 @@ compose-up:
 	@echo "If you are not in the docker group you will need to run this with sudo"
 	docker-compose -f docker-compose/docker-compose.yaml up --build
 
+test-coverage:
+	go test -v ./... -cover -race -count=1
+
 test:
 	go test ./... -v -coverprofile=$(COVERAGE_FILE)
 
