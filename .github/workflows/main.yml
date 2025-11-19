@@ -11,6 +11,19 @@ on:
       - main
 
 jobs:
+  
+  test-bot:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.21.x' ]
+    steps: 
+      - name: Vet go packages
+        run:  make vet 
+      - name: run tests 
+        run:  make test-coverage
+
+
   build:
 
     runs-on: ubuntu-latest
@@ -31,7 +44,7 @@ jobs:
       - name: Build ImageManipulation microservice container with cache
         uses: docker/build-push-action@v5
         with:
-          context: ./MicroServices/GoManip
+          context: ./MicroServices/ImageManipulation
           target: tester
           tags: gomanip-test
           load: true
@@ -40,6 +53,7 @@ jobs:
       - name: Build Main Bot container with cache
         uses: docker/build-push-action@v5
         with:
+          context: ./MicroServices/ImageManipulation
           target: tester
           tags: bot-test
           load: true
