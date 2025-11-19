@@ -17,7 +17,13 @@ jobs:
     strategy:
       matrix:
         go-version: [ '1.21.x' ]
+    
     steps: 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+            go-version-file: 'go.mod'
+            cache: true
       - name: Vet go packages
         run:  make vet 
       - name: run tests 
