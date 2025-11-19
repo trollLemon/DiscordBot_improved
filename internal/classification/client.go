@@ -93,7 +93,7 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 			if err != nil {
 				return nil, backoff.Permanent(fmt.Errorf("error sending request: %v; %w", err, apierrors.ErrNetwork))
 			}
-			if resp.StatusCode == http.StatusAccepted {
+			if resp.StatusCode == http.StatusCreated {
 				return resp, nil
 			}
 
@@ -103,8 +103,7 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 			if err != nil {
 				return nil, backoff.Permanent(fmt.Errorf("failed to read response body. %w", apierrors.ErrReading))
 			}
-			println(string(contentType))
-			println(string(respBody))
+
 			err = json.Unmarshal(respBody, &errorResponse)
 			if err != nil {
 				return nil, backoff.Permanent(fmt.Errorf("failed to unmarshal response body: %v; %w", err, apierrors.ErrResp))
