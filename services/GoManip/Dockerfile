@@ -94,7 +94,7 @@ RUN go mod download
 COPY . .
 RUN ldconfig
 
-CMD ["go", "test", "-v", "./..."]
+CMD ["go", "test", "-v", "-cover", "-race", "-count=1", "./..."]
 
 
 FROM gcr.io/distroless/cc-debian12 AS application
