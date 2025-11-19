@@ -70,7 +70,7 @@ sympy==1.14.0
 tokenizers==0.21.1
 torch==2.8.0
 tqdm==4.67.1
-transformers==4.52.4
+transformers==4.53.0
 triton==3.4.0
 typer==0.16.0
 typing-inspection==0.4.1
