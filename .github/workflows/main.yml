@@ -38,19 +38,12 @@ jobs:
       
       # because gomanip uses GoCV, which needs OpenCV, we have to use the container environment with Opencv 
       # to build it.
-      - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v3.10.0
-      - name: Prune Docker buildx cache older than 24 hours
-        run: docker buildx prune --filter "until=24h" -f
       - name: Build gomanip container 
         uses: docker/build-push-action@v5
         with:
           context: ./services/GoManip/
           target: tester
           tags: gomanip-test
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Run the GoManip docker image tests
         run: docker run --rm gomanip-test
   
