@@ -1,4 +1,4 @@
-name: Build and publish to docker hub
+name: Build and publish classification service to docker hub
 
 on:
   push:
