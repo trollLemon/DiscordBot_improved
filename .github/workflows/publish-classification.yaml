@@ -71,7 +71,7 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           context: ./services/Ml/Classification 
-          file: {context}/Dockerfile.backend
+          file: ./services/Ml/Classification/Dockerfile.backend
           tags: ${{ env.version_backend }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
