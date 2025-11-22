@@ -36,4 +36,5 @@ EXPOSE 8082
 
 WORKDIR /app
 
-CMD [ "celery" ,"-A" ,"Backend.ClassificationService.Tasks.tasks", "worker", "--loglevel=info", "--concurrency=1"  ]
+ENTRYPOINT [ "celery" ,"-A" ,"Backend.ClassificationService.Tasks.tasks", "worker"] 
+CMD ["--loglevel=info", "--concurrency=1"  ]
