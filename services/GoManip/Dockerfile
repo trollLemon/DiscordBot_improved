@@ -1,4 +1,4 @@
-FROM trolllemon/opencv4.11.0:alpha AS gocv-builder 
+FROM trolllemon/opencv-4.11.0:v1.0.0 AS gocv-builder 
 
 ENV DEBIAN_FRONTEND=noninteractive
 
