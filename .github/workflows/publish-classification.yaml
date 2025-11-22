@@ -39,7 +39,7 @@ jobs:
         with:
           context: ./services/Ml/Classification 
           file: ./services/Ml/Classification/Dockerfile.fastapi
-          tags: ${{ env.version_api }}
+          tags: ${{ env.API_IMAGE_NAME }}:${{ env.version_api }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -75,7 +75,7 @@ jobs:
         with:
           context: ./services/Ml/Classification 
           file: ./services/Ml/Classification/Dockerfile.backend
-          tags: ${{ env.version_backend }}
+          tags:   ${{ env.BACKEND_IMAGE_NAME }}:${{ env.version_backend }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
