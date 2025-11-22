@@ -16,5 +16,6 @@ RUN addgroup --system --gid 101 celery && \
 USER celery
 EXPOSE 8081
 
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8081", "--workers" ,"4" ]
+ENTRYPOINT ["uvicorn", "server:app"]
+CMD ["--host", "0.0.0.0", "--port", "8081", "--workers" ,"4" ]
 
