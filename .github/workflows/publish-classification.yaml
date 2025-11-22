@@ -43,6 +43,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          push: true 
 
   build-and-publish-backend-image:
     runs-on: ubuntu-latest
@@ -78,3 +79,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          push: true
