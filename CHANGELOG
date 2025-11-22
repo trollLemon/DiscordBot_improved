@@ -1,0 +1,4 @@
+v0.1.0-beta:
+- created workflows for service images to be pushed to dockerhub.
+- all services (bot, gomanip, classification) have VERSION files. 
+- final bot image stage explicitly named 'application'.
