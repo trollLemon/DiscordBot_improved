@@ -1,6 +1,6 @@
 services:
   bot:
-    build: ../
+    image: trolllemon/discordbot:v0.1.0
     environment:
       # you will need to set these two env vars prior to running the deployment.
       - DISCORD_TOKEN=<put your token here>
@@ -16,13 +16,14 @@ services:
       - CLASSIFICATION_TIMEOUT=5m
     networks:
       - network
-    restart: "yes"
+    restart: "always"
 
   gomanip:
-    build: ../services/GoManip/
+    image: trolllemon/gomanip:v0.1.0
+    command: ["--pretty_print", "--num_workers", "4"]
     networks:
       - network
-    restart: "yes"
+    restart: "always"
   redis:
     image: "redis:alpine"
     mem_limit: "2048m"
@@ -43,31 +44,27 @@ services:
     command: [ "redis-server", "--save", "120", "1" ]
     networks:
       - network
-    restart: "yes"
+    restart: "always"
 
   classification:
-    build:
-      context: ../services/Ml/Classification
-      dockerfile : Dockerfile.fastapi
+    image: trolllemon/classification-api:v0.1.0
     networks:
       - network
     depends_on:
       - init-shared_volume_permissions
     volumes:
       - shared-data:/app/shared
-    restart: "yes"
+    restart: "always"
 
   classification-worker:
-    build:
-      context: ../services/Ml/Classification
-      dockerfile : Dockerfile.backend
+    image: trolllemon/classification-backend:v0.1.0
     networks:
       - network
     depends_on:
       - init-shared_volume_permissions
     volumes:
       - shared-data:/app/shared
-    restart: "yes"
+    restart: "always"
 
 networks:
   network:
