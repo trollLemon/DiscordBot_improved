@@ -43,7 +43,7 @@ jobs:
         with:
           context: .
           target: application
-          tags: ${{ env.version }}
+          tags:   ${{ env.IMAGE_NAME }}:${{ env.version }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
