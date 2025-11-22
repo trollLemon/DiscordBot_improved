@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.23.1 AS builder
+FROM golang:1.24.0 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY go.mod go.sum ./
 RUN CGO_ENABLED=1 GOOS=linux go build -o bot ./cmd/*
 
 
-FROM golang:1.23.1 AS tester
+FROM golang:1.24.0 AS tester
 WORKDIR /app
 COPY cmd ./
 COPY internal ./ 
@@ -22,7 +22,7 @@ RUN go mod download
 CMD ["go", "test", "-v", "./..."]
 
 # Runtime Stage
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS application
 
 WORKDIR /
 RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
