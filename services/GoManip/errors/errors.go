@@ -25,9 +25,3 @@ func ReturnJsonError(c echo.Context, statusCode int, errString string) error {
 
 	return c.JSON(statusCode, response)
 }   
-
-
-
-
-
-
