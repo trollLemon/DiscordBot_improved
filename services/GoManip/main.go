@@ -3,15 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"goManip/JobDispatch"
-	"goManip/jobs"
-	"goManip/util"
-	"goManip/worker"
-	"gocv.io/x/gocv"
+
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,7 +11,24 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"gocv.io/x/gocv"
+
+	"goManip/JobDispatch"
+	"goManip/jobs"
+	"goManip/util"
+	"goManip/worker"
+	gomanipMiddleware "goManip/middleware"
+
 )
+
+
+
+
 
 func getDispatcher(c echo.Context) *JobDispatch.JobDispatcher {
 	return c.Get("jobDispatcher").(*JobDispatch.JobDispatcher)
@@ -48,6 +57,10 @@ func handleImageOperation(
 
 func InvertEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
 		return JobDispatch.EnqueueInvertImage(jobDispatcher, image)
@@ -57,6 +70,10 @@ func InvertEndpoint(c echo.Context) error {
 
 func SaturateEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	saturation, err := util.ParseSaturation(c)
 	if err != nil {
@@ -72,6 +89,10 @@ func SaturateEndpoint(c echo.Context) error {
 
 func EdgeDetectionEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	tLower, tHigher, err := util.ParseEdgeDetection(c)
 	if err != nil {
@@ -86,6 +107,10 @@ func EdgeDetectionEndpoint(c echo.Context) error {
 
 func MorphologyEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	morphType, kernelSize, iterations, err := util.ParseMorphology(c)
 	if err != nil {
@@ -100,6 +125,10 @@ func MorphologyEndpoint(c echo.Context) error {
 
 func ReduceEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	quality, err := util.ParseReduce(c)
 
@@ -115,6 +144,10 @@ func ReduceEndpoint(c echo.Context) error {
 
 func AddTextEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	text, fontScale, xPerc, yPerc, err := util.ParseAddText(c)
 
@@ -124,7 +157,6 @@ func AddTextEndpoint(c echo.Context) error {
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
-
 		return JobDispatch.EnqueueAddText(jobDispatcher, image, text, fontScale, xPerc, yPerc)
 
 	})
@@ -132,6 +164,10 @@ func AddTextEndpoint(c echo.Context) error {
 
 func RandomFilterEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	minVal, maxVal, kernelSize, normalize, err := util.ParseRandomFilter(c)
 	if err != nil {
@@ -143,20 +179,14 @@ func RandomFilterEndpoint(c echo.Context) error {
 		return JobDispatch.EnqueueRandomFilter(jobDispatcher, image, minVal, maxVal, kernelSize, normalize)
 	})
 }
-func JobDispatcherMiddleware(jobDispatcher *JobDispatch.JobDispatcher) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Set("jobDispatcher", jobDispatcher)
-			return next(c)
-		}
-	}
-}
-
 func ShuffleEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
+	if jobDispatcher == nil {
+		log.Error().Msg("Job dispatcher is not present in the context")
+		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+	}
 
 	partitions, err := util.ParseShuffle(c)
-
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse shuffle")
 		return c.String(http.StatusBadRequest, "Failed to parse shuffle: "+err.Error())
@@ -168,8 +198,8 @@ func ShuffleEndpoint(c echo.Context) error {
 }
 
 func initRouting(e *echo.Echo, jobDispatcher *JobDispatch.JobDispatcher) {
-
-	e.Use(JobDispatcherMiddleware(jobDispatcher))
+	e.Use(gomanipMiddleware.JobDispatcherMiddleware(jobDispatcher))
+	e.Use(gomanipMiddleware.FileTypeVerifyMiddleware())
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus: true,
 		LogURI:    true,
@@ -197,7 +227,6 @@ func initRouting(e *echo.Echo, jobDispatcher *JobDispatch.JobDispatcher) {
 }
 
 func GraceFullShutdown(jobDispatcher *JobDispatch.JobDispatcher, wg *sync.WaitGroup, cancel context.CancelFunc) {
-
 	log.Info().Msg("Closing worker request channels")
 	jobDispatcher.Close()
 	log.Info().Msg("Stopping Workers")
