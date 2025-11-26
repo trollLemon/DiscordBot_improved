@@ -26,7 +26,7 @@ jobs:
       - name: Vet go packages
         run:  make vet 
       - name: run tests 
-        run:  make test-coverage
+        run:  make test-bot
   test-gomanip:
     runs-on: ubuntu-latest
     strategy:
@@ -41,7 +41,7 @@ jobs:
       - name: Build gomanip container 
         uses: docker/build-push-action@v5
         with:
-          context: ./services/GoManip/
+          context: ./gomanip
           target: tester
           tags: gomanip-test
       - name: Run the GoManip docker image tests
@@ -56,7 +56,7 @@ jobs:
         python-version: '3.13' 
     - name: install deps 
       run: pip install --no-cache-dir -r  backend_requirements.txt
-      working-directory: ./services/Ml/Classification/
+      working-directory: ./classification
     - name: install pytest  
       run: pip install --no-cache-dir pytest
       working-directory: ./services/Ml/Classification/
