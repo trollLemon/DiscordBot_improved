@@ -2,7 +2,7 @@ name: Build and publish gomanip service to docker hub
 
 on:
   push:
-    tags: [ 'v*.*.*' ]
+    tags: [ 'release/gomanip' ]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -35,8 +35,10 @@ jobs:
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: extract version from VERSION file
-        run: echo "version=$(cat ./services/GoManip/VERSION)" >> $GITHUB_ENV
+      - name: get tag from commit 
+          TAG=$(git describe --tags --abbrev=0)
+          echo "Latest tag: $TAG"
+          echo "version=${TAG}_edge" >> $GITHUB_ENV
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
