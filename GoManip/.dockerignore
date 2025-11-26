@@ -1,6 +1,0 @@
-# Source control
-.git
-.gitignore
-.idea
-*.out
-*.test
