@@ -56,10 +56,10 @@ jobs:
       working-directory: ./classification
     - name: install pytest  
       run: pip install --no-cache-dir pytest
-      working-directory: ./services/Ml/Classification/
+      working-directory: ./classification/
     - name: run tests 
       run: pytest -v 
-      working-directory: ./services/Ml/Classification/
+      working-directory: ./classification/
 
 
 
