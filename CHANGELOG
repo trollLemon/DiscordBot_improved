@@ -1,3 +1,7 @@
+v0.1.0:
+- switched to full mono repo layout
+- removed VERSION files, will use git tags instead
+
 v0.1.0-beta:
 - created workflows for service images to be pushed to dockerhub.
 - all services (bot, gomanip, classification) have VERSION files. 
