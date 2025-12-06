@@ -7,17 +7,14 @@ import (
 )
 
 
-type ErrorType int 
-
-
 type GomanipError struct {
 	Status string `json:"status"`
 	Detail string `json:"detail"`
 }
 
 
-// ReturnJsonError returns a json payload containing the error message and status code.
-func ReturnJsonError(c echo.Context, statusCode int, errString string) error {
+// JsonError returns a json payload containing the error message and status code.
+func JsonError(c echo.Context, statusCode int, errString string) error {
 	response := &GomanipError{
 		Status: strconv.Itoa(statusCode),
 		Detail: errString,
