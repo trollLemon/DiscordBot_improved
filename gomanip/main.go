@@ -22,6 +22,7 @@ import (
 	"goManip/jobs"
 	"goManip/util"
 	"goManip/worker"
+	"goManip/errors"
 	gomanipMiddleware "goManip/middleware"
 
 )
@@ -42,13 +43,14 @@ func handleImageOperation(
 	image, err := util.GetImageFromBody(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to read image")
-		return c.String(http.StatusBadRequest, "Failed to read image: "+err.Error())
+		return errors.JsonError(c, http.StatusBadRequest, "Failed to read image") 
+		//return c.String(http.StatusBadRequest, "Failed to read image: "+err.Error())
 	}
 
 	resultImage, err := processFunc(image)
 	if err != nil {
 		log.Error().Err(err).Msg("Image processing failed")
-		return c.String(http.StatusBadRequest, "Image processing failed: "+err.Error())
+		return errors.JsonError(c,http.StatusBadRequest, err.Error())
 	}
 	defer resultImage.Close()
 
