@@ -27,7 +27,7 @@ async def enqueue_classification(file: UploadFile = File(...)):
 
     result = celery.send_task("tasks.classification", args=[image_path])#classify.delay(image_path)
 
-    return JSONResponse(status_code=202, content={"jobId": result.task_id})
+    return JSONResponse(status_code=201, content={"jobId": result.task_id})
 
 
 @app.get("/api/v1/images/classifications/{task_id}")
