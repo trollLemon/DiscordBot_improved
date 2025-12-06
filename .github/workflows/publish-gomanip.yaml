@@ -2,7 +2,8 @@ name: Build and publish gomanip service to docker hub
 
 on:
   push:
-    tags: [ 'release/gomanip' ]
+     branches:
+      - 'release/gomanip-v*.*.*'
 
 env:
   # Use docker.io for Docker Hub if empty
