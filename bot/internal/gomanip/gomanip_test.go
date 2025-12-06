@@ -55,13 +55,13 @@ func testEndpoint(t *testing.T, do func(*gomanip.GoManip, []byte, string) ([]byt
 			name:        "Bad Request",
 			contentType: "image/png",
 			image:       image.NewRGBA(image.Rect(0, 0, 100, 100)),
-			wantErr:     gomanip.ErrBadParams,
+			wantErr:     gomanip.ErrBadInput,
 			genHandlerFunc: func(img *image.Image, contentType string, t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Content-Type", contentType)
 					w.WriteHeader(http.StatusBadRequest)
 
-					errResponse := gomanip.ErrorResponse{
+					errResponse := gomanip.GomanipError{
 						Detail: "bad params",
 					}
 
@@ -76,7 +76,7 @@ func testEndpoint(t *testing.T, do func(*gomanip.GoManip, []byte, string) ([]byt
 		},
 		{
 			name:        "Bad Request and error deserializing error json",
-			wantErr:     gomanip.ErrGeneral,
+			wantErr:     gomanip.ErrUnMarshal,
 			contentType: "image/png",
 			image:       image.NewRGBA(image.Rect(0, 0, 100, 100)),
 			genHandlerFunc: func(img *image.Image, contentType string, t *testing.T) func(w http.ResponseWriter, r *http.Request) {
@@ -91,13 +91,13 @@ func testEndpoint(t *testing.T, do func(*gomanip.GoManip, []byte, string) ([]byt
 			name:        "Server Error",
 			contentType: "image/png",
 			image:       image.NewRGBA(image.Rect(0, 0, 100, 100)),
-			wantErr:     gomanip.ErrGeneral,
+			wantErr:     gomanip.ErrServer,
 			genHandlerFunc: func(img *image.Image, contentType string, t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Content-Type", contentType)
 					w.WriteHeader(http.StatusInternalServerError)
 
-					errResponse := gomanip.ErrorResponse{
+					errResponse := gomanip.GomanipError{
 						Detail: "server error",
 					}
 
@@ -115,13 +115,13 @@ func testEndpoint(t *testing.T, do func(*gomanip.GoManip, []byte, string) ([]byt
 			name:        "Time out",
 			contentType: "image/png",
 			image:       image.NewRGBA(image.Rect(0, 0, 100, 100)),
-			wantErr:     gomanip.ErrTimedOut,
+			wantErr:     gomanip.ErrRetry,
 			genHandlerFunc: func(img *image.Image, contentType string, t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 				return func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Content-Type", contentType)
 					w.WriteHeader(http.StatusGone)
 
-					errResponse := gomanip.ErrorResponse{
+					errResponse := gomanip.GomanipError{
 						Detail: "no where to be found...",
 					}
 
@@ -139,7 +139,7 @@ func testEndpoint(t *testing.T, do func(*gomanip.GoManip, []byte, string) ([]byt
 			name:        "TCP error",
 			contentType: "image/png",
 			image:       image.NewRGBA(image.Rect(0, 0, 100, 100)),
-			wantErr:     gomanip.ErrGeneral,
+			wantErr:     gomanip.ErrNetwork,
 			wantTCPerr:  true,
 			genHandlerFunc: func(img *image.Image, contentType string, t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 				return func(w http.ResponseWriter, r *http.Request) {
