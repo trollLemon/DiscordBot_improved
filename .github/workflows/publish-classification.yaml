@@ -2,7 +2,8 @@ name: Build and publish classification service to docker hub
 
 on:
   push:
-    tags: [ 'release/classification' ]
+     branches:
+      - 'release/classification-v*.*.*'
 
 env:
   REGISTRY: docker.io
