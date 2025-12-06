@@ -161,8 +161,10 @@ func main() {
 	log.Info().Msg("Connected to Discord")
 
 	if options.RegisterCommands {
-		log.Info().Msg("Registering commands...")
-		registerCommands(session)
+		go func() {
+		    log.Info().Msg("Registering commands...")
+		    registerCommands(session)
+		}()
 	}
 
 	log.Info().Msg("Initializing application")
