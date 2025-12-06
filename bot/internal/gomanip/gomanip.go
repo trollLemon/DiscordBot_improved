@@ -5,10 +5,6 @@ import (
 	"github.com/trollLemon/DiscordBot/internal/util"
 )
 
-
-
-
-
 func RandomFilter(gomanipClient *GoManip, image []byte, contentType string, kernelSize, lower, higher int64, normalize bool) ([]byte, error) {
 	queries := util.RandomFilterQuery(kernelSize, lower, higher, normalize)
 	bytes, err := gomanipClient.Do(image, contentType, "randomFilter", queries)

@@ -94,7 +94,6 @@ func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *appl
 	}
 
 	return err
-
 }
 
 func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
@@ -174,7 +173,6 @@ func Erode(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.
 	}
 
 	return err
-
 }
 
 func AddText(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
@@ -208,6 +206,7 @@ func AddText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicatio
 
 	return err
 }
+
 func RandomText(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)
@@ -248,6 +247,7 @@ func RandomText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applica
 
 	return err
 }
+
 func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 	applicationData := i.ApplicationCommandData()
 	attachmentID := applicationData.Options[0].Value.(string)

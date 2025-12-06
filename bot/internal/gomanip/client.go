@@ -26,9 +26,13 @@ var (
 )
 
 
+// UserError implements the error interface and provides a way to store a user-friendly message from 
+// the gomanip API while keeping the error chain intact.
 type UserError struct {
+    // Message is a custom message to be passed through the error chain.	
     Msg string     
-    Err error    
+    // Err is the underlying error 
+    Err error 
 }
 
 func (e *UserError) Error() string {

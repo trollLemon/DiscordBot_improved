@@ -6,6 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
+
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
 )
 

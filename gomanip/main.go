@@ -44,7 +44,6 @@ func handleImageOperation(
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to read image")
 		return errors.JsonError(c, http.StatusBadRequest, "Failed to read image") 
-		//return c.String(http.StatusBadRequest, "Failed to read image: "+err.Error())
 	}
 
 	resultImage, err := processFunc(image)
