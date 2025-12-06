@@ -41,7 +41,7 @@ func FileTypeVerifyMiddleware() echo.MiddlewareFunc {
 
 			if !slices.Contains(supportedFileTypes, contentType) {
 				log.Error().Msg(fmt.Sprintf("request had content type of %s which is not supported", contentType))
-				return errors.ReturnJsonError(c, http.StatusBadRequest, fmt.Sprintf("%s files are not supported", fileType))
+				return errors.JsonError(c, http.StatusBadRequest, fmt.Sprintf("%s files are not supported", fileType))
 			}
 
 			return next(c)
