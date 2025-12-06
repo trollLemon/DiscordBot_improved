@@ -1,10 +1,10 @@
 services:
   bot:
-    build: ../
+    build: ../../bot/  
     environment:
       # you will need to set these two env vars prior to running the deployment.
-      - DISCORD_TOKEN=<put your token here>
-      - REDIS_PASS=<put a password here>
+      - DISCORD_TOKEN=
+      - REDIS_PASS=
       # no need to change these.
       - GOMANIP_URL=http://gomanip:8080
       - CLASSIFICATION_URL=http://classification:8081
@@ -16,13 +16,13 @@ services:
       - CLASSIFICATION_TIMEOUT=5m
     networks:
       - network
-    restart: "yes"
+    restart: "always"
 
   gomanip:
-    build: ../services/GoManip/
+    build: ../../gomanip/ 
     networks:
       - network
-    restart: "yes"
+    restart: "always"
   redis:
     image: "redis:alpine"
     mem_limit: "2048m"
@@ -43,11 +43,11 @@ services:
     command: [ "redis-server", "--save", "120", "1" ]
     networks:
       - network
-    restart: "yes"
+    restart: "always"
 
   classification:
     build:
-      context: ../services/Ml/Classification
+      context: ../../classification 
       dockerfile : Dockerfile.fastapi
     networks:
       - network
@@ -55,11 +55,11 @@ services:
       - init-shared_volume_permissions
     volumes:
       - shared-data:/app/shared
-    restart: "yes"
+    restart: "always"
 
   classification-worker:
     build:
-      context: ../services/Ml/Classification
+      context: ../../classification 
       dockerfile : Dockerfile.backend
     networks:
       - network
@@ -67,7 +67,7 @@ services:
       - init-shared_volume_permissions
     volumes:
       - shared-data:/app/shared
-    restart: "yes"
+    restart: "always"
 
 networks:
   network:

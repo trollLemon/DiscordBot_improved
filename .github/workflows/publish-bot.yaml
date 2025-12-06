@@ -32,7 +32,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_GITHUB_TOKEN }}
-      - name: get tag from commit 
+      - name: get tag from commit
+        run: |
           TAG=$(git describe --tags --abbrev=0)
           echo "Latest tag: $TAG"
           echo "version=${TAG}_edge" >> $GITHUB_ENV
