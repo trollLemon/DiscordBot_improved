@@ -2,9 +2,11 @@ package Common
 
 import (
 	"bytes"
+	"errors"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
+	"github.com/trollLemon/DiscordBot/internal/gomanip"
 )
 
 func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
@@ -58,7 +60,26 @@ func ReplyGomanip(image []byte, s *discordgo.Session, i *discordgo.InteractionCr
 	}
 }
 
-func GomanipError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle, errString string) {
+func GomanipError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle string, err error) {
+
+	errString := "Something went wrong. Please try the command again."
+	println(err.Error())
+	if errors.Is(err, gomanip.ErrBadInput) {
+
+		var userErr *gomanip.UserError
+
+		if errors.As(err, &userErr) {
+			errString = userErr.Message()
+		} else {
+			// fallback to error chain error string
+			errString = err.Error()
+		}
+	}
+
+	if errors.Is(err, gomanip.ErrRetry) {
+		errString = "The request took too long; please try again."
+	}
+
 	errEmbed := &discordgo.MessageEmbed{
 		Title:       errTitle,
 		Description: errString,
