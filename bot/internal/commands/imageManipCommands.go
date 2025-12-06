@@ -1,6 +1,7 @@
 package Commands
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -9,6 +10,11 @@ import (
 	"github.com/trollLemon/DiscordBot/internal/common"
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
 	"github.com/trollLemon/DiscordBot/internal/util"
+)
+
+
+var (
+  errFailedDownload = errors.New("Failed to download the provided image. Please try again.")
 )
 
 func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
@@ -21,9 +27,9 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate, a *
 	normalizeOption := applicationData.Options[4].BoolValue()
 
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
-
+	
 	if err != nil {
-		Common.GomanipError(s, i, "RandomImageFilter failed", "failed to download given attachment")
+		Common.GomanipError(s, i, "RandomImageFilter failed", errFailedDownload)
 		return err
 	}
 	Common.DeferReply(s, i)
@@ -31,7 +37,7 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate, a *
 	img, err := gomanip.RandomFilter(a.Gomanip, imgBytes, format, kernelOption, lowerOption, higherOption, normalizeOption)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Random image filter failed", err.Error())
+		Common.GomanipError(s, i, "Random image filter failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -56,7 +62,7 @@ func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *applic
 	img, err := gomanip.InvertImage(a.Gomanip, imgBytes, format)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Invert image failed", err.Error())
+		Common.GomanipError(s, i, "Invert image failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -82,7 +88,7 @@ func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *appl
 	img, err := gomanip.SaturateImage(a.Gomanip, imgBytes, format, saturationMagnitude)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Saturate image failed", err.Error())
+		Common.GomanipError(s, i, "Saturate image failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -110,7 +116,7 @@ func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate, a *appl
 	img, err := gomanip.EdgeDetect(a.Gomanip, imgBytes, format, lowerBound, upperBound)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Edge detection failed", err.Error())
+		Common.GomanipError(s, i, "Edge detection failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -136,7 +142,7 @@ func Dilate(s *discordgo.Session, i *discordgo.InteractionCreate, a *application
 	img, err := gomanip.DilateImage(a.Gomanip, imgBytes, format, boxSize, iterations)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Dilating image failed", err.Error())
+		Common.GomanipError(s, i, "Dilating image failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -162,7 +168,7 @@ func Erode(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.
 	img, err := gomanip.ErodeImage(a.Gomanip, imgBytes, format, boxSize, iterations)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Eroding image failed", err.Error())
+		Common.GomanipError(s, i, "Eroding image failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -195,7 +201,7 @@ func AddText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicatio
 	img, err := gomanip.AddText(a.Gomanip, imgBytes, format, text, fontScale, x, y)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Adding text failed", err.Error())
+		Common.GomanipError(s, i, "Adding text failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -235,7 +241,7 @@ func RandomText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applica
 	img, err := gomanip.AddText(a.Gomanip, imgBytes, format, text, fontScale, x, y)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Adding random text failed", err.Error())
+		Common.GomanipError(s, i, "Adding random text failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -261,7 +267,7 @@ func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *applic
 	img, err := gomanip.Reduced(a.Gomanip, imgBytes, format, quality)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Image quality reduction failed", err.Error())
+		Common.GomanipError(s, i, "Image quality reduction failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
@@ -286,7 +292,7 @@ func ShuffleImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *appli
 	img, err := gomanip.Shuffle(a.Gomanip, imgBytes, format, partitionsOption)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Shuffling image failed", err.Error())
+		Common.GomanipError(s, i, "Shuffling image failed", err)
 	} else {
 		Common.ReplyGomanip(img, s, i)
 	}
