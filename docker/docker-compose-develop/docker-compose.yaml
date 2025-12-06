@@ -1,6 +1,6 @@
 services:
   bot:
-    build: ../
+    build: ../../bot/  
     environment:
       # you will need to set these two env vars prior to running the deployment.
       - DISCORD_TOKEN=<put your token here>
@@ -19,7 +19,7 @@ services:
     restart: "yes"
 
   gomanip:
-    build: ../services/GoManip/
+    build: ../../gomanip/ 
     networks:
       - network
     restart: "yes"
@@ -47,7 +47,7 @@ services:
 
   classification:
     build:
-      context: ../services/Ml/Classification
+      context: ../../classification 
       dockerfile : Dockerfile.fastapi
     networks:
       - network
@@ -59,7 +59,7 @@ services:
 
   classification-worker:
     build:
-      context: ../services/Ml/Classification
+      context: ../../classification 
       dockerfile : Dockerfile.backend
     networks:
       - network
