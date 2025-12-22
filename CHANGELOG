@@ -1,6 +1,7 @@
 classification v1.0.0
 - fixed return code error.
-- first major release. 
+- first major release.
+- switched repo to tag based releases rather than relying on branches
 
 ---------- 
 v0.1.0:
