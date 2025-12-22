@@ -40,7 +40,9 @@ jobs:
         run: |
           TAG=$(git describe --tags --abbrev=0)
           echo "Latest tag: $TAG"
-          echo "version=${TAG}_edge" >> $GITHUB_ENV
+          echo "Extracting version from tag"
+          TAG_SEM=$(echo "$TAG" | awk -F'-' '{print $2}')
+          echo "version=${TAG_SEM}_edge" >> $GITHUB_ENV
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
