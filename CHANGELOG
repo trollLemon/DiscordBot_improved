@@ -1,3 +1,8 @@
+classification v1.0.0
+- fixed return code error.
+- first major release. 
+
+---------- 
 v0.1.0:
 - switched to full mono repo layout
 - removed VERSION files, will use git tags instead
