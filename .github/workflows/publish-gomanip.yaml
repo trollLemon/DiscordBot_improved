@@ -4,8 +4,6 @@ on:
   push:
      branches:
       - 'release/gomanip-v*.*.*'
-     tags:
-      - ''
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io

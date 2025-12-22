@@ -4,8 +4,6 @@ on:
   push:
      branches:
       - 'release/classification-v*.*.*'
-     tags:
-      - ''
 env:
   REGISTRY: docker.io
   API_IMAGE_NAME: trolllemon/classification-api
