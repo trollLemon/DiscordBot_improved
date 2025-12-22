@@ -1,90 +1,93 @@
-package store
+package randomwords
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 )
 
+
 var (
-	ErrItemNotFound  = errors.New("the item is not in the database")
-	ErrDuplicateItem = errors.New("the item is already in the database")
-	ErrEmpty         = errors.New("the database is empty")
-	ErrGeneral       = errors.New("error communicating with database")
+	ErrNotFound  = errors.New("not found")
+	ErrEmpty     = errors.New("no items in set")
+	ErrDuplicate = errors.New("item already in set")
+	ErrResult    = errors.New("failed to run operation")
 )
 
 type RandomWords struct {
-	store *Redis
+	ctx     context.Context
+	rdb     *redis.Client
+	setName string
 }
 
-func errorChecker(err error) error {
 
-	if errors.Is(err, errNotFound) {
-		return fmt.Errorf("could not complete action because %w", ErrItemNotFound)
-	}
-	if errors.Is(err, errDuplicate) {
-		return fmt.Errorf("could not complete action because %w", ErrDuplicateItem)
-	}
-	if errors.Is(err, errEmpty) {
-		return fmt.Errorf("could not complete action because %w", ErrEmpty)
-	}
-	if err != nil {
-		return ErrGeneral
-	}
-
-	return nil
-}
-
-func NewRandomWords(store *Redis) *RandomWords {
+func NewRandomWords( rdb *redis.Client, ctx context.Context, setName string ) *RandomWords {
 	return &RandomWords{
-		store: store,
+		rdb: rdb,
+		ctx: ctx,
+		setName: setName,
 	}
 }
 
 func (r *RandomWords) Insert(item string) error {
+	num, err := r.rdb.SAdd(r.ctx, r.setName, item).Result()
+	if err != nil {
+		log.Err(err).Msg("failed to insert into the database")
+		return fmt.Errorf("%w, %v", ErrResult, err) 
+	}
 
-	insertErr := r.store.Insert(item)
-
-	if insertErr != nil {
-		log.Err(insertErr).Msg("database action failed")
-		return errorChecker(insertErr)
+	if num == 0 {
+		log.Error().Msgf("failed to insert, item %s is already in the set", item)
+		return ErrDuplicate
 	}
 
 	return nil
-
 }
 
 func (r *RandomWords) Delete(item string) error {
-	deleteErr := r.store.Delete(item)
+	num, err := r.rdb.SRem(r.ctx, r.setName, item).Result()
+	if err != nil {
+		log.Err(err).Msg("failed to remove from the database")
+		return fmt.Errorf("%w, %v", ErrResult, err) 
 
-	if deleteErr != nil {
-		log.Err(deleteErr).Msg("database action failed")
-		return errorChecker(deleteErr)
+	}
+
+	if num == 0 {
+		log.Error().Msgf("failed to remove, item %s is not in the set", item)
+		return ErrNotFound
 	}
 
 	return nil
 }
 
 func (r *RandomWords) GetRandom(n int) ([]string, error) {
-	items, err := r.store.FetchRandom(n)
-
+	values, err := r.rdb.SRandMemberN(r.ctx, r.setName, int64(n)).Result()
 	if err != nil {
-		log.Err(err).Msg("database action failed")
-		return nil, errorChecker(err)
+		log.Err(err).Msg("failed to get items from the database")
+		return []string{}, fmt.Errorf("%w, %v", ErrResult, err) 
 	}
 
-	return items, nil
+	if len(values) == 0 {
+		log.Error().Msg("Cannot fetch random items since the set is empty")
+		return []string{}, ErrEmpty
+	}
+
+	return values, nil
 }
 
 func (r *RandomWords) GetAll() ([]string, error) {
-	items, err := r.store.GetAll()
-
+	values, err := r.rdb.SMembers(r.ctx, r.setName).Result()
 	if err != nil {
-		log.Err(err).Msg("database action failed")
-		return nil, errorChecker(err)
-
+		log.Err(err).Msg("failed to get items from the database")
+		return []string{}, fmt.Errorf("%w, %v", ErrResult, err) 
+	}
+	if len(values) == 0 {
+		log.Error().Msg("Cannot fetch all items since the set is empty")
+		return []string{}, ErrEmpty
 	}
 
-	return items, nil
+	return values, nil
 }

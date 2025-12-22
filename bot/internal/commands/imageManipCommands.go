@@ -29,17 +29,17 @@ func RandomImageFilter(s *discordgo.Session, i *discordgo.InteractionCreate, a *
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 	
 	if err != nil {
-		Common.GomanipError(s, i, "RandomImageFilter failed", errFailedDownload)
+		common.GomanipError(s, i, "RandomImageFilter failed", errFailedDownload)
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.RandomFilter(a.Gomanip, imgBytes, format, kernelOption, lowerOption, higherOption, normalizeOption)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Random image filter failed", err)
+		common.GomanipError(s, i, "Random image filter failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -54,17 +54,17 @@ func InvertImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *applic
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.InvertImage(a.Gomanip, imgBytes, format)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Invert image failed", err)
+		common.GomanipError(s, i, "Invert image failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -80,17 +80,17 @@ func SaturateImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *appl
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.SaturateImage(a.Gomanip, imgBytes, format, saturationMagnitude)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Saturate image failed", err)
+		common.GomanipError(s, i, "Saturate image failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -107,17 +107,17 @@ func EdgeDetection(s *discordgo.Session, i *discordgo.InteractionCreate, a *appl
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.EdgeDetect(a.Gomanip, imgBytes, format, lowerBound, upperBound)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Edge detection failed", err)
+		common.GomanipError(s, i, "Edge detection failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -133,17 +133,17 @@ func Dilate(s *discordgo.Session, i *discordgo.InteractionCreate, a *application
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.DilateImage(a.Gomanip, imgBytes, format, boxSize, iterations)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Dilating image failed", err)
+		common.GomanipError(s, i, "Dilating image failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -159,17 +159,17 @@ func Erode(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.ErodeImage(a.Gomanip, imgBytes, format, boxSize, iterations)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Eroding image failed", err)
+		common.GomanipError(s, i, "Eroding image failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -191,17 +191,17 @@ func AddText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicatio
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.AddText(a.Gomanip, imgBytes, format, text, fontScale, x, y)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Adding text failed", err)
+		common.GomanipError(s, i, "Adding text failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -223,26 +223,26 @@ func RandomText(s *discordgo.Session, i *discordgo.InteractionCreate, a *applica
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
 
 	terms, err := a.RandomWords.GetRandom(int(numTerms))
 	if err != nil {
-		Common.Reply(s, i, "Error fetching random words")
+		common.Reply(s, i, "Error fetching random words")
 		return err
 	}
 
 	text := strings.Join(terms, " ")
 
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.AddText(a.Gomanip, imgBytes, format, text, fontScale, x, y)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Adding random text failed", err)
+		common.GomanipError(s, i, "Adding random text failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -259,17 +259,17 @@ func ReduceImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *applic
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.Reduced(a.Gomanip, imgBytes, format, quality)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Image quality reduction failed", err)
+		common.GomanipError(s, i, "Image quality reduction failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err
@@ -284,17 +284,17 @@ func ShuffleImage(s *discordgo.Session, i *discordgo.InteractionCreate, a *appli
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	img, err := gomanip.Shuffle(a.Gomanip, imgBytes, format, partitionsOption)
 
 	if err != nil {
-		Common.GomanipError(s, i, "Shuffling image failed", err)
+		common.GomanipError(s, i, "Shuffling image failed", err)
 	} else {
-		Common.ReplyGomanip(img, s, i)
+		common.ReplyGomanip(img, s, i)
 	}
 
 	return err

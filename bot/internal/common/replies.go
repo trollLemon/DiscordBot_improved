@@ -1,13 +1,15 @@
-package Common
+package common
 
 import (
 	"bytes"
 	"errors"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
 
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
+	"github.com/trollLemon/DiscordBot/internal/randomwords"
 )
 
 func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
@@ -64,7 +66,6 @@ func ReplyGomanip(image []byte, s *discordgo.Session, i *discordgo.InteractionCr
 func GomanipError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle string, err error) {
 
 	errString := "Something went wrong. Please try the command again."
-	println(err.Error())
 	if errors.Is(err, gomanip.ErrBadInput) {
 
 		var userErr *gomanip.UserError
@@ -120,6 +121,39 @@ func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, e
 	}
 
 	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
+		log.Error().Err(err).Msg("Interaction Response")
+	}
+
+}
+
+func RandomWordsError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle, input string, err error) {
+	errString := "Something went wrong. Please try the command again." 
+	
+	if errors.Is(err, randomwords.ErrDuplicate) {
+		errString = fmt.Sprintf("`%s` is already in the word list.", input)
+	}
+	if errors.Is(err, randomwords.ErrNotFound) {
+		errString = fmt.Sprintf("`%s` is not in the word list.", input )
+	}
+
+	if errors.Is(err, randomwords.ErrEmpty) {
+		errString = "The word list is empty."
+	}
+
+	errEmbed := &discordgo.MessageEmbed{
+		Title:       errTitle,
+		Description: errString,
+		Color:       0xFF0000,
+	}
+
+	response := &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+        Embeds: []*discordgo.MessageEmbed{errEmbed},
+    },
+	}
+
+	if  err := s.InteractionRespond(i.Interaction, response); err != nil {
 		log.Error().Err(err).Msg("Interaction Response")
 	}
 

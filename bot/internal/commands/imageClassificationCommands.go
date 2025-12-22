@@ -18,17 +18,17 @@ func Classify(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicati
 
 	if err != nil {
 		log.Err(err).Msg("failed to download attachment")
-		Common.Reply(s, i, "Error downloading given attachment")
+		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}
-	Common.DeferReply(s, i)
+	common.DeferReply(s, i)
 
 	imageClass, err := a.Classification.ClassifyImage(imgBytes, format)
 
 	if err != nil {
-		Common.ClassificationError(s, i, "Classification failed", err.Error())
+		common.ClassificationError(s, i, "Classification failed", err.Error())
 	} else {
-		Common.ReplyImageClassification(imgBytes, imageClass, s, i)
+		common.ReplyImageClassification(imgBytes, imageClass, s, i)
 	}
 
 	return err
