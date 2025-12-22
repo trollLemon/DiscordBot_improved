@@ -1,13 +1,16 @@
-package Commands
+package commands
 
 import (
+	"os"
+
+	"github.com/rs/zerolog/log"
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/trollLemon/DiscordBot/internal/application"
 )
 
 var (
-	SlashCommands = []*discordgo.ApplicationCommand{
+	slashCommands = []*discordgo.ApplicationCommand{
 
 		{
 			Name:        "add",
@@ -305,11 +308,12 @@ var (
 		},
 	}
 
-	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error{
+	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error{
 
 		"add": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Add(s, i, a)
 		},
+
 
 		"remove": func(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Application) error {
 			return Remove(s, i, a)
@@ -352,3 +356,31 @@ var (
 		},
 	}
 )
+
+
+func RegisterCommands(session *discordgo.Session) {
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(slashCommands))
+	gid := os.Getenv("GUILD_ID")
+	for i, v := range slashCommands {
+		cmd, err := session.ApplicationCommandCreate(session.State.User.ID, gid, v)
+		if err != nil {
+			log.Panic().Msgf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+		log.Printf("Registered Command %v", v.Name)
+	}
+}
+
+func AddCommandHandlers(session *discordgo.Session, app *application.Application) {
+	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+			if err := h(s, i, app); err != nil {
+				log.Error().Err(err).Msg("Failed to execute command")
+			}
+
+		}
+	})
+}
+
+
