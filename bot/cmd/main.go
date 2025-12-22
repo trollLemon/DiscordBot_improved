@@ -89,9 +89,9 @@ func InitializeApplication(conf *Config, ctx context.Context) *application.Appli
 		DB:       conf.RedisSetNumber,
 	})
 
-	redisInstance := store.NewRedisClient(ctx, redisClient, conf.RandomWordsSetName)
+	redisInstance := randomwords.NewRedisClient(ctx, redisClient, conf.RandomWordsSetName)
 
-	randomWords := store.NewRandomWords(redisInstance)
+	randomWords := randomwords.NewRandomWords(redisInstance)
 
 	return &application.Application{
 		Gomanip:        gomanip,
