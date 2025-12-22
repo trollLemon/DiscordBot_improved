@@ -9,6 +9,6 @@ import (
 type Application struct {
 	Gomanip        *gomanip.GoManip
 	Classification *Classification.ImageClassification
-	RandomWords    *store.RandomWords
+	RandomWords    *randomwords.RandomWords
 	GuildID        string
 }
