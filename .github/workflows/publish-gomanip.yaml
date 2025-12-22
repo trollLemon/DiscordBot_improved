@@ -2,9 +2,8 @@ name: Build and publish gomanip service to docker hub
 
 on:
   push:
-     branches:
-      - 'release/gomanip-v*.*.*'
-
+     tags:
+      - 'gomanip-v*.*.*'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
@@ -21,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:  
+          fetch-depth: 0 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 

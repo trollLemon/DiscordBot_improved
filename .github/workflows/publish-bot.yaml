@@ -2,9 +2,8 @@ name: Build and publish bot to docker hub
 
 on:
   push:
-     branches:
-      - 'release/bot-v*.*.*'
-
+     tags:
+      - 'bot-v*.*.*'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
