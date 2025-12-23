@@ -21,7 +21,7 @@ type Application struct {
 
 
 
-func InitializeApplication(conf *common.Config, ctx context.Context) *Application {
+func InitializeApplication(conf *common.BotConfig, ctx context.Context) *Application {
 
 	gomanip := gomanip.NewGoManip(conf.GomanipURL, conf.GomanipTimeout)
 
