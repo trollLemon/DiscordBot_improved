@@ -10,7 +10,12 @@ import (
 
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
 	"github.com/trollLemon/DiscordBot/internal/randomwords"
+	"github.com/trollLemon/DiscordBot/internal/classification"
 )
+
+
+var defaultErrString = "Something went wrong, try the command again."
+
 
 func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 	response := &discordgo.InteractionResponse{
@@ -64,8 +69,7 @@ func ReplyGomanip(image []byte, s *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func GomanipError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle string, err error) {
-
-	errString := "Something went wrong. Please try the command again."
+	errString := defaultErrString
 	if errors.Is(err, gomanip.ErrBadInput) {
 
 		var userErr *gomanip.UserError
@@ -109,7 +113,17 @@ func DeferReply(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle, errString string) {
+func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle string, err error) {
+	errString := defaultErrString
+	
+	if errors.Is(err, classification.ErrBadFileType) {
+		errString = "This command only works with PNG or JPEG images"
+	}
+	
+	if errors.Is(err, classification.ErrRetry) {
+		errString = "The command timed out, try using the command again."
+	}
+
 	errEmbed := &discordgo.MessageEmbed{
 		Title:       errTitle,
 		Description: errString,
@@ -127,8 +141,8 @@ func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, e
 }
 
 func RandomWordsError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle, input string, err error) {
-	errString := "Something went wrong. Please try the command again." 
-	
+	errString := defaultErrString 
+
 	if errors.Is(err, randomwords.ErrDuplicate) {
 		errString = fmt.Sprintf("`%s` is already in the word list.", input)
 	}
