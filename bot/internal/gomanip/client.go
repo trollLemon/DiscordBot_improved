@@ -70,7 +70,8 @@ func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer
 	}
 	resp, err := client.Post(apiURI, contentType, imageBytesBuffer)
 	if err != nil {
-		return nil, backoff.Permanent(fmt.Errorf("%w, %v",ErrNetwork, err))
+		log.Err(err).Msg("failed to send POST request to gomanip service")
+		return nil, backoff.Permanent(fmt.Errorf("could not send POST request: %w",ErrNetwork))
 
 	}
 
@@ -81,6 +82,7 @@ func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer
 	var errorResponse GomanipError
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Err(err).Msg("failed to read gomanip error response body")
 		return nil, backoff.Permanent(fmt.Errorf("%w, %v", ErrReading, err))
 	}
 
@@ -92,6 +94,7 @@ func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer
 	if resp.StatusCode == http.StatusBadRequest {
 		err = json.Unmarshal(body, &errorResponse)
 		if err != nil {
+			log.Err(err).Msg("failed to unmarshal gomanip error response")
 			return nil, backoff.Permanent(fmt.Errorf("%w, %v", ErrUnMarshal, err))
 		}
 		
@@ -141,7 +144,7 @@ func (g *GoManip) Do(image []byte, contentType, endpoint, queries string) ([]byt
 
 	resultBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Err(err).Msg("failed reading response body")
+		log.Err(err).Msg("failed reading image from response body")
 		return nil, fmt.Errorf("%w, could not read image", ErrReading)
 	}
 
