@@ -1,4 +1,4 @@
-package Classification_test
+package classification_test
 
 import (
 	"bytes"
@@ -30,7 +30,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 
 	mockJobId := "mockJobId"
 
-	getClassificationEndpointWithId := Classification.GetClassificationEndpoint + "/" + mockJobId
+	getClassificationEndpointWithId := classification.GetClassificationEndpoint + "/" + mockJobId
 	tests := []struct {
 		name            string
 		wantErr         error
@@ -74,7 +74,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 			},
 			getHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrServer,
 		},
 		{
 			name: "Bad Request (Sending Image)",
@@ -90,7 +90,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 			},
 			getHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
 			},
-			wantErr: Classification.ErrRequestBadParams,
+			wantErr: classification.ErrBadFileType,
 		},
 
 		{
@@ -101,7 +101,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 			},
 			getHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrServer,
 		},
 		{
 			name: "Gateway timeout (Sending Image)",
@@ -111,7 +111,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 			},
 			getHandlerFunc: func(w http.ResponseWriter, r *http.Request) {
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrRetry,
 		},
 
 		{
@@ -136,7 +136,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 				}
 
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrServer,
 		},
 		{
 			name: "Bad Request (Polling image classification)",
@@ -160,7 +160,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 				}
 
 			},
-			wantErr: Classification.ErrRequestBadParams,
+			wantErr: classification.ErrRetry,
 		},
 
 		{
@@ -179,7 +179,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusServiceUnavailable)
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrServer,
 		},
 		{
 			name: "Gateway timeout (Polling image classification)",
@@ -197,7 +197,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusGatewayTimeout)
 			},
-			wantErr: Classification.ErrGeneral,
+			wantErr: classification.ErrRetry,
 		},
 
 		{
@@ -216,7 +216,7 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusAccepted)
 			},
-			wantErr: Classification.ErrRequestTimedOut,
+			wantErr: classification.ErrRetry,
 		},
 	}
 
@@ -224,11 +224,11 @@ func TestImageClassification_ClassifyImage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			mux := http.NewServeMux()
-			mux.HandleFunc(Classification.SendImageEndpoint, tt.postHandlerFunc)
+			mux.HandleFunc(classification.SendImageEndpoint, tt.postHandlerFunc)
 			mux.HandleFunc(getClassificationEndpointWithId, tt.getHandlerFunc)
 			mockServer := httptest.NewServer(mux)
 			waitTime := 3 * time.Second
-			clsApi := Classification.NewImageClassification(waitTime, mockServer.URL, Classification.SendImageEndpoint, Classification.GetClassificationEndpoint)
+			clsApi := classification.NewImageClassification(waitTime, mockServer.URL, classification.SendImageEndpoint, classification.GetClassificationEndpoint)
 
 			_, err := clsApi.ClassifyImage(testImgBytes, testContentType)
 
