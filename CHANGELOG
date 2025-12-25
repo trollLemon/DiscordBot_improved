@@ -1,8 +1,10 @@
 bot v1.0.0
+- First major release.
 - Refactored/reorganized application feature layers and error wrapping. 
-- Error messages and success messages have dedicated embeds.
+- All bot replies have dedicated embeds.
 - Way better errors in terms of user friendlyness. 
-- Command registration does not block main bot go routine. 
+- Command registration does not block main bot goroutine.
+- Command logs include command name. 
 - various bug fixes.
 
 classification v1.0.0
