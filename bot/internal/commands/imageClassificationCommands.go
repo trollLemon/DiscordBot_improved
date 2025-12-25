@@ -26,7 +26,7 @@ func Classify(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicati
 	imageClass, err := a.Classification.ClassifyImage(imgBytes, format)
 
 	if err != nil {
-		common.ClassificationError(s, i, "Classification failed", err.Error())
+		common.ClassificationError(s, i, "Classification failed", err)
 	} else {
 		common.ReplyImageClassification(imgBytes, imageClass, s, i)
 	}

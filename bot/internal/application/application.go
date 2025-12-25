@@ -14,7 +14,7 @@ import (
 
 type Application struct {
 	Gomanip        *gomanip.GoManip
-	Classification *Classification.ImageClassification
+	Classification *classification.ImageClassification
 	RandomWords    *randomwords.RandomWords
 	GuildID        string
 }
@@ -25,7 +25,7 @@ func InitializeApplication(conf *common.BotConfig, ctx context.Context) *Applica
 
 	gomanip := gomanip.NewGoManip(conf.GomanipURL, conf.GomanipTimeout)
 
-	classifier := Classification.NewImageClassification(conf.ClassificationTimeout, conf.ClassificationURL, Classification.SendImageEndpoint, Classification.GetClassificationEndpoint)
+	classifier := classification.NewImageClassification(conf.ClassificationTimeout, conf.ClassificationURL, classification.SendImageEndpoint, classification.GetClassificationEndpoint)
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     conf.DbDSN,
