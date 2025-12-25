@@ -18,11 +18,17 @@ var defaultErrString = "Something went wrong, try the command again."
 
 
 func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
+
+	errEmbed := &discordgo.MessageEmbed{
+		Description: text,
+		Color:       0x00FF00,
+	}
+
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: text,
-		},
+        Embeds: []*discordgo.MessageEmbed{errEmbed},
+    },
 	}
 
 	if err := s.InteractionRespond(i.Interaction, response); err != nil {
@@ -30,6 +36,28 @@ func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 	}
 
 }
+
+func ReplyError(s *discordgo.Session, i *discordgo.InteractionCreate, err error) {
+
+	errEmbed := &discordgo.MessageEmbed{
+		Title: "Command Failed",
+		Description: err.Error(),
+		Color:       0xFF0000,
+	}
+
+	response := &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+        Embeds: []*discordgo.MessageEmbed{errEmbed},
+    },
+	}
+
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Error().Err(err).Msg("Interaction Response")
+	}
+}
+
+
 
 func ReplyImageClassification(image []byte, classification string, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	classificationMsg := "This is: " + classification
