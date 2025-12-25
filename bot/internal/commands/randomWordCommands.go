@@ -18,7 +18,7 @@ func Add(s *discordgo.Session, i *discordgo.InteractionCreate, a *application.Ap
 		return err
 	}
 
-	common.Reply(s, i, fmt.Sprintf("Added %s to the word list.", term))
+	common.Reply(s, i, fmt.Sprintf("Added `%s` to the word list.", term))
 	return nil
 }
 
@@ -30,7 +30,7 @@ func Remove(s *discordgo.Session, i *discordgo.InteractionCreate, a *application
 		return err
 	}
 
-	common.Reply(s, i, fmt.Sprintf("Removed %s from the word list.", term))
+	common.Reply(s, i, fmt.Sprintf("Removed `%s` from the word list.", term))
 	return nil
 }
 
