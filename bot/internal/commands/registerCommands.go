@@ -373,10 +373,11 @@ func RegisterCommands(session *discordgo.Session) {
 
 func AddCommandHandlers(session *discordgo.Session, app *application.Application) {
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
-		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+		cmdName := i.ApplicationCommandData().Name
+		if h, ok := commandHandlers[cmdName]; ok {
+			log.Info().Msgf("executing command `%s`.", cmdName )
 			if err := h(s, i, app); err != nil {
-				log.Error().Err(err).Msg("Failed to execute command")
+				log.Error().Err(err).Msgf("Failed to execute command `%s`", cmdName)
 			}
 
 		}
