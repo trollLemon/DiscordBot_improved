@@ -204,9 +204,11 @@ func initRouting(e *echo.Echo, jobDispatcher *JobDispatch.JobDispatcher) {
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus: true,
 		LogURI:    true,
+		LogURIPath: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			log.Info().
 				Str("URI", v.URI).
+				Str("Path", v.URIPath).
 				Int("status", v.Status).
 				Str("method", c.Request().Method).
 				Str("Time", v.StartTime.String()).
