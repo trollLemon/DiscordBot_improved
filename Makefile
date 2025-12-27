@@ -30,6 +30,6 @@ test-classificaion:
 	cd $(CLASSIFICATION_DIR) && pytest -v
 
 compose-up:
-	docker-compose -f docker/docker-compose/docker-compose.yaml up --build
+	docker-compose -f docker/docker-compose-develop/docker-compose.yaml up --build
 
 .PHONY: all fmt vet build test coverage clean

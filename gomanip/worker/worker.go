@@ -29,16 +29,16 @@ func Worker(shutdown context.Context, workerId int, jobRequests <-chan *jobs.Job
 		default:
 
 			if err != nil {
-				log.Error().
+				log.Err(err).
 					Str("Start time", job.GetStartTime().String()).
 					Str("End time", job.GetEndTime().String()).
-					Msgf("Worker %d Failed: %s", workerId, err.Error())
+					Msgf("Worker %d: job %d failed", workerId, job.GetJobId())
 			} else {
 				log.Info().
 					Str("Start time", job.GetStartTime().String()).
 					Str("End time", job.GetEndTime().String()).
 					Int("Duration (ns)", job.GetTimeElapsed()).
-					Msgf("Worker %d Completed", workerId)
+					Msgf("Worker %d: job %d completed", workerId, job.GetJobId())
 			}
 
 			jobRequest.Result <- &jobs.Result{Image: result, Error: err}

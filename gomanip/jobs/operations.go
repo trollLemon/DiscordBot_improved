@@ -13,12 +13,6 @@ import (
 
 /*  Helper Functions  */
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
 
 type Invert struct{}
 
@@ -246,15 +240,11 @@ type RandomFilter struct {
 func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-
 		return nil, errors.New("input image is empty")
-
 	}
 
 	if r.KernelSize <= 0 {
-
 		return nil, fmt.Errorf("expected kernel size to be greater than 0, got %d", r.KernelSize)
-
 	}
 
 	kernels := make([]gocv.Mat, input.Channels())
