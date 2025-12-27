@@ -3,32 +3,70 @@ package jobs
 import (
 	"errors"
 	"fmt"
-	"gocv.io/x/gocv"
 	"image"
 	"image/color"
 	"math"
 	"math/rand/v2"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"gocv.io/x/gocv"
 )
 
-/*  Helper Functions  */
+var (
+	ErrOpenCV = errors.New("opencv error")
+	ErrImgEmpty = errors.New("given image is empty")
+)
 
+
+// Choice represents which morphology operation to perform.
+type Choice string
+
+const (
+	Dilate Choice = "Dilate"
+	Erode         = "Erode"
+)
+
+// OperationParameterError is the error for when an operation cannot run due to invalid parameters.
+// This error type allows the reasoning for the failure to be passed up the error chain, and returned to the API caller. The error
+// type should not be used for non-parameter related errors (such as OpenCV errors). 
+type OperationParameterError struct {
+    reason string
+    operationName string
+}
+
+// Error returns the cause of the operation error. 
+func (o *OperationParameterError) Error() string {
+    return o.reason
+}
+
+// OperationName returns the name of the operation this error came from.
+func (o *OperationParameterError) OperationName() string {
+	return o.operationName
+}
+
+func NewOperationError(reason, operationName string) *OperationParameterError {
+	
+	return &OperationParameterError{
+		reason: reason,
+		operationName: operationName,
+	}
+}
 
 type Invert struct{}
 
 func (_ *Invert) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	white := gocv.NewMatWithSizeFromScalar(gocv.Scalar{255.0, 255.0, 255.0, 255.0}, input.Rows(), input.Cols(), input.Type())
+	defer white.Close()
 
 	inverted := gocv.NewMat()
 
 	gocv.Subtract(white, *input, &inverted)
-
-	white.Close()
 
 	return &inverted, nil
 }
@@ -40,14 +78,15 @@ type Saturate struct {
 func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	if s.Value <= 0.0 {
-		return nil, fmt.Errorf("expected saturation value to be greater than 0, got %f", s.Value)
+		return nil, NewOperationError(fmt.Sprintf("expected saturation value to be greater than 0, got %f", s.Value), "Saturate")
 	}
 
 	hsvImage := gocv.NewMat()
+	defer hsvImage.Close()
 
 	expectedChannels := 3
 
@@ -57,7 +96,8 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 		err := gocv.CvtColor(*input, &converted, gocv.ColorGrayToBGR)
 		if err != nil {
-			return nil, err
+			log.Err(err).Msg("gocv cvtColor failed")
+			return nil, fmt.Errorf("gocv cvtColor failed: %w", ErrOpenCV)
 		}
 
 		*input = converted.Clone()
@@ -66,7 +106,8 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	err := gocv.CvtColor(*input, &hsvImage, gocv.ColorBGRToHLSFull)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert to HSV: %v", err)
+		log.Err(err).Msg("gocv cvtColor failed")
+		return nil, fmt.Errorf("gocv cvtColor failed: %w", ErrOpenCV)
 	}
 
 	chans := gocv.Split(hsvImage)
@@ -74,16 +115,14 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	hue := chans[0]
 	light := chans[1]
 	sat := chans[2]
-
-	saturated := gocv.NewMat()
-
 	defer func() {
-		hsvImage.Close()
 		hue.Close()
 		light.Close()
 		sat.Close()
-		saturated.Close()
 	}()
+
+	saturated := gocv.NewMat()
+	defer saturated.Close()
 
 	sameType := -1
 	beta := 0
@@ -94,10 +133,13 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	imgSaturated := gocv.NewMat()
 
-	gocv.CvtColor(saturated, &imgSaturated, gocv.ColorHLSToBGR)
-
+	err = gocv.CvtColor(saturated, &imgSaturated, gocv.ColorHLSToBGR)
+	if err != nil {
+		log.Err(err).Msg("gocv cvtColor failed")
+		imgSaturated.Close()
+		return nil, fmt.Errorf("gocv cvtColor failed: %w", ErrOpenCV)
+	}
 	return &imgSaturated, nil
-
 }
 
 type EdgeDetect struct {
@@ -108,11 +150,11 @@ type EdgeDetect struct {
 func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	if e.TLower < 0 || e.THigher < 0 {
-		return nil, fmt.Errorf("expected t_lower and t_higher to be greater than or equal to 0, got %0.2f and %0.2f", e.TLower, e.THigher)
+		return nil, NewOperationError(fmt.Sprintf("expected t_lower and t_higher to be greater than or equal to 0, got %0.2f and %0.2f", e.TLower, e.THigher), "EdgeDetect")
 	}
 
 	edges := gocv.NewMat()
@@ -120,15 +162,7 @@ func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	gocv.Canny(*input, &edges, e.TLower, e.THigher)
 
 	return &edges, nil
-
 }
-
-type Choice string
-
-const (
-	Dilate Choice = "Dilate"
-	Erode         = "Erode"
-)
 
 type Morphology struct {
 	KernelSize int
@@ -139,14 +173,15 @@ type Morphology struct {
 func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	if m.KernelSize <= 0 || m.Iterations <= 0 {
-		return nil, fmt.Errorf("expected kernel size and iterations to be greater than 0, got %d and %d", m.KernelSize, m.Iterations)
+		return nil, NewOperationError(fmt.Sprintf("expected kernel size and iterations to be greater than 0, got %d and %d", m.KernelSize, m.Iterations), "Morphology")
 	}
 
 	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{X: m.KernelSize, Y: m.KernelSize})
+	defer kernel.Close()
 	morphedImage := gocv.NewMat()
 
 	switch m.Op {
@@ -157,11 +192,10 @@ func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	default:
 
 		defer morphedImage.Close()
-		return nil, errors.New("invalid morphology operation")
+		return nil, NewOperationError(fmt.Sprintf("`%s` is not a valid morphology choice", m.Op), "Morphology")
 	}
 
 	return &morphedImage, nil
-
 }
 
 type Reduce struct {
@@ -171,11 +205,11 @@ type Reduce struct {
 func (r *Reduce) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	if r.Quality <= 0.0 {
-		return nil, fmt.Errorf("expected quality to be greater than 0.0, got %0.2f", r.Quality)
+		return nil, NewOperationError(fmt.Sprintf("expected quality to be greater than 0.0, got %0.2f", r.Quality), "Reduce")
 	}
 
 	resizedImage := gocv.NewMat()
@@ -201,21 +235,20 @@ type AddText struct {
 func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 
 	}
 
 	if a.Text == "" {
-		return nil, errors.New("must be given a non-empty string")
+		return nil, NewOperationError("must be given a non-empty string", "AddText")
 	}
 
 	if a.X < 0.0 || a.Y < 0.0 || a.X > 1.0 || a.Y > 1.0 {
-		return nil, fmt.Errorf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.X, a.Y)
+		return nil, NewOperationError(fmt.Sprintf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.X, a.Y), "AddText")
 	}
 
 	if a.FontScale <= 0.0 {
-		return nil, fmt.Errorf("expected font scale to be greater than 0, got %0.2f", a.FontScale)
+		return nil, NewOperationError(fmt.Sprintf("expected font scale to be greater than 0, got %0.2f", a.FontScale), "AddText")
 	}
 
 	rows, cols := input.Rows(), input.Cols()
@@ -240,11 +273,11 @@ type RandomFilter struct {
 func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 	}
 
 	if r.KernelSize <= 0 {
-		return nil, fmt.Errorf("expected kernel size to be greater than 0, got %d", r.KernelSize)
+		return nil, NewOperationError(fmt.Sprintf("expected kernel size to be greater than 0, got %d", r.KernelSize), "RandomFilter")
 	}
 
 	kernels := make([]gocv.Mat, input.Channels())
@@ -276,7 +309,6 @@ func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	// convolve the 3D filter over the RBG image
 	for idx, kernel := range kernels {
-
 		gocv.Filter2D(channels[idx], &filteredChannels[idx], gocv.MatType(ddepth), kernel, image.Point{-1, -1}, 0, gocv.BorderDefault)
 		kernel.Close()
 		channels[idx].Close()
@@ -287,7 +319,6 @@ func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	gocv.Merge(filteredChannels, &filteredImage)
 
 	for _, imgChan := range filteredChannels {
-
 		imgChan.Close()
 	}
 
@@ -301,18 +332,17 @@ type Shuffle struct {
 func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 	if input == nil {
-
-		return nil, errors.New("input image is empty")
+		return nil, ErrImgEmpty
 
 	}
-	if s.Partitions <= 1 {
 
-		return nil, fmt.Errorf("expected partitions to be greater than 1, got %d", s.Partitions)
+	if s.Partitions <= 1 {
+		return nil, NewOperationError(fmt.Sprintf("expected partitions to be greater than 1, got %d", s.Partitions), "Shuffle")
 
 	}
 
 	if s.Partitions >= input.Rows()*input.Cols() {
-		return nil, fmt.Errorf("cannot fit %d partitions in a %d by %d image", s.Partitions, input.Rows(), input.Cols())
+		return nil, NewOperationError(fmt.Sprintf("cannot fit %d partitions in a %d by %d image", s.Partitions, input.Rows(), input.Cols()), "Shuffle")
 	}
 
 	rows := input.Rows()
@@ -369,9 +399,11 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 
 		sliceRows := slice.Rows()
 		sliceCols := slice.Cols()
+
 		roiRect := image.Rect(colStart, rowStart, colStart+sliceCols, rowStart+sliceRows)
 		roi := shuffledImage.Region(roiRect)
 		slice.CopyTo(&roi)
+		slice.Close()
 		roi.Close()
 	}
 
