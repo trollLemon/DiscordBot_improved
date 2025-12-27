@@ -3,10 +3,13 @@ package JobDispatch
 import (
 	"context"
 	"errors"
-	"goManip/jobs"
-	"gocv.io/x/gocv"
 	"sync/atomic"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"gocv.io/x/gocv"
+
+	"goManip/jobs"
 )
 
 type JobDispatcher struct {
@@ -20,25 +23,27 @@ func NewJobDispatcher(jobRequests chan<- *jobs.JobRequest, maxTime time.Duration
 }
 
 func (j *JobDispatcher) awaitResult(jobRequest *jobs.JobRequest, ctx context.Context) (*gocv.NativeByteBuffer, error) {
-
 	select {
 	case result := <-jobRequest.Result:
 
 		image, err := result.Image, result.Error
 
 		if err != nil {
+		 	log.Error().Msgf("job %d failed", jobRequest.Job.GetJobId())	
 			return nil, err
 		}
 
 		imageBytes, err := gocv.IMEncode(".png", *image)
 
 		if err != nil {
+			log.Err(err).Msg("failed to encode image as .png")
 			return nil, err
 		}
 
 		return imageBytes, nil
 
 	case <-ctx.Done():
+		log.Error().Msgf("job %d timed out", jobRequest.Job.GetJobId())	
 		return nil, errors.New("job cancelled due to timeout")
 
 	}
