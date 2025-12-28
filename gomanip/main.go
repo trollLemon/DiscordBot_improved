@@ -25,11 +25,17 @@ import (
 func main() {
 	prettyPrint := flag.Bool("pretty_print", false, "Enable pretty print output instead of structured json")
 	numWorkers := flag.Int("num_workers", runtime.NumCPU(), "Number of workers")
+	port := flag.String("port", "8080", "port to listen on")
+	address := flag.String("address", "localhost", "address to bind to")
 	flag.Parse()
 
 	if *prettyPrint {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
+	
+
+
+
 	jobReqs := make(chan *jobs.JobRequest, *numWorkers)
 	maxTime := time.Second * 10
 	jobDispatcher := jobdispatch.NewJobDispatcher(jobReqs, maxTime)
@@ -50,5 +56,5 @@ func main() {
 		go worker.Worker(ctx, workerId+1, jobReqs, wg)
 	}
 	e := echo.New()
-	server.InitRouting(e, jobDispatcher)
+	server.InitRouting(e, jobDispatcher, *address, *port)
 }
