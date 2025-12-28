@@ -1,4 +1,4 @@
-package JobDispatch
+package jobdispatch
 
 import (
 	"context"

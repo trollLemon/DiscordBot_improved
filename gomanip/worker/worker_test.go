@@ -3,13 +3,15 @@ package worker_test
 import (
 	"context"
 	"errors"
-	"go.uber.org/goleak"
-	"goManip/jobs"
-	"goManip/worker"
-	"gocv.io/x/gocv"
 	"sync"
 	"testing"
 	"time"
+
+	"go.uber.org/goleak"
+	"gocv.io/x/gocv"
+
+	"goManip/jobs"
+	"goManip/worker"
 )
 
 type MockOperationSuccess struct {
