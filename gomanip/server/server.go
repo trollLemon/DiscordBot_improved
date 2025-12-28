@@ -187,7 +187,7 @@ func ShuffleEndpoint(c echo.Context) error {
 	})
 }
 
-func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher) {
+func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher, address, port string) {
 	e.Use(JobDispatcherMiddleware(jobDispatcher))
 	e.Use(FileTypeVerifyMiddleware())
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -214,7 +214,7 @@ func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher) {
 	e.POST("/text/", AddTextEndpoint)
 	e.POST("/randomFilter/", RandomFilterEndpoint)
 	e.POST("/shuffle/", ShuffleEndpoint)
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(address + ":" + port))
 
 }
 
