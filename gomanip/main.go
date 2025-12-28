@@ -32,9 +32,6 @@ func main() {
 	if *prettyPrint {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
-	
-
-
 
 	jobReqs := make(chan *jobs.JobRequest, *numWorkers)
 	maxTime := time.Second * 10
