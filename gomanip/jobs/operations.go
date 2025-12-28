@@ -32,7 +32,6 @@ const (
 // type should not be used for non-parameter related errors (such as OpenCV errors). 
 type OperationParameterError struct {
     reason string
-    operationName string
 }
 
 // Error returns the cause of the operation error. 
@@ -40,16 +39,11 @@ func (o *OperationParameterError) Error() string {
     return o.reason
 }
 
-// OperationName returns the name of the operation this error came from.
-func (o *OperationParameterError) OperationName() string {
-	return o.operationName
-}
 
-func NewOperationError(reason, operationName string) *OperationParameterError {
+func NewOperationError(reason string) *OperationParameterError {
 	
 	return &OperationParameterError{
 		reason: reason,
-		operationName: operationName,
 	}
 }
 
@@ -82,7 +76,7 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if s.Value <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected saturation value to be greater than 0, got %f", s.Value), "Saturate")
+		return nil, NewOperationError(fmt.Sprintf("expected saturation value to be greater than 0, got %f", s.Value))
 	}
 
 	hsvImage := gocv.NewMat()
@@ -154,7 +148,7 @@ func (e *EdgeDetect) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if e.TLower < 0 || e.THigher < 0 {
-		return nil, NewOperationError(fmt.Sprintf("expected t_lower and t_higher to be greater than or equal to 0, got %0.2f and %0.2f", e.TLower, e.THigher), "EdgeDetect")
+		return nil, NewOperationError(fmt.Sprintf("expected t_lower and t_higher to be greater than or equal to 0, got %0.1f and %0.1f", e.TLower, e.THigher))
 	}
 
 	edges := gocv.NewMat()
@@ -177,7 +171,7 @@ func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if m.KernelSize <= 0 || m.Iterations <= 0 {
-		return nil, NewOperationError(fmt.Sprintf("expected kernel size and iterations to be greater than 0, got %d and %d", m.KernelSize, m.Iterations), "Morphology")
+		return nil, NewOperationError(fmt.Sprintf("expected kernel size and iterations to be greater than 0, got %d and %d", m.KernelSize, m.Iterations))
 	}
 
 	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{X: m.KernelSize, Y: m.KernelSize})
@@ -192,7 +186,7 @@ func (m *Morphology) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	default:
 
 		defer morphedImage.Close()
-		return nil, NewOperationError(fmt.Sprintf("`%s` is not a valid morphology choice", m.Op), "Morphology")
+		return nil, NewOperationError(fmt.Sprintf("`%s` is not a valid morphology choice", m.Op))
 	}
 
 	return &morphedImage, nil
@@ -209,7 +203,7 @@ func (r *Reduce) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if r.Quality <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected quality to be greater than 0.0, got %0.2f", r.Quality), "Reduce")
+		return nil, NewOperationError(fmt.Sprintf("expected quality to be greater than 0.0, got %0.2f", r.Quality))
 	}
 
 	resizedImage := gocv.NewMat()
@@ -240,15 +234,16 @@ func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if a.Text == "" {
-		return nil, NewOperationError("must be given a non-empty string", "AddText")
+		return nil, NewOperationError("must be given a non-empty string")
+
 	}
 
 	if a.X < 0.0 || a.Y < 0.0 || a.X > 1.0 || a.Y > 1.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.X, a.Y), "AddText")
+		return nil, NewOperationError(fmt.Sprintf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.X, a.Y))
 	}
 
 	if a.FontScale <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected font scale to be greater than 0, got %0.2f", a.FontScale), "AddText")
+		return nil, NewOperationError(fmt.Sprintf("expected font scale to be greater than 0, got %0.2f", a.FontScale))
 	}
 
 	rows, cols := input.Rows(), input.Cols()
@@ -277,7 +272,7 @@ func (r *RandomFilter) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if r.KernelSize <= 0 {
-		return nil, NewOperationError(fmt.Sprintf("expected kernel size to be greater than 0, got %d", r.KernelSize), "RandomFilter")
+		return nil, NewOperationError(fmt.Sprintf("expected kernel size to be greater than 0, got %d", r.KernelSize))
 	}
 
 	kernels := make([]gocv.Mat, input.Channels())
@@ -337,12 +332,12 @@ func (s *Shuffle) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if s.Partitions <= 1 {
-		return nil, NewOperationError(fmt.Sprintf("expected partitions to be greater than 1, got %d", s.Partitions), "Shuffle")
+		return nil, NewOperationError(fmt.Sprintf("expected partitions to be greater than 1, got %d", s.Partitions))
 
 	}
 
 	if s.Partitions >= input.Rows()*input.Cols() {
-		return nil, NewOperationError(fmt.Sprintf("cannot fit %d partitions in a %d by %d image", s.Partitions, input.Rows(), input.Cols()), "Shuffle")
+		return nil, NewOperationError(fmt.Sprintf("cannot fit %d partitions in a %d by %d image", s.Partitions, input.Rows(), input.Cols()))
 	}
 
 	rows := input.Rows()
