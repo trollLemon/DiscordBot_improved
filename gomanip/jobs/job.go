@@ -6,8 +6,8 @@ import (
 )
 
 // Operation represents an abstraction for some operation to perform on an image.
-// A struct implementing Operation should have any parameters stored within the struct, so the Job struct can call Run and get a 
-// result image. 
+// A struct implementing Operation should have any parameters stored within the struct, so the Job struct can call Run and get a
+// result image.
 type Operation interface {
 	Run(input *gocv.Mat) (*gocv.Mat, error)
 }

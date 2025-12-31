@@ -14,10 +14,9 @@ import (
 )
 
 var (
-	ErrOpenCV = errors.New("opencv error")
+	ErrOpenCV   = errors.New("opencv error")
 	ErrImgEmpty = errors.New("given image is empty")
 )
-
 
 // Choice represents which morphology operation to perform.
 type Choice string
@@ -29,19 +28,18 @@ const (
 
 // OperationParameterError is the error for when an operation cannot run due to invalid parameters.
 // This error type allows the reasoning for the failure to be passed up the error chain, and returned to the API caller. The error
-// type should not be used for non-parameter related errors (such as OpenCV errors). 
+// type should not be used for non-parameter related errors (such as OpenCV errors).
 type OperationParameterError struct {
-    reason string
+	reason string
 }
 
-// Error returns the cause of the operation error. 
+// Error returns the cause of the operation error.
 func (o *OperationParameterError) Error() string {
-    return o.reason
+	return o.reason
 }
-
 
 func NewOperationError(reason string) *OperationParameterError {
-	
+
 	return &OperationParameterError{
 		reason: reason,
 	}
@@ -76,7 +74,7 @@ func (s *Saturate) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if s.Value <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected saturation value to be greater than 0, got %f", s.Value))
+		return nil, NewOperationError(fmt.Sprintf("expected saturation value to be greater than 0, got %0.1f", s.Value))
 	}
 
 	hsvImage := gocv.NewMat()
@@ -203,7 +201,7 @@ func (r *Reduce) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if r.Quality <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected quality to be greater than 0.0, got %0.2f", r.Quality))
+		return nil, NewOperationError(fmt.Sprintf("expected quality to be greater than 0.0, got %0.1f", r.Quality))
 	}
 
 	resizedImage := gocv.NewMat()
@@ -239,11 +237,11 @@ func (a *AddText) Run(input *gocv.Mat) (*gocv.Mat, error) {
 	}
 
 	if a.X < 0.0 || a.Y < 0.0 || a.X > 1.0 || a.Y > 1.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected x and y percentages to be greater than between 0 and 1, got %0.2f. %0.2f", a.X, a.Y))
+		return nil, NewOperationError(fmt.Sprintf("expected x and y percentages to be between 0 and 1, got %0.1f and %0.1f", a.X, a.Y))
 	}
 
 	if a.FontScale <= 0.0 {
-		return nil, NewOperationError(fmt.Sprintf("expected font scale to be greater than 0, got %0.2f", a.FontScale))
+		return nil, NewOperationError(fmt.Sprintf("expected font scale to be greater than 0, got %0.1f", a.FontScale))
 	}
 
 	rows, cols := input.Rows(), input.Cols()

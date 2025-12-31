@@ -5,13 +5,13 @@ import (
 	"gocv.io/x/gocv"
 )
 
-// Result stores the Result image (which may be nil if there is an error), and an error if one occured. 
+// Result stores the Result image (which may be nil if there is an error), and an error if one occured.
 type Result struct {
 	Image *gocv.Mat
 	Error error
 }
 
-// JobRequest facilitates creating a job and listening on a channel for completion. 
+// JobRequest facilitates creating a job and listening on a channel for completion.
 type JobRequest struct {
 	Job    *Job
 	Result chan *Result

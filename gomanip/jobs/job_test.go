@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gocv.io/x/gocv"
-	
+
 	"goManip/jobs"
 )
 
@@ -20,19 +20,19 @@ func TestJobMock(t *testing.T) {
 	mockImage := gocv.NewMatWithSize(64, 64, gocv.MatTypeCV16UC3)
 
 	tests := []struct {
-		name    string
-		job     *jobs.Job
-		wantId  uint32
+		name   string
+		job    *jobs.Job
+		wantId uint32
 	}{
 		{
-			name:    "TestNewJob",
-			job:     jobs.NewJob(1, &mockOperation{}, &mockImage),
-			wantId:  1,
+			name:   "TestNewJob",
+			job:    jobs.NewJob(1, &mockOperation{}, &mockImage),
+			wantId: 1,
 		},
 		{
-			name:    "TestProcess",
-			job:     jobs.NewJob(2, &mockOperation{}, &mockImage),
-			wantId:  2,
+			name:   "TestProcess",
+			job:    jobs.NewJob(2, &mockOperation{}, &mockImage),
+			wantId: 2,
 		},
 	}
 
@@ -44,7 +44,7 @@ func TestJobMock(t *testing.T) {
 
 			_, err := tt.job.Process()
 
-			assert.Nil(t,err)
+			assert.Nil(t, err)
 
 			if !tt.job.GetEndTime().After(tt.job.GetStartTime()) {
 				t.Error("endTime must be after startTime")
@@ -86,82 +86,82 @@ func TestJob(t *testing.T) {
 	tests := []struct {
 		name      string
 		wantError string
-		job      []*jobs.Job
+		job       []*jobs.Job
 	}{
 		{
-			name:      "Test Invert Job",
-			job:      createJobs(jobs.NewInvert(), testImages),
+			name: "Test Invert Job",
+			job:  createJobs(jobs.NewInvert(), testImages),
 		},
 		{
-			name:      "Test Shuffle Job",
-			job:      createJobs(jobs.NewShuffle(15), testImages),
+			name: "Test Shuffle Job",
+			job:  createJobs(jobs.NewShuffle(15), testImages),
 		},
 		{
 			name:      "Test Shuffle Job Error",
-			job:      createJobs(jobs.NewShuffle(0), testImages),
+			job:       createJobs(jobs.NewShuffle(0), testImages),
 			wantError: "expected partitions to be greater than 1, got 0",
 		},
 		{
-			name:      "Test Edge Detection",
-			job:      createJobs(jobs.NewEdgeDetection(100.0, 200.0), testImages),
+			name: "Test Edge Detection",
+			job:  createJobs(jobs.NewEdgeDetection(100.0, 200.0), testImages),
 		},
 		{
 			name:      "Test Edge Detection Error",
-			job:      createJobs(jobs.NewEdgeDetection(-1.0, 200.0), testImages),
+			job:       createJobs(jobs.NewEdgeDetection(-1.0, 200.0), testImages),
 			wantError: "expected t_lower and t_higher to be greater than or equal to 0, got -1.0 and 200.0",
 		},
 		{
-			name:      "Test Saturation",
-			job:      createJobs(jobs.NewSaturate(1.6), testImages),
+			name: "Test Saturation",
+			job:  createJobs(jobs.NewSaturate(1.6), testImages),
 		},
 		{
 			name:      "Test Saturation Error",
-			job:      createJobs(jobs.NewSaturate(-1.6), testImages),
+			job:       createJobs(jobs.NewSaturate(-1.6), testImages),
 			wantError: "expected saturation value to be greater than 0, got -1.6",
 		},
 		{
-			name:      "Test Dilate",
-			job:      createJobs(jobs.NewMorphology(3, 5, jobs.Dilate), testImages),
+			name: "Test Dilate",
+			job:  createJobs(jobs.NewMorphology(3, 5, jobs.Dilate), testImages),
 		},
 		{
 			name:      "Test Dilate Error",
-			job:      createJobs(jobs.NewMorphology(0, 5, jobs.Dilate), testImages),
+			job:       createJobs(jobs.NewMorphology(0, 5, jobs.Dilate), testImages),
 			wantError: "expected kernel size and iterations to be greater than 0, got 0 and 5",
 		},
 		{
-			name:      "Test Erode",
-			job:      createJobs(jobs.NewMorphology(3, 5, jobs.Erode), testImages),
+			name: "Test Erode",
+			job:  createJobs(jobs.NewMorphology(3, 5, jobs.Erode), testImages),
 		},
 		{
 			name:      "Test Erode Error",
-			job:      createJobs(jobs.NewMorphology(0, 5, jobs.Erode), testImages),
+			job:       createJobs(jobs.NewMorphology(0, 5, jobs.Erode), testImages),
 			wantError: "expected kernel size and iterations to be greater than 0, got 0 and 5",
 		},
 		{
-			name:      "Test Reduce",
-			job:      createJobs(jobs.NewReduce(0.5), testImages),
+			name: "Test Reduce",
+			job:  createJobs(jobs.NewReduce(0.5), testImages),
 		},
 		{
 			name:      "Test Reduce Error",
-			job:      createJobs(jobs.NewReduce(0.0), testImages),
+			job:       createJobs(jobs.NewReduce(0.0), testImages),
 			wantError: "expected quality to be greater than 0.0, got 0.0",
 		},
 		{
-			name:      "Test Random Filter",
-			job:      createJobs(jobs.NewRandomFilter(3, -1, 1, true), testImages),
+			name: "Test Random Filter",
+			job:  createJobs(jobs.NewRandomFilter(3, -1, 1, true), testImages),
 		},
 		{
 			name:      "Test Random Filter Error",
-			job:      createJobs(jobs.NewRandomFilter(0, -1, 1, false), testImages),
+			job:       createJobs(jobs.NewRandomFilter(0, -1, 1, false), testImages),
 			wantError: "expected kernel size to be greater than 0, got 0",
 		},
 		{
-			name:      "Test Add Text",
-			job:      createJobs(jobs.NewAddText("text", 1.0, 0.5, 0.5), testImages),
+			name: "Test Add Text",
+			job:  createJobs(jobs.NewAddText("text", 1.0, 0.5, 0.5), testImages),
 		},
 		{
 			name:      "Test Add Text Error",
-			job:      createJobs(jobs.NewAddText("text", -1.0, 0.5, 0.5), testImages),
+			job:       createJobs(jobs.NewAddText("text", -1.0, 0.5, 0.5), testImages),
 			wantError: "expected font scale to be greater than 0, got -1.0",
 		},
 	}
@@ -170,11 +170,11 @@ func TestJob(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			for _, job := range tt.job {
 				result, err := job.Process()
-				
+
 				if tt.wantError != "" {
-					assert.ErrorContains(t, err,tt.wantError)
+					assert.ErrorContains(t, err, tt.wantError)
 				} else {
-					assert.Nil(t,err)	
+					assert.Nil(t, err)
 				}
 
 				if result != nil && job.GetTimeElapsed() == 0 {
