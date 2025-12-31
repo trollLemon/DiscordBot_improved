@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 
 	"net/http"
 	"sync"
@@ -16,9 +17,10 @@ import (
 	"goManip/util"
 )
 
-
-
-
+var (
+	ErrParseParams   = errors.New("failed to parse query parameters")
+	ErrJobDispatcher = errors.New("failed to get job dispatcher")
+)
 
 func getDispatcher(c echo.Context) *jobdispatch.JobDispatcher {
 	return c.Get("jobDispatcher").(*jobdispatch.JobDispatcher)
@@ -49,7 +51,7 @@ func InvertEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -62,13 +64,13 @@ func SaturateEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	saturation, err := util.ParseSaturation(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse saturation")
-		return c.String(http.StatusBadRequest, "Failed to parse saturation: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -81,13 +83,14 @@ func EdgeDetectionEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	tLower, tHigher, err := util.ParseEdgeDetection(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse edge detection")
-		return c.String(http.StatusBadRequest, "Failed to parse edge detection: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -99,13 +102,14 @@ func MorphologyEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	morphType, kernelSize, iterations, err := util.ParseMorphology(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse morphology")
-		return c.String(http.StatusBadRequest, "Failed to parse morphology: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -117,14 +121,15 @@ func ReduceEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	quality, err := util.ParseReduce(c)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse reduce")
-		return c.String(http.StatusBadRequest, "Failed to parse reduce: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -136,14 +141,15 @@ func AddTextEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	text, fontScale, xPerc, yPerc, err := util.ParseAddText(c)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse add text")
-		return c.String(http.StatusBadRequest, "Failed to parse add text: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -156,13 +162,14 @@ func RandomFilterEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	minVal, maxVal, kernelSize, normalize, err := util.ParseRandomFilter(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse random filter")
-		return c.String(http.StatusBadRequest, "Failed to parse random filter: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -173,13 +180,14 @@ func ShuffleEndpoint(c echo.Context) error {
 	jobDispatcher := getDispatcher(c)
 	if jobDispatcher == nil {
 		log.Error().Msg("Job dispatcher is not present in the context")
-		return c.String(http.StatusInternalServerError, "failed to get job dispatcher")
+		return SendGomanipError(c, ErrJobDispatcher)
 	}
 
 	partitions, err := util.ParseShuffle(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse shuffle")
-		return c.String(http.StatusBadRequest, "Failed to parse shuffle: "+err.Error())
+		return SendGomanipError(c, ErrParseParams)
+
 	}
 
 	return handleImageOperation(c, func(image *gocv.Mat) (*gocv.NativeByteBuffer, error) {
@@ -187,12 +195,12 @@ func ShuffleEndpoint(c echo.Context) error {
 	})
 }
 
-func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher, address, port string) {
+func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher) {
 	e.Use(JobDispatcherMiddleware(jobDispatcher))
 	e.Use(FileTypeVerifyMiddleware())
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus: true,
-		LogURI:    true,
+		LogStatus:  true,
+		LogURI:     true,
 		LogURIPath: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			log.Info().
@@ -214,8 +222,11 @@ func InitRouting(e *echo.Echo, jobDispatcher *jobdispatch.JobDispatcher, address
 	e.POST("/text/", AddTextEndpoint)
 	e.POST("/randomFilter/", RandomFilterEndpoint)
 	e.POST("/shuffle/", ShuffleEndpoint)
-	e.Logger.Fatal(e.Start(address + ":" + port))
 
+}
+
+func Start(e *echo.Echo, address, port string) {
+	e.Logger.Fatal(e.Start(address + ":" + port))
 }
 
 func GraceFullShutdown(jobDispatcher *jobdispatch.JobDispatcher, wg *sync.WaitGroup, cancel context.CancelFunc) {

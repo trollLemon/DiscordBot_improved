@@ -17,9 +17,8 @@ import (
 
 	"goManip/jobdispatch"
 	"goManip/jobs"
-	"goManip/worker"
 	"goManip/server"
-
+	"goManip/worker"
 )
 
 func main() {
@@ -53,5 +52,6 @@ func main() {
 		go worker.Worker(ctx, workerId+1, jobReqs, wg)
 	}
 	e := echo.New()
-	server.InitRouting(e, jobDispatcher, *address, *port)
+	server.InitRouting(e, jobDispatcher)
+	server.Start(e, *address, *port)
 }
