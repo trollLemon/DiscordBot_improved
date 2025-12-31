@@ -97,8 +97,6 @@ func TestDispatchJob(t *testing.T) {
 
 }
 
-
-
 func TestDispatchWithActualOps(t *testing.T) {
 	tests := []struct {
 		name    string

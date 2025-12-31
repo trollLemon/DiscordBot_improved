@@ -29,7 +29,7 @@ func (j *JobDispatcher) awaitResult(jobRequest *jobs.JobRequest, ctx context.Con
 		image, err := result.Image, result.Error
 
 		if err != nil {
-		 	log.Error().Msgf("job %d failed", jobRequest.Job.GetJobId())	
+			log.Error().Msgf("job %d failed", jobRequest.Job.GetJobId())
 			return nil, err
 		}
 
@@ -43,7 +43,7 @@ func (j *JobDispatcher) awaitResult(jobRequest *jobs.JobRequest, ctx context.Con
 		return imageBytes, nil
 
 	case <-ctx.Done():
-		log.Error().Msgf("job %d timed out", jobRequest.Job.GetJobId())	
+		log.Error().Msgf("job %d timed out", jobRequest.Job.GetJobId())
 		return nil, errors.New("job cancelled due to timeout")
 
 	}
