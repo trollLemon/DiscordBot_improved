@@ -14,7 +14,7 @@ dnspython==2.7.0
 email_validator==2.2.0
 fastapi==0.121.3
 fastapi-cli==0.0.7
-filelock==3.20.1
+filelock==3.20.3
 fsspec==2025.5.1
 h11==0.16.0
 hf-xet==1.1.3
