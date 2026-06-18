@@ -3,12 +3,14 @@ package server
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/otel/trace"
 
-	"goManip/jobdispatch"
+	"goManip/jobs"
+	"goManip/worker"
 )
 
 var (
@@ -16,10 +18,19 @@ var (
 	ErrUnsupportedFile = errors.New("invalid filetype")
 )
 
-func JobDispatcherMiddleware(jobDispatcher *jobdispatch.JobDispatcher) echo.MiddlewareFunc {
+func JobDispatcherMiddleware(jobDispatcher *jobs.JobDispatcher) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("jobDispatcher", jobDispatcher)
+			return next(c)
+		}
+	}
+}
+
+func StoreMiddleware(store worker.ImageStore) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set("store", store)
 			return next(c)
 		}
 	}
@@ -29,10 +40,10 @@ func FileTypeVerifyMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			contentType := c.Request().Header.Get("Content-Type")
-
+			spanContext := trace.SpanFromContext(c.Request().Context()).SpanContext()
 			if !slices.Contains(supportedFileTypes, contentType) {
-				log.Error().Msg(fmt.Sprintf("request had content type of %s which is not supported", contentType))
-				return SendGomanipError(c, ErrUnsupportedFile)
+				slog.ErrorContext(c.Request().Context(), fmt.Sprintf("request had content type of %s which is not supported", contentType))
+				return SendGomanipError(c, ErrUnsupportedFile, spanContext.TraceID().String())
 			}
 
 			return next(c)
