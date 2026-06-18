@@ -30,13 +30,6 @@ services:
     networks:
       - network
 
-  init-shared_volume_permissions:
-    image: busybox
-    command: ["sh", "-c", "chown -R 100:101 /app/shared"]
-    volumes:
-      - shared-data:/app/shared
-    restart: "no"
-
   worker-data:
     image: "redis:alpine"
     mem_limit: "2048m"
@@ -45,28 +38,51 @@ services:
       - network
     restart: "always"
 
-  classification:
-    build:
-      context: ../../classification 
-      dockerfile : Dockerfile.fastapi
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    command: ["server", "-s3", "-dir=/data", "-s3.config=/etc/seaweedfs/s3config.json"]
+    volumes:
+      - seaweedfs-data:/data
+      - ./s3config.json:/etc/seaweedfs/s3config.json:ro
     networks:
       - network
-    depends_on:
-      - init-shared_volume_permissions
-    volumes:
-      - shared-data:/app/shared
     restart: "always"
 
-  classification-worker:
+  classification:
     build:
-      context: ../../classification 
-      dockerfile : Dockerfile.backend
+      context: ../../classification
+      dockerfile: Dockerfile
+      target: api
+    environment:
+      - S3_ENDPOINT=seaweedfs:8333
+      - S3_ACCESS_KEY=classification
+      - S3_SECRET_KEY=classification-secret
+      - S3_BUCKET=images
+      - S3_SECURE=false
     networks:
       - network
     depends_on:
-      - init-shared_volume_permissions
-    volumes:
-      - shared-data:/app/shared
+      - worker-data
+      - seaweedfs
+    restart: "always"
+
+  # Scale the worker pool with: docker compose up --scale classification-worker=N
+  classification-worker:
+    build:
+      context: ../../classification
+      dockerfile: Dockerfile
+      target: worker
+    environment:
+      - S3_ENDPOINT=seaweedfs:8333
+      - S3_ACCESS_KEY=classification
+      - S3_SECRET_KEY=classification-secret
+      - S3_BUCKET=images
+      - S3_SECURE=false
+    networks:
+      - network
+    depends_on:
+      - worker-data
+      - seaweedfs
     restart: "always"
 
 networks:
@@ -75,5 +91,5 @@ networks:
 
 volumes:
   redis_data:
-  shared-data:
+  seaweedfs-data:
 

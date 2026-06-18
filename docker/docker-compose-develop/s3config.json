@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "classification",
+      "credentials": [
+        { "accessKey": "classification", "secretKey": "classification-secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List"]
+    }
+  ]
+}
