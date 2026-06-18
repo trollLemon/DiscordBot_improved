@@ -51,8 +51,8 @@ jobs:
     - uses: actions/setup-python@v6
       with:
         python-version: '3.13' 
-    - name: install deps 
-      run: pip install --no-cache-dir -r  backend_requirements.txt
+    - name: install deps
+      run: pip install --no-cache-dir -r  requirements-worker.txt
       working-directory: ./classification
     - name: install pytest  
       run: pip install --no-cache-dir pytest
