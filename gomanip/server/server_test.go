@@ -5,20 +5,22 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/alicebob/miniredis/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 	"gocv.io/x/gocv"
 
-	"goManip/jobdispatch"
 	"goManip/jobs"
 	"goManip/server"
+	"goManip/store"
 	"goManip/worker"
 )
 
@@ -64,6 +66,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 
@@ -92,6 +95,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -102,7 +106,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected saturation value to be greater than 0, got -2.0",
+			Detail: "invalid parameters provided for operation: expected saturation value to be greater than 0, got -2.0",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -114,6 +119,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -141,6 +147,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -151,7 +158,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected t_lower and t_higher to be greater than or equal to 0, got -120.0 and 200.0",
+			Detail: "invalid parameters provided for operation: expected t_lower and t_higher to be greater than or equal to 0, got -120.0 and 200.0",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -163,6 +171,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 
@@ -191,6 +200,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -201,7 +211,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected kernel size and iterations to be greater than 0, got -3 and 5",
+			Detail: "invalid parameters provided for operation: expected kernel size and iterations to be greater than 0, got -3 and 5",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -213,6 +224,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -240,6 +252,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -250,7 +263,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected quality to be greater than 0.0, got -0.4",
+			Detail: "invalid parameters provided for operation: expected quality to be greater than 0, got -0.4",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -262,6 +276,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -289,6 +304,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -299,7 +315,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected font scale to be greater than 0, got 0.0",
+			Detail: "invalid parameters provided for operation: expected font scale to be greater than 0, got 0.0",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -310,7 +327,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected x and y percentages to be between 0 and 1, got -0.5 and 0.5",
+			Detail: "invalid parameters provided for operation: expected x and y percentages to be between 0 and 1, got -0.5 and 0.5",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -322,6 +340,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -349,6 +368,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -359,7 +379,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected kernel size to be greater than 0, got -5",
+			Detail: "invalid parameters provided for operation: expected kernel size to be greater than 0, got -5",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -371,6 +392,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 
@@ -399,6 +421,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Given filetype is not supported, please use jpeg or png images.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -409,7 +432,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "expected partitions to be greater than 1, got -4",
+			Detail: "invalid parameters provided for operation: expected partitions to be greater than 1, got -4",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -420,7 +444,8 @@ var tests = []struct {
 		wantStatusCode: http.StatusBadRequest,
 		wantErr: &server.GomanipError{
 			Status: "400",
-			Detail: "cannot fit 99999999 partitions in a 192 by 80 image",
+			Detail: "invalid parameters provided for operation: cannot fit 99999999 partitions in a 192 by 80 image",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 	{
@@ -432,6 +457,7 @@ var tests = []struct {
 		wantErr: &server.GomanipError{
 			Status: "400",
 			Detail: "Failed to parse query parameters. Check the request URI.",
+			Trace:  "00000000000000000000000000000000",
 		},
 	},
 }
@@ -440,14 +466,26 @@ func TestServer(t *testing.T) {
 	defer goleak.VerifyNone(t)
 	numWorkers := 1
 	jobReqs := make(chan *jobs.JobRequest, numWorkers)
-	maxTime := time.Second * 10
-	jobDispatcher := jobdispatch.NewJobDispatcher(jobReqs, maxTime)
+
+	mockLogger := slog.New(slog.NewJSONHandler(io.Discard, nil))
+
+	jobDispatcher := jobs.NewJobDispatcher(jobReqs)
 	wg := &sync.WaitGroup{}
 	ctx, cancel := context.WithCancel(context.Background())
 
+	mr, err := miniredis.Run()
+	if err != nil {
+		t.Fatalf("failed to start miniredis: %v", err)
+	}
+	defer mr.Close()
+
+	store := store.NewRedisStore(mr.Addr(), "", "", 0, time.Hour)
+	defer store.Close()
+
 	for workerId := range numWorkers {
 		wg.Add(1)
-		go worker.Worker(ctx, workerId+1, jobReqs, wg)
+		worker := worker.NewWorker(ctx, workerId, jobReqs, wg, store, mockLogger)
+		go worker.Work()
 	}
 
 	defer server.GraceFullShutdown(jobDispatcher, wg, cancel)
@@ -455,7 +493,7 @@ func TestServer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := echo.New()
-			server.InitRouting(e, jobDispatcher)
+			server.InitRouting(e, jobDispatcher, store)
 
 			contentType := "image/" + tt.fileType
 
@@ -476,6 +514,13 @@ func TestServer(t *testing.T) {
 
 			body, err := io.ReadAll(rec.Body)
 			assert.Nil(t, err)
+
+			if tt.wantStatusCode == http.StatusOK {
+				var response server.JobResponse
+				err = json.Unmarshal(body, &response)
+				assert.Nil(t, err)
+				assert.NotEmpty(t, response.JobId)
+			}
 
 			if tt.wantErr != nil {
 				var goManipErr *server.GomanipError

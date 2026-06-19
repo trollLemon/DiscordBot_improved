@@ -1,0 +1,28 @@
+services:
+  gomanip:
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+    build:
+      context: .
+      target: application
+    image: gomanip:latest
+    container_name: gomanip-server
+    ports:
+      - "9080:8080"
+    command: ["--address", "0.0.0.0", "--port", "8080", "--numWorkers", "16"]
+    environment:
+      REDIS_ADDR: redis:6379
+      REDIS_DB: "0"
+      REDIS_RETENTION_DURATION: 1h
+      OTEL_EXPORTER_OTLP_ENDPOINT: host.docker.internal:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: gomanip-service
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: gomanip-redis
+    restart: unless-stopped
+
