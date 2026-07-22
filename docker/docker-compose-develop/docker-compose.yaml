@@ -1,6 +1,8 @@
 services:
   bot:
     build: ../../bot/  
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       # you will need to set these two env vars prior to running the deployment.
       - DISCORD_TOKEN=
@@ -14,12 +16,23 @@ services:
       # if you are getting timeout errors, increase these variables
       - GOMANIP_TIMEOUT=30s
       - CLASSIFICATION_TIMEOUT=5m
+      # telemetry: assumes a SigNoz stack is already running on the host,
+      # reachable via host.docker.internal (its OTLP collector on port 4318).
+      - OTEL_EXPORTER_OTLP_ENDPOINT=host.docker.internal:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=discord-bot
     networks:
       - network
     restart: "always"
 
   gomanip:
     build: ../../gomanip/ 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=host.docker.internal:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=gomanip-service
     networks:
       - network
     restart: "always"
@@ -53,12 +66,17 @@ services:
       context: ../../classification
       dockerfile: Dockerfile
       target: api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - S3_ENDPOINT=seaweedfs:8333
       - S3_ACCESS_KEY=classification
       - S3_SECRET_KEY=classification-secret
       - S3_BUCKET=images
       - S3_SECURE=false
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=classification-service
     networks:
       - network
     depends_on:
@@ -72,12 +90,17 @@ services:
       context: ../../classification
       dockerfile: Dockerfile
       target: worker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - S3_ENDPOINT=seaweedfs:8333
       - S3_ACCESS_KEY=classification
       - S3_SECRET_KEY=classification-secret
       - S3_BUCKET=images
       - S3_SECURE=false
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=classification-worker
     networks:
       - network
     depends_on:
