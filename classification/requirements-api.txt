@@ -48,7 +48,7 @@ opentelemetry-sdk==1.42.1
 opentelemetry-semantic-conventions==0.63b1
 opentelemetry-util-http==0.63b1
 packaging==26.2
-pillow==12.2.0
+pillow==12.3.0
 prompt_toolkit==3.0.52
 protobuf==6.33.6
 pycparser==3.0
