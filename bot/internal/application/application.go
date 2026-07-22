@@ -1,15 +1,16 @@
 package application
 
 import (
-
 	"context"
+	"log/slog"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/trollLemon/DiscordBot/internal/classification"
+	"github.com/trollLemon/DiscordBot/internal/common"
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
 	"github.com/trollLemon/DiscordBot/internal/randomwords"
-	"github.com/trollLemon/DiscordBot/internal/common"
 )
 
 type Application struct {
@@ -18,8 +19,6 @@ type Application struct {
 	RandomWords    *randomwords.RandomWords
 	GuildID        string
 }
-
-
 
 func InitializeApplication(conf *common.BotConfig, ctx context.Context) *Application {
 
@@ -33,8 +32,11 @@ func InitializeApplication(conf *common.BotConfig, ctx context.Context) *Applica
 		DB:       conf.RedisSetNumber,
 	})
 
-	randomWordsStore := randomwords.NewRandomWords(redisClient, ctx, conf.RandomWordsSetName)
+	if err := redisotel.InstrumentTracing(redisClient); err != nil {
+		slog.Error("failed to instrument redis client with tracing", "error", err)
+	}
 
+	randomWordsStore := randomwords.NewRandomWords(redisClient, ctx, conf.RandomWordsSetName)
 
 	return &Application{
 		Gomanip:        gomanip,

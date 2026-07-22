@@ -30,4 +30,4 @@ COPY --from=builder /app/bot .
 
 EXPOSE 8080
 
-CMD ["/bot", "--pretty-print"]
+CMD ["/bot"]
