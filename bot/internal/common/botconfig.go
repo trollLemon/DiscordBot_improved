@@ -1,11 +1,10 @@
 package common
 
 import (
+	"fmt"
 	"os"
-	"time"
 	"strconv"
-
-	"github.com/rs/zerolog/log"
+	"time"
 )
 
 type BotConfig struct {
@@ -23,12 +22,7 @@ type BotConfig struct {
 	RedisSetNumber     int
 }
 
-
-
-
-
-
-func GetBotConfig() *BotConfig {
+func GetBotConfig() (*BotConfig, error) {
 	conf := BotConfig{
 		BotToken:           os.Getenv("DISCORD_TOKEN"),
 		RedisPass:          os.Getenv("REDIS_PASS"),
@@ -40,14 +34,12 @@ func GetBotConfig() *BotConfig {
 
 	gomanipTimeout, err := time.ParseDuration(os.Getenv("GOMANIP_TIMEOUT"))
 	if err != nil {
-		log.Error().Msgf("failed to parse duration in provided variable GOMANIP_TIMEOUT=%s. Using default value of 30 seconds.", os.Getenv("GOMANIP_TIMEOUT"))
-		gomanipTimeout = time.Second * 30
+		return nil, fmt.Errorf("invalid GOMANIP_TIMEOUT=%q: %w", os.Getenv("GOMANIP_TIMEOUT"), err)
 	}
 
 	classificationTimeout, err := time.ParseDuration(os.Getenv("CLASSIFICATION_TIMEOUT"))
 	if err != nil {
-		log.Error().Msgf("failed to parse duration in provided variable CLASSIFICATION_TIMEOUT=%s. Using default value of 5 minutes.", os.Getenv("CLASSIFICATION_TIMEOUT"))
-		gomanipTimeout = time.Minute * 5
+		return nil, fmt.Errorf("invalid CLASSIFICATION_TIMEOUT=%q: %w", os.Getenv("CLASSIFICATION_TIMEOUT"), err)
 	}
 
 	conf.GomanipTimeout = gomanipTimeout
@@ -55,10 +47,10 @@ func GetBotConfig() *BotConfig {
 
 	setNum, err := strconv.Atoi(os.Getenv("REDIS_SET_NUM"))
 	if err != nil {
-		log.Error().Msgf("failed to parse string in provided variable REDIS_SET_NUM=%s. Using default value of 0.", os.Getenv("REDIS_SET_NUM"))
+		return nil, fmt.Errorf("invalid REDIS_SET_NUM=%q: %w", os.Getenv("REDIS_SET_NUM"), err)
 	}
 
 	conf.RedisSetNumber = setNum
 
-	return &conf
+	return &conf, nil
 }

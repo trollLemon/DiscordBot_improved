@@ -1,8 +1,9 @@
 package commands
 
 import (
+	"log/slog"
+
 	"github.com/bwmarrin/discordgo"
-	"github.com/rs/zerolog/log"
 
 	"github.com/trollLemon/DiscordBot/internal/application"
 	"github.com/trollLemon/DiscordBot/internal/common"
@@ -17,7 +18,7 @@ func Classify(s *discordgo.Session, i *discordgo.InteractionCreate, a *applicati
 	imgBytes, format, err := util.GetImageFromURL(attachmentURL)
 
 	if err != nil {
-		log.Err(err).Msg("failed to download attachment")
+		slog.Error("failed to download attachment", "error", err)
 		common.Reply(s, i, "Error downloading given attachment")
 		return err
 	}

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -14,7 +15,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v5"
-	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -54,7 +55,7 @@ type ImageClassification struct {
 	maxWaitTime       time.Duration
 }
 
-func (i *ImageClassification) do(image []byte, contentType string) (string, error) {
+func (i *ImageClassification) do(ctx context.Context, image []byte, contentType string) (string, error) {
 	var filename string
 
 	filename += time.Millisecond.String()
@@ -67,11 +68,13 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 		return "", ErrBadFileType
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), i.maxWaitTime)
+	timeoutCtx, cancel := context.WithTimeout(ctx, i.maxWaitTime)
 
 	defer cancel()
 	sendImageEndpoint := i.apiURL + i.sendImageEndpoint
-	client := http.Client{}
+	client := http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
 	resp, err := backoff.Retry(
 		timeoutCtx,
 		func() (*http.Response, error) {
@@ -84,16 +87,16 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 
 			part, err := writer.CreatePart(header)
 			if err != nil {
-				log.Err(err).Msg("failed to write multipart data")
+				slog.ErrorContext(ctx, "failed to write multipart data", "error", err)
 				return nil, backoff.Permanent(ErrWriting)
 			}
 
 			part.Write(image)
 			writer.Close()
 
-			req, err := http.NewRequest("POST", sendImageEndpoint, body)
+			req, err := http.NewRequestWithContext(timeoutCtx, http.MethodPost, sendImageEndpoint, body)
 			if err != nil {
-				log.Err(err).Msg("failed to create POST request")
+				slog.ErrorContext(ctx, "failed to create POST request", "error", err)
 				return nil, ErrMakingRequest
 			}
 
@@ -101,7 +104,7 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Err(err).Msg("failed to perform classification HTTP request")
+				slog.ErrorContext(ctx, "failed to perform classification HTTP request", "error", err)
 				return nil, backoff.Permanent(fmt.Errorf("could not send request: %w", ErrNetwork))
 			}
 
@@ -120,18 +123,18 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 
 					respBody, err := io.ReadAll(resp.Body)
 					if err != nil {
-						log.Err(err).Msg("failed to read classification request error response body")
+						slog.ErrorContext(ctx, "failed to read classification request error response body", "error", err)
 						return nil, backoff.Permanent(fmt.Errorf("could not read error response body. %w", ErrReading))
 					}
 
 					err = json.Unmarshal(respBody, &errorResponse)
 					if err != nil {
-						log.Err(err).Msg("failed to unmarshal response into go struct")
+						slog.ErrorContext(ctx, "failed to unmarshal response into go struct", "error", err)
 						return nil, backoff.Permanent(fmt.Errorf("could not unmarshal error response %w", ErrUnMarshal))
 					}
 					// this endpoint returns 400 if the filetype is invalid. We already check the filetype before making the request, buts its good
 					// to check here regardless just in case resp.StatusCode== a change happens upstream.
-					log.Error().Msgf("classification service cannot work with given filetype, returned error: %s", errorResponse.Detail)
+					slog.ErrorContext(ctx, "classification service cannot work with given filetype", "detail", errorResponse.Detail)
 					return nil, backoff.Permanent(ErrBadFileType)
 
 				}
@@ -148,12 +151,12 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 	)
 
 	if errors.Is(err, context.DeadlineExceeded) {
-		log.Err(err).Msg("timed out sending a classification request")
+		slog.ErrorContext(ctx, "timed out sending a classification request", "error", err)
 		return "", ErrRetry
 	}
 
 	if err != nil {
-		log.Err(err).Msg("failed to send classification request")
+		slog.ErrorContext(ctx, "failed to send classification request", "error", err)
 		return "", err
 	}
 
@@ -161,33 +164,40 @@ func (i *ImageClassification) do(image []byte, contentType string) (string, erro
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Err(err).Msg("failed to read job id response body")
+		slog.ErrorContext(ctx, "failed to read job id response body", "error", err)
 		return "", fmt.Errorf("could not read job id response body. %w", ErrReading)
 	}
 
 	jobDetails := JobSend{}
 
 	if err := json.Unmarshal(body, &jobDetails); err != nil {
-		log.Err(err).Msg("failed to unmarshal response body")
+		slog.ErrorContext(ctx, "failed to unmarshal response body", "error", err)
 		return "", fmt.Errorf("error getting jobid. %w", ErrUnMarshal)
 	}
 
-	log.Info().Msgf("POST to classification api succeded, recived job-id: %s", jobDetails.JobId)
+	slog.InfoContext(ctx, "POST to classification api succeded", "jobId", jobDetails.JobId)
 
 	return jobDetails.JobId, nil
 
 }
 
-func (i *ImageClassification) poll(jobId string) (*ClassResult, error) {
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), i.maxWaitTime)
+func (i *ImageClassification) poll(ctx context.Context, jobId string) (*ClassResult, error) {
+	timeoutCtx, cancel := context.WithTimeout(ctx, i.maxWaitTime)
 	defer cancel()
 
 	getClassEndpoint := i.apiURL + i.pollEndpoint + "/" + jobId
-	client := http.Client{}
+	client := http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
 	resp, err := backoff.Retry(
 		timeoutCtx,
 		func() (*http.Response, error) {
-			resp, err := client.Get(getClassEndpoint)
+			req, err := http.NewRequestWithContext(timeoutCtx, http.MethodGet, getClassEndpoint, nil)
+			if err != nil {
+				return nil, backoff.Permanent(ErrMakingRequest)
+			}
+
+			resp, err := client.Do(req)
 			if err != nil {
 				return nil, backoff.Permanent(ErrMakingRequest)
 			}
@@ -211,16 +221,16 @@ func (i *ImageClassification) poll(jobId string) (*ClassResult, error) {
 
 					respBody, err := io.ReadAll(resp.Body)
 					if err != nil {
-						log.Err(err).Msg("failed to read classification poll request error response body")
+						slog.ErrorContext(ctx, "failed to read classification poll request error response body", "error", err)
 						return nil, backoff.Permanent(fmt.Errorf("could not read error response body. %w", ErrReading))
 					}
 
 					err = json.Unmarshal(respBody, &errorResponse)
 					if err != nil {
-						log.Err(err).Msg("failed to unmarshal poll error response into go struct")
+						slog.ErrorContext(ctx, "failed to unmarshal poll error response into go struct", "error", err)
 						return nil, backoff.Permanent(fmt.Errorf("could not unmarshal error response %w", ErrUnMarshal))
 					}
-					log.Error().Msgf("classification service reported an error processing request: %s", errorResponse.Detail)
+					slog.ErrorContext(ctx, "classification service reported an error processing request", "detail", errorResponse.Detail)
 					return nil, ErrRetry
 				}
 
@@ -237,12 +247,12 @@ func (i *ImageClassification) poll(jobId string) (*ClassResult, error) {
 	)
 
 	if errors.Is(err, context.DeadlineExceeded) {
-		log.Err(err).Msg("timed out polling classification service")
+		slog.ErrorContext(ctx, "timed out polling classification service", "error", err)
 		return nil, ErrRetry
 	}
 
 	if err != nil {
-		log.Err(err).Msg("poll request failed")
+		slog.ErrorContext(ctx, "poll request failed", "error", err)
 		return nil, err
 	}
 
@@ -250,7 +260,7 @@ func (i *ImageClassification) poll(jobId string) (*ClassResult, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Err(err).Msg("failed to read classification response body")
+		slog.ErrorContext(ctx, "failed to read classification response body", "error", err)
 		return nil, fmt.Errorf("could not read classification response body. %w", ErrReading)
 
 	}
@@ -261,7 +271,7 @@ func (i *ImageClassification) poll(jobId string) (*ClassResult, error) {
 		return nil, fmt.Errorf("could not unmarshal classification response body. %w", ErrUnMarshal)
 	}
 
-	log.Info().Msgf("GET to classification api succeded, got classification: %s", classification.Class)
+	slog.InfoContext(ctx, "GET to classification api succeded", "class", classification.Class)
 
 	return &classification, nil
 }

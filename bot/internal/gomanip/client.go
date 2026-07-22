@@ -7,14 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/cenkalti/backoff/v5"
-	"github.com/rs/zerolog/log"
-
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
-
 
 var (
 	ErrNetwork   = errors.New("network error")
@@ -25,28 +24,26 @@ var (
 	ErrRetry     = errors.New("retrying request")
 )
 
-
-// UserError implements the error interface and provides a way to store a user-friendly message from 
+// UserError implements the error interface and provides a way to store a user-friendly message from
 // the gomanip API while keeping the error chain intact.
 type UserError struct {
-    // Message is a custom message to be passed through the error chain.	
-    Msg string     
-    // Err is the underlying error 
-    Err error 
+	// Message is a custom message to be passed through the error chain.
+	Msg string
+	// Err is the underlying error
+	Err error
 }
 
 func (e *UserError) Error() string {
-    return e.Err.Error()
+	return e.Err.Error()
 }
 
 func (e *UserError) Message() string {
-    return e.Msg
+	return e.Msg
 }
 
 func (e *UserError) Unwrap() error {
-    return e.Err
+	return e.Err
 }
-
 
 type GomanipError struct {
 	Status string `json:"status"`
@@ -64,14 +61,23 @@ func NewGoManip(apiEndpoint string, readTimeout time.Duration) *GoManip {
 	}
 }
 
-func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer) (*http.Response, error) {
+func (g *GoManip) try(ctx context.Context, apiURI, contentType string, imageBytesBuffer *bytes.Buffer) (*http.Response, error) {
 	client := http.Client{
-		Timeout: g.readTimeout,
+		Timeout:   g.readTimeout,
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
-	resp, err := client.Post(apiURI, contentType, imageBytesBuffer)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURI, imageBytesBuffer)
 	if err != nil {
-		log.Err(err).Msg("failed to send POST request to gomanip service")
-		return nil, backoff.Permanent(fmt.Errorf("could not send POST request: %w",ErrNetwork))
+		slog.ErrorContext(ctx, "failed to build POST request to gomanip service", "error", err)
+		return nil, backoff.Permanent(fmt.Errorf("could not build POST request: %w", ErrNetwork))
+	}
+	req.Header.Set("Content-Type", contentType)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to send POST request to gomanip service", "error", err)
+		return nil, backoff.Permanent(fmt.Errorf("could not send POST request: %w", ErrNetwork))
 
 	}
 
@@ -82,10 +88,9 @@ func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer
 	var errorResponse GomanipError
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Err(err).Msg("failed to read gomanip error response body")
+		slog.ErrorContext(ctx, "failed to read gomanip error response body", "error", err)
 		return nil, backoff.Permanent(fmt.Errorf("%w, %v", ErrReading, err))
 	}
-
 
 	if resp.StatusCode >= 500 {
 		return nil, backoff.Permanent(ErrServer)
@@ -94,25 +99,25 @@ func (g *GoManip) try(apiURI, contentType string, imageBytesBuffer *bytes.Buffer
 	if resp.StatusCode == http.StatusBadRequest {
 		err = json.Unmarshal(body, &errorResponse)
 		if err != nil {
-			log.Err(err).Msg("failed to unmarshal gomanip error response")
+			slog.ErrorContext(ctx, "failed to unmarshal gomanip error response", "error", err)
 			return nil, backoff.Permanent(fmt.Errorf("%w, %v", ErrUnMarshal, err))
 		}
-		
-		return nil, backoff.Permanent( &UserError{
+
+		return nil, backoff.Permanent(&UserError{
 			Msg: errorResponse.Detail,
 			Err: fmt.Errorf("%w, %s, %s", ErrBadInput, errorResponse.Detail, errorResponse.Status),
-		} )
+		})
 	}
 
-	return nil, ErrRetry 
+	return nil, ErrRetry
 }
 
-func (g *GoManip) Do(image []byte, contentType, endpoint, queries string) ([]byte, error) {
+func (g *GoManip) Do(ctx context.Context, image []byte, contentType, endpoint, queries string) ([]byte, error) {
 	apiURI := fmt.Sprintf("%s/%s/%s", g.apiEndpoint, endpoint, queries)
 
 	var imageBytesBuffer *bytes.Buffer
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), g.readTimeout)
+	timeoutCtx, cancel := context.WithTimeout(ctx, g.readTimeout)
 
 	defer cancel()
 
@@ -120,23 +125,23 @@ func (g *GoManip) Do(image []byte, contentType, endpoint, queries string) ([]byt
 		timeoutCtx,
 		func() (*http.Response, error) {
 			imageBytesBuffer = bytes.NewBuffer(image)
-			return g.try(apiURI, contentType, imageBytesBuffer)
+			return g.try(timeoutCtx, apiURI, contentType, imageBytesBuffer)
 		},
 		backoff.WithBackOff(backoff.NewExponentialBackOff()),
 	)
 
 	if errors.Is(err, context.DeadlineExceeded) {
-		log.Err(err).Msg("timed out calling gomanip service")
+		slog.ErrorContext(ctx, "timed out calling gomanip service", "error", err)
 		return nil, ErrRetry
 	}
-	
+
 	if errors.Is(err, ErrBadInput) {
-		log.Err(err).Msg("user provided invalid parameters")
+		slog.ErrorContext(ctx, "user provided invalid parameters", "error", err)
 		return nil, err
 	}
 
 	if err != nil {
-		log.Err(err).Msg("error calling gomanip service")
+		slog.ErrorContext(ctx, "error calling gomanip service", "error", err)
 		return nil, err
 	}
 
@@ -144,7 +149,7 @@ func (g *GoManip) Do(image []byte, contentType, endpoint, queries string) ([]byt
 
 	resultBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Err(err).Msg("failed reading image from response body")
+		slog.ErrorContext(ctx, "failed reading image from response body", "error", err)
 		return nil, fmt.Errorf("%w, could not read image", ErrReading)
 	}
 

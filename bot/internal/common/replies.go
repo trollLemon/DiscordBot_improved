@@ -4,18 +4,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/rs/zerolog/log"
 
+	"github.com/trollLemon/DiscordBot/internal/classification"
 	"github.com/trollLemon/DiscordBot/internal/gomanip"
 	"github.com/trollLemon/DiscordBot/internal/randomwords"
-	"github.com/trollLemon/DiscordBot/internal/classification"
 )
 
-
 var defaultErrString = "Something went wrong, try the command again."
-
 
 func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 
@@ -27,12 +25,12 @@ func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-        Embeds: []*discordgo.MessageEmbed{errEmbed},
-    },
+			Embeds: []*discordgo.MessageEmbed{errEmbed},
+		},
 	}
 
 	if err := s.InteractionRespond(i.Interaction, response); err != nil {
-		log.Error().Err(err).Msg("Interaction Response")
+		slog.Error("Interaction Response", "error", err)
 	}
 
 }
@@ -40,7 +38,7 @@ func Reply(s *discordgo.Session, i *discordgo.InteractionCreate, text string) {
 func ReplyError(s *discordgo.Session, i *discordgo.InteractionCreate, err error) {
 
 	errEmbed := &discordgo.MessageEmbed{
-		Title: "Command Failed",
+		Title:       "Command Failed",
 		Description: err.Error(),
 		Color:       0xFF0000,
 	}
@@ -48,16 +46,14 @@ func ReplyError(s *discordgo.Session, i *discordgo.InteractionCreate, err error)
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-        Embeds: []*discordgo.MessageEmbed{errEmbed},
-    },
+			Embeds: []*discordgo.MessageEmbed{errEmbed},
+		},
 	}
 
 	if err := s.InteractionRespond(i.Interaction, response); err != nil {
-		log.Error().Err(err).Msg("Interaction Response")
+		slog.Error("Interaction Response", "error", err)
 	}
 }
-
-
 
 func ReplyImageClassification(image []byte, classification string, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	classificationMsg := "This is: " + classification
@@ -77,7 +73,7 @@ func ReplyImageClassification(image []byte, classification string, s *discordgo.
 	}
 
 	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
-		log.Printf("error responding to interaction: %v", err)
+		slog.Error("error responding to interaction", "error", err)
 	}
 }
 
@@ -92,7 +88,7 @@ func ReplyGomanip(image []byte, s *discordgo.Session, i *discordgo.InteractionCr
 	}
 
 	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
-		log.Printf("error responding to interaction: %v", err)
+		slog.Error("error responding to interaction", "error", err)
 	}
 }
 
@@ -125,7 +121,7 @@ func GomanipError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle
 	}
 
 	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
-		log.Error().Err(err).Msg("Interaction Response")
+		slog.Error("Interaction Response", "error", err)
 	}
 
 }
@@ -136,18 +132,18 @@ func DeferReply(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	})
 
 	if err != nil {
-		log.Error().Err(err).Msg("Interaction defer Response")
+		slog.Error("Interaction defer Response", "error", err)
 
 	}
 }
 
 func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle string, err error) {
 	errString := defaultErrString
-	
+
 	if errors.Is(err, classification.ErrBadFileType) {
 		errString = "This command only works with PNG or JPEG images"
 	}
-	
+
 	if errors.Is(err, classification.ErrRetry) {
 		errString = "The command timed out, try using the command again."
 	}
@@ -163,19 +159,19 @@ func ClassificationError(s *discordgo.Session, i *discordgo.InteractionCreate, e
 	}
 
 	if _, err := s.InteractionResponseEdit(i.Interaction, responseEdit); err != nil {
-		log.Error().Err(err).Msg("Interaction Response")
+		slog.Error("Interaction Response", "error", err)
 	}
 
 }
 
 func RandomWordsError(s *discordgo.Session, i *discordgo.InteractionCreate, errTitle, input string, err error) {
-	errString := defaultErrString 
+	errString := defaultErrString
 
 	if errors.Is(err, randomwords.ErrDuplicate) {
 		errString = fmt.Sprintf("`%s` is already in the word list.", input)
 	}
 	if errors.Is(err, randomwords.ErrNotFound) {
-		errString = fmt.Sprintf("`%s` is not in the word list.", input )
+		errString = fmt.Sprintf("`%s` is not in the word list.", input)
 	}
 
 	if errors.Is(err, randomwords.ErrEmpty) {
@@ -191,12 +187,12 @@ func RandomWordsError(s *discordgo.Session, i *discordgo.InteractionCreate, errT
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-        Embeds: []*discordgo.MessageEmbed{errEmbed},
-    },
+			Embeds: []*discordgo.MessageEmbed{errEmbed},
+		},
 	}
 
-	if  err := s.InteractionRespond(i.Interaction, response); err != nil {
-		log.Error().Err(err).Msg("Interaction Response")
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		slog.Error("Interaction Response", "error", err)
 	}
 
 }
